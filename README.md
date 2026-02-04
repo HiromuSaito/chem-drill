@@ -63,6 +63,23 @@ pnpm --filter api dev   # バックエンドのみ
 pnpm build
 ```
 
+### テスト
+
+```bash
+pnpm test                    # 全パッケージのテスト実行
+pnpm --filter api test       # API のみ
+pnpm --filter api test:watch # ウォッチモード
+```
+
+### リント・フォーマット
+
+```bash
+pnpm lint           # ESLint
+pnpm format         # Prettier（修正）
+pnpm format:check   # Prettier（チェックのみ）
+pnpm type-check     # TypeScript 型チェック
+```
+
 ## 環境変数
 
 ```bash
