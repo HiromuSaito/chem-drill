@@ -28,18 +28,39 @@ chem-drill/
 └── infra/            # Terraform
 ```
 
-## セットアップ
+## 環境構築
+
+### 前提条件
+
+- Node.js 20 LTS
+- pnpm 9.x（`corepack enable` で有効化可能）
+
+### セットアップ手順
 
 ```bash
-# 依存インストール
+# 1. pnpm を有効化（未インストールの場合）
+corepack enable
+
+# 2. 依存インストール
 pnpm install
 
-# 開発サーバー起動
+# 3. 開発サーバー起動（web + api 同時起動）
 pnpm dev
+```
 
-# 個別起動
-pnpm --filter web dev
-pnpm --filter api dev
+web は `http://localhost:5173`、API は `http://localhost:3001` で起動します。
+
+### 個別起動
+
+```bash
+pnpm --filter web dev   # フロントエンドのみ
+pnpm --filter api dev   # バックエンドのみ
+```
+
+### ビルド
+
+```bash
+pnpm build
 ```
 
 ## 環境変数
