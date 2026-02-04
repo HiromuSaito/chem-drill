@@ -4,16 +4,16 @@
 
 ## 技術スタック
 
-| レイヤー | 技術 |
-|---------|------|
-| フロント | Vite + React + shadcn/ui + TanStack Query |
-| バックエンド | Hono + tRPC on AWS Lambda |
-| ORM | Drizzle |
-| DB | Neon（PostgreSQL） |
-| 認証 | Clerk |
-| インフラ | S3 + CloudFront / API Gateway + Lambda |
-| IaC | Terraform |
-| バッチ | Gemini API（gemini-2.0-flash） |
+| レイヤー     | 技術                                      |
+| ------------ | ----------------------------------------- |
+| フロント     | Vite + React + shadcn/ui + TanStack Query |
+| バックエンド | Hono + tRPC on AWS Lambda                 |
+| ORM          | Drizzle                                   |
+| DB           | Neon（PostgreSQL）                        |
+| 認証         | Clerk                                     |
+| インフラ     | S3 + CloudFront / API Gateway + Lambda    |
+| IaC          | Terraform                                 |
+| バッチ       | Gemini API（gemini-2.0-flash）            |
 
 ## プロジェクト構成
 
@@ -86,11 +86,13 @@ pnpm --filter batch generate --url "https://..." --category "化学物質管理"
 ## 機能
 
 ### MVP
+
 - カテゴリ別クイズ
 - 正誤フィードバック + 解説表示
 - スコア・正答率の記録
 
 ### 発展
+
 - 管理画面（問題の追加・編集）
 - メンバーごとの進捗ダッシュボード
 - 苦手分野の可視化
