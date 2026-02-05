@@ -8,11 +8,11 @@ describe("Difficulty", () => {
   });
 
   it("不正な値はエラー", () => {
-    expect(() => Difficulty.create("extreme")).toThrow("Invalid Difficulty");
+    expect(() => Difficulty.create("extreme")).toThrow("難易度が不正です");
   });
 
   it("空文字はエラー", () => {
-    expect(() => Difficulty.create("")).toThrow("Invalid Difficulty");
+    expect(() => Difficulty.create("")).toThrow("難易度が不正です");
   });
 
   it("同じ値なら equals が true", () => {

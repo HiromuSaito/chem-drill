@@ -7,7 +7,7 @@ export class Difficulty {
   static create(value: string): Difficulty {
     if (!VALID_LEVELS.includes(value as DifficultyLevel)) {
       throw new Error(
-        `Invalid Difficulty: "${value}". Must be one of: ${VALID_LEVELS.join(", ")}`,
+        `難易度が不正です: "${value}"（${VALID_LEVELS.join(", ")} のいずれかを指定してください）`,
       );
     }
     return new Difficulty(value as DifficultyLevel);

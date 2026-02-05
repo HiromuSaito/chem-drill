@@ -8,7 +8,7 @@ describe("QuestionText", () => {
   });
 
   it("空文字はエラー", () => {
-    expect(() => QuestionText.create("")).toThrow("must not be empty");
+    expect(() => QuestionText.create("")).toThrow("問題文は空にできません");
   });
 
   it("500文字ちょうどは OK", () => {
@@ -19,7 +19,7 @@ describe("QuestionText", () => {
 
   it("501文字はエラー", () => {
     const str = "あ".repeat(501);
-    expect(() => QuestionText.create(str)).toThrow("at most 500 characters");
+    expect(() => QuestionText.create(str)).toThrow("500文字以内");
   });
 
   it("同じ値なら equals が true", () => {

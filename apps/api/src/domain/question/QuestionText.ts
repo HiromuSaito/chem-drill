@@ -5,11 +5,11 @@ export class QuestionText {
 
   static create(value: string): QuestionText {
     if (value.length === 0) {
-      throw new Error("QuestionText must not be empty");
+      throw new Error("問題文は空にできません");
     }
     if (value.length > MAX_LENGTH) {
       throw new Error(
-        `QuestionText must be at most ${MAX_LENGTH} characters (got ${value.length})`,
+        `問題文は${MAX_LENGTH}文字以内にしてください（${value.length}文字）`,
       );
     }
     return new QuestionText(value);

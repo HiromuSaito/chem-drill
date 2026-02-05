@@ -16,11 +16,13 @@ describe("QuestionId", () => {
   });
 
   it("不正な文字列はエラー", () => {
-    expect(() => QuestionId.create("not-a-uuid")).toThrow("Invalid QuestionId");
+    expect(() => QuestionId.create("not-a-uuid")).toThrow(
+      "QuestionId が不正です",
+    );
   });
 
   it("空文字はエラー", () => {
-    expect(() => QuestionId.create("")).toThrow("Invalid QuestionId");
+    expect(() => QuestionId.create("")).toThrow("QuestionId が不正です");
   });
 
   it("同じ値なら equals が true", () => {

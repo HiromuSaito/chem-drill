@@ -6,7 +6,9 @@ export class QuestionId {
 
   static create(value: string): QuestionId {
     if (!UUID_REGEX.test(value)) {
-      throw new Error(`Invalid QuestionId: "${value}" is not a valid UUID`);
+      throw new Error(
+        `QuestionId が不正です: "${value}" は有効な UUID ではありません`,
+      );
     }
     return new QuestionId(value);
   }
