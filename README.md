@@ -63,6 +63,32 @@ pnpm --filter api dev   # バックエンドのみ
 pnpm build
 ```
 
+### DBマイグレーション
+
+ORM には Drizzle Kit を使用。開発用と本番用で手順が異なる。
+
+**開発時（直接反映）**
+
+```bash
+pnpm --filter api db:push       # schema.ts の変更を直接DBに反映
+```
+
+**本番向け（マイグレーション管理）**
+
+```bash
+pnpm --filter api db:generate   # schema.ts の差分から ./drizzle/ にSQLファイルを生成
+pnpm --filter api db:migrate    # 未適用のSQLファイルをDBに順次適用
+```
+
+`db:generate` で生成された SQL は git にコミットし、デプロイ時に `db:migrate` で適用する。
+`db:migrate` は適用済みのマイグレーションを追跡するため、同じファイルが二重に実行されることはない。
+
+**その他**
+
+```bash
+pnpm --filter api db:studio     # Drizzle Studio（DBのGUI）を起動
+```
+
 ### テスト
 
 ```bash

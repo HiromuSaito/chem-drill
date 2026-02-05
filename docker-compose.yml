@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: chem-drill-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: chem_drill
+      POSTGRES_PASSWORD: chem_drill_password
+      POSTGRES_DB: chem_drill
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
