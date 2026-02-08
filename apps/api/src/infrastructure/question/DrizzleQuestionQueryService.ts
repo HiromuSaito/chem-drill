@@ -1,13 +1,13 @@
 import { eq, sql } from "drizzle-orm";
+import type { Database } from "../db/client.js";
 import { questions, categories } from "../db/schema.js";
-import {
+import type {
   QuestionQueryService,
   QuestionWithCategory,
 } from "../../domain/question/QuestionQueryService.js";
-import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 export class DrizzleQuestionQueryService implements QuestionQueryService {
-  constructor(private readonly db: NodePgDatabase) {}
+  constructor(private readonly db: Database) {}
 
   async findRandom(limit: number): Promise<QuestionWithCategory[]> {
     const rows = await this.db
@@ -33,8 +33,10 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
       choices: row.choices as string[],
       correctIndexes: row.correctIndexes,
       explanation: row.explanation,
-      categoryId: row.categoryId,
-      categoryName: row.categoryName,
+      category: {
+        categoryId: row.categoryId,
+        categoryName: row.categoryName,
+      },
     }));
   }
 }

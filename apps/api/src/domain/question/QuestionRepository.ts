@@ -1,5 +1,7 @@
 import type { Question } from "./Question.js";
+import type { QuestionId } from "./QuestionId.js";
 
 export interface QuestionRepository {
-  findRandom(limit: number): Promise<Question[]>;
+  save(question: Question): Promise<Question>;
+  delete(id: QuestionId): Promise<number>;
 }

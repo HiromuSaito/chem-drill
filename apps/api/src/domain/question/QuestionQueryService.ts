@@ -5,8 +5,10 @@ export type QuestionWithCategory = {
   choices: string[];
   correctIndexes: number[];
   explanation: string;
-  categoryId: string;
-  categoryName: string;
+  category: {
+    categoryId: string;
+    categoryName: string;
+  };
 };
 
 export interface QuestionQueryService {

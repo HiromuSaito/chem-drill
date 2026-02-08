@@ -4,6 +4,10 @@ const UUID_REGEX =
 export class QuestionId {
   private constructor(readonly value: string) {}
 
+  static generate(): QuestionId {
+    return new QuestionId(crypto.randomUUID());
+  }
+
   static create(value: string): QuestionId {
     if (!UUID_REGEX.test(value)) {
       throw new Error(

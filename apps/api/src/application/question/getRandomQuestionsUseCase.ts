@@ -1,10 +1,12 @@
-import type { Question } from "../../domain/question/Question.js";
-import type { QuestionRepository } from "../../domain/question/QuestionRepository.js";
+import type {
+  QuestionQueryService,
+  QuestionWithCategory,
+} from "../../domain/question/QuestionQueryService.js";
 
 const DEFAULT_QUESTION_COUNT = 10;
 
 export async function getRandomQuestionsUseCase(
-  questionRepository: QuestionRepository,
-): Promise<Question[]> {
-  return await questionRepository.findRandom(DEFAULT_QUESTION_COUNT);
+  questionQueryService: QuestionQueryService,
+): Promise<QuestionWithCategory[]> {
+  return await questionQueryService.findRandom(DEFAULT_QUESTION_COUNT);
 }
