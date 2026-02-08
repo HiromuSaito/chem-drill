@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Category } from "../Category.js";
+import { CategoryId } from "../../category/CategoryId.js";
 import { CorrectIndexes } from "../CorrectIndexes.js";
 import { Difficulty } from "../Difficulty.js";
 import { Explanation } from "../Explanation.js";
@@ -7,11 +7,15 @@ import { Question } from "../Question.js";
 import { QuestionId } from "../QuestionId.js";
 import { QuestionText } from "../QuestionText.js";
 
+function buildCategoryId() {
+  return CategoryId.create("550e8400-e29b-41d4-a716-446655440099");
+}
+
 function buildQuestion(overrides?: {
   choices?: string[];
   correctIndexes?: CorrectIndexes;
   explanation?: Explanation;
-  category?: Category;
+  categoryId?: CategoryId;
 }) {
   return Question.create({
     id: QuestionId.create("550e8400-e29b-41d4-a716-446655440000"),
@@ -27,7 +31,7 @@ function buildQuestion(overrides?: {
     explanation:
       overrides?.explanation ??
       Explanation.create("GHS分類はSDSの必須記載項目です。"),
-    category: overrides?.category ?? Category.create("化学物質管理"),
+    categoryId: overrides?.categoryId ?? buildCategoryId(),
   });
 }
 
@@ -38,7 +42,7 @@ describe("Question", () => {
     expect(q.choices).toHaveLength(4);
     expect(q.correctIndexes.values).toEqual([0]);
     expect(q.explanation.value).toBe("GHS分類はSDSの必須記載項目です。");
-    expect(q.category.value).toBe("化学物質管理");
+    expect(q.categoryId.value).toBe("550e8400-e29b-41d4-a716-446655440099");
   });
 
   it("選択肢が4つ未満はエラー", () => {

@@ -1,4 +1,4 @@
-import { Category } from "./Category.js";
+import { CategoryId } from "../category/CategoryId.js";
 import { CorrectIndexes } from "./CorrectIndexes.js";
 import { Difficulty } from "./Difficulty.js";
 import { Explanation } from "./Explanation.js";
@@ -16,7 +16,7 @@ export class Question {
     readonly choices: readonly string[],
     readonly correctIndexes: CorrectIndexes,
     readonly explanation: Explanation,
-    readonly category: Category,
+    readonly categoryId: CategoryId,
   ) {}
 
   static create(params: {
@@ -26,7 +26,7 @@ export class Question {
     choices: string[];
     correctIndexes: CorrectIndexes;
     explanation: Explanation;
-    category: Category;
+    categoryId: CategoryId;
   }): Question {
     if (params.choices.length < MIN_CHOICES) {
       throw new Error(
@@ -52,7 +52,7 @@ export class Question {
       Object.freeze([...params.choices]),
       params.correctIndexes,
       params.explanation,
-      params.category,
+      params.categoryId,
     );
   }
 

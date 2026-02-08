@@ -28,6 +28,47 @@ chem-drill/
 └── infra/            # Terraform
 ```
 
+### API アーキテクチャ（クリーンアーキテクチャ + CQRS）
+
+```
+apps/api/src/
+├── composition-root.ts     # 依存関係の組み立て（Composition Root）
+├── app.ts                  # Hono エントリーポイント
+├── domain/                 # ドメイン層（エンティティ・値オブジェクト・インターフェース）
+│   ├── category/           #   CategoryId, CategoryName, Category
+│   └── question/           #   Question, QuestionRepository, QuestionQueryService
+├── application/            # アプリケーション層（ユースケース）
+│   └── question/           #   getRandomQuestionsUseCase
+├── infrastructure/         # インフラ層（実装）
+│   ├── db/                 #   client.ts, schema.ts
+│   └── question/           #   DrizzleQuestionRepository, DrizzleQuestionQueryService
+├── presentation/           # プレゼンテーション層（tRPC ルーター）
+│   └── trpc/
+│       └── question/       #   question.router.ts, type.ts
+└── lib/                    # ユーティリティ
+```
+
+**CQRS パターン**
+
+| 責務                | インターフェース       | 実装                          |
+| ------------------- | ---------------------- | ----------------------------- |
+| Command（書き込み） | `QuestionRepository`   | `DrizzleQuestionRepository`   |
+| Query（読み取り）   | `QuestionQueryService` | `DrizzleQuestionQueryService` |
+
+**依存関係の流れ**
+
+```
+composition-root.ts（依存関係の組み立て）
+       ↓
+app.ts → tRPC Context に注入
+       ↓
+presentation（ctx.deps 経由でユースケース呼び出し）
+       ↓
+application（ユースケース）
+       ↓
+domain ← infrastructure（リポジトリ実装）
+```
+
 ## 環境構築
 
 ### 前提条件

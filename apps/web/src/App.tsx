@@ -3,7 +3,8 @@ import { FlaskConical } from "lucide-react";
 import { SessionContainer } from "./features/question/SessionContainer";
 
 export function App() {
-  const { data, isLoading, error } = trpc.question.getSession.useQuery();
+  const { data, isLoading, error } =
+    trpc.question.getRandomQuestions.useQuery();
 
   if (isLoading) {
     return (
@@ -21,7 +22,7 @@ export function App() {
     );
   }
 
-  if (!data?.questions.length) {
+  if (!data?.length) {
     return (
       <div className="flex min-h-svh items-center justify-center">
         <p className="text-muted-foreground">問題がありません</p>
@@ -39,7 +40,7 @@ export function App() {
       </header>
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
-        <SessionContainer questions={data.questions} />
+        <SessionContainer questions={data} />
       </main>
     </div>
   );

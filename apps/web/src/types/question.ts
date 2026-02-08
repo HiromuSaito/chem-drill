@@ -1,5 +1,5 @@
 // API 側から型をインポート（tRPC で型共有）
-export type { QuestionDto } from "../../../api/src/application/question/getSessionUseCase";
+export type { QuestionResponse as QuestionDto } from "../../../api/src/presentation/trpc/question/type";
 
 export type SessionPhase = "answering" | "reviewing" | "completed";
 
