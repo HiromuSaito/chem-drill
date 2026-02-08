@@ -7,6 +7,7 @@ import {
   jsonb,
   timestamp,
   index,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const difficultyEnum = pgEnum("difficulty", ["easy", "medium", "hard"]);
@@ -61,5 +62,39 @@ export const questionProposalEvents = pgTable(
       table.questionProposalId,
     ),
     index("idx_question_proposal_events_occurred_at").on(table.occurredAt),
+  ],
+);
+
+export const questionProposalStatusEnum = pgEnum("question_proposal_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
+export const questionProposalProjections = pgTable(
+  "question_proposal_projections",
+  {
+    id: uuid("id").primaryKey(),
+    status: questionProposalStatusEnum("status").notNull(),
+    questionText: varchar("question_text", { length: 500 }).notNull(),
+    difficulty: difficultyEnum("difficulty").notNull(),
+    choices: jsonb("choices").notNull().$type<string[]>(),
+    correctIndexes: integer("correct_indexes").array().notNull(),
+    explanation: varchar("explanation", { length: 1000 }).notNull(),
+    categoryId: uuid("category_id")
+      .notNull()
+      .references(() => categories.id),
+    rejectReason: varchar("reject_reason", { length: 500 }),
+    questionCreated: boolean("question_created").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("idx_question_proposal_projections_status").on(table.status),
+    index("idx_question_proposal_projections_category_id").on(table.categoryId),
   ],
 );
