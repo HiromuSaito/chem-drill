@@ -32,7 +32,7 @@ export function QuestionCard({
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary">{question.category}</Badge>
+          <Badge variant="secondary">{question.category.categoryName}</Badge>
           <Badge variant="outline">{question.difficulty}</Badge>
           {isMultiple && (
             <Badge variant="outline" className="bg-blue-50 text-blue-700">
