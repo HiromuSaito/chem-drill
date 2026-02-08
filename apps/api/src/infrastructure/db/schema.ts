@@ -6,6 +6,7 @@ import {
   integer,
   jsonb,
   timestamp,
+  index,
 } from "drizzle-orm/pg-core";
 
 export const difficultyEnum = pgEnum("difficulty", ["easy", "medium", "hard"]);
@@ -35,3 +36,30 @@ export const questions = pgTable("questions", {
     .notNull()
     .defaultNow(),
 });
+
+export const questionProposalEventTypeEnum = pgEnum(
+  "question_proposal_event_type",
+  [
+    "QuestionProposalCreated",
+    "QuestionProposalEdited",
+    "QuestionProposalApproved",
+    "QuestionProposalRejected",
+  ],
+);
+
+export const questionProposalEvents = pgTable(
+  "question_proposal_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    questionProposalId: uuid("question_proposal_id").notNull(),
+    type: questionProposalEventTypeEnum("type").notNull(),
+    payload: jsonb("payload").notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    index("idx_question_proposal_events_question_proposal_id").on(
+      table.questionProposalId,
+    ),
+    index("idx_question_proposal_events_occurred_at").on(table.occurredAt),
+  ],
+);
