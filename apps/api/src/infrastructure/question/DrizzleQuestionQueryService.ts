@@ -1,5 +1,5 @@
 import { eq, sql } from "drizzle-orm";
-import type { Database } from "../db/client.js";
+import type { Transaction } from "../db/client.js";
 import { questions, categories } from "../db/schema.js";
 import type {
   QuestionQueryService,
@@ -7,10 +7,11 @@ import type {
 } from "../../domain/question/QuestionQueryService.js";
 
 export class DrizzleQuestionQueryService implements QuestionQueryService {
-  constructor(private readonly db: Database) {}
-
-  async findRandom(limit: number): Promise<QuestionWithCategory[]> {
-    const rows = await this.db
+  async findRandom(
+    tx: Transaction,
+    limit: number,
+  ): Promise<QuestionWithCategory[]> {
+    const rows = await tx
       .select({
         id: questions.id,
         text: questions.text,
