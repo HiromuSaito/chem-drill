@@ -1,4 +1,4 @@
-import { CategoryId } from "./CategoryId.js";
+import type { CategoryId } from "./CategoryId.js";
 import { CategoryName } from "./CategoryName.js";
 
 export class Category {
@@ -12,6 +12,6 @@ export class Category {
   }
 
   equals(other: Category): boolean {
-    return this.id.equals(other.id);
+    return this.id === other.id;
   }
 }

@@ -44,12 +44,12 @@ export function toCreatedQuestionResponse(
   question: Question,
 ): CreatedQuestionResponse {
   return {
-    id: question.id.value,
+    id: question.id,
     text: question.text.value,
     difficulty: question.difficulty.value,
     choices: question.choices,
     correctIndexes: question.correctIndexes.values,
     explanation: question.explanation.value,
-    categoryId: question.categoryId.value,
+    categoryId: question.categoryId,
   };
 }

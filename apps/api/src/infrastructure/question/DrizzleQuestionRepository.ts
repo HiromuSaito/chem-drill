@@ -1,8 +1,10 @@
 import { eq } from "drizzle-orm";
 import type { Database } from "../db/client.js";
 import { questions } from "../db/schema.js";
+import { Id } from "../../domain/Id.js";
+import type { Category } from "../../domain/category/Category.js";
 import { Question } from "../../domain/question/Question.js";
-import { QuestionId } from "../../domain/question/QuestionId.js";
+import type { QuestionId } from "../../domain/question/QuestionId.js";
 import { QuestionText } from "../../domain/question/QuestionText.js";
 import {
   Difficulty,
@@ -10,7 +12,6 @@ import {
 } from "../../domain/question/Difficulty.js";
 import { CorrectIndexes } from "../../domain/question/CorrectIndexes.js";
 import { Explanation } from "../../domain/question/Explanation.js";
-import { CategoryId } from "../../domain/category/CategoryId.js";
 import type { QuestionRepository } from "../../domain/question/QuestionRepository.js";
 
 export class DrizzleQuestionRepository implements QuestionRepository {
@@ -20,13 +21,13 @@ export class DrizzleQuestionRepository implements QuestionRepository {
     const [row] = await this.db
       .insert(questions)
       .values({
-        id: question.id.value,
+        id: question.id,
         text: question.text.value,
         difficulty: question.difficulty.value as DifficultyLevel,
         choices: [...question.choices],
         correctIndexes: [...question.correctIndexes.values],
         explanation: question.explanation.value,
-        categoryId: question.categoryId.value,
+        categoryId: question.categoryId,
       })
       .onConflictDoUpdate({
         target: questions.id,
@@ -36,27 +37,27 @@ export class DrizzleQuestionRepository implements QuestionRepository {
           choices: [...question.choices],
           correctIndexes: [...question.correctIndexes.values],
           explanation: question.explanation.value,
-          categoryId: question.categoryId.value,
+          categoryId: question.categoryId,
           updatedAt: new Date(),
         },
       })
       .returning();
 
     return Question.create({
-      id: QuestionId.create(row.id),
+      id: Id.of<Question>(row.id),
       text: QuestionText.create(row.text),
       difficulty: Difficulty.create(row.difficulty),
       choices: row.choices as string[],
       correctIndexes: CorrectIndexes.create(row.correctIndexes),
       explanation: Explanation.create(row.explanation),
-      categoryId: CategoryId.create(row.categoryId),
+      categoryId: Id.of<Category>(row.categoryId),
     });
   }
 
   async delete(id: QuestionId): Promise<number> {
     const deleted = await this.db
       .delete(questions)
-      .where(eq(questions.id, id.value))
+      .where(eq(questions.id, id))
       .returning({ id: questions.id });
     return deleted.length;
   }

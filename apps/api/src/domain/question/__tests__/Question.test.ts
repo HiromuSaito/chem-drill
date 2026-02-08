@@ -1,24 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { CategoryId } from "../../category/CategoryId.js";
+import { Id } from "../../Id.js";
+import type { Category } from "../../category/Category.js";
 import { CorrectIndexes } from "../CorrectIndexes.js";
 import { Difficulty } from "../Difficulty.js";
 import { Explanation } from "../Explanation.js";
 import { Question } from "../Question.js";
-import { QuestionId } from "../QuestionId.js";
 import { QuestionText } from "../QuestionText.js";
 
 function buildCategoryId() {
-  return CategoryId.create("550e8400-e29b-41d4-a716-446655440099");
+  return Id.of<Category>("550e8400-e29b-41d4-a716-446655440099");
 }
 
 function buildQuestion(overrides?: {
   choices?: string[];
   correctIndexes?: CorrectIndexes;
   explanation?: Explanation;
-  categoryId?: CategoryId;
+  categoryId?: Id<Category>;
 }) {
   return Question.create({
-    id: QuestionId.create("550e8400-e29b-41d4-a716-446655440000"),
+    id: Id.of<Question>("550e8400-e29b-41d4-a716-446655440000"),
     text: QuestionText.create("SDSの記載項目として正しいものはどれか"),
     difficulty: Difficulty.create("medium"),
     choices: overrides?.choices ?? [
@@ -38,11 +38,11 @@ function buildQuestion(overrides?: {
 describe("Question", () => {
   it("正しいパラメータで生成できる", () => {
     const q = buildQuestion();
-    expect(q.id.value).toBe("550e8400-e29b-41d4-a716-446655440000");
+    expect(q.id).toBe("550e8400-e29b-41d4-a716-446655440000");
     expect(q.choices).toHaveLength(4);
     expect(q.correctIndexes.values).toEqual([0]);
     expect(q.explanation.value).toBe("GHS分類はSDSの必須記載項目です。");
-    expect(q.categoryId.value).toBe("550e8400-e29b-41d4-a716-446655440099");
+    expect(q.categoryId).toBe("550e8400-e29b-41d4-a716-446655440099");
   });
 
   it("選択肢が4つ未満はエラー", () => {

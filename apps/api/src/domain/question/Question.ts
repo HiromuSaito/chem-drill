@@ -1,8 +1,8 @@
-import { CategoryId } from "../category/CategoryId.js";
+import type { CategoryId } from "../category/CategoryId.js";
 import { CorrectIndexes } from "./CorrectIndexes.js";
 import { Difficulty } from "./Difficulty.js";
 import { Explanation } from "./Explanation.js";
-import { QuestionId } from "./QuestionId.js";
+import type { QuestionId } from "./QuestionId.js";
 import { QuestionText } from "./QuestionText.js";
 
 const MIN_CHOICES = 4;
