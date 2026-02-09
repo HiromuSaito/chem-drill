@@ -55,23 +55,28 @@ describe("QuestionProposal", () => {
 
       expect(event.type).toBe("QuestionProposalApproved");
       expect(event.occurredAt).toBeInstanceOf(Date);
-      expect(approved).toBe(proposal);
+      expect(approved).not.toBe(proposal);
+      expect(approved.status).toEqual(
+        expect.objectContaining({ value: "approved" }),
+      );
     });
 
     it("approved 状態で approve するとエラー", () => {
       const { proposal } = QuestionProposal.create(buildCreateParams());
-      proposal.approve();
+      const { proposal: approved } = proposal.approve();
 
-      expect(() => proposal.approve()).toThrow(
+      expect(() => approved.approve()).toThrow(
         "問題提案を承認できるステータスではありません",
       );
     });
 
     it("rejected 状態で approve するとエラー", () => {
       const { proposal } = QuestionProposal.create(buildCreateParams());
-      proposal.reject(RejectReason.create("内容が不正確"));
+      const { proposal: rejected } = proposal.reject(
+        RejectReason.create("内容が不正確"),
+      );
 
-      expect(() => proposal.approve()).toThrow(
+      expect(() => rejected.approve()).toThrow(
         "問題提案を承認できるステータスではありません",
       );
     });
@@ -88,23 +93,28 @@ describe("QuestionProposal", () => {
       expect(event.type).toBe("QuestionProposalRejected");
       expect(event.payload.rejectReason.value).toBe("内容が不正確");
       expect(event.occurredAt).toBeInstanceOf(Date);
-      expect(rejected).toBe(proposal);
+      expect(rejected).not.toBe(proposal);
+      expect(rejected.status).toEqual(
+        expect.objectContaining({ value: "rejected" }),
+      );
     });
 
     it("approved 状態で reject するとエラー", () => {
       const { proposal } = QuestionProposal.create(buildCreateParams());
-      proposal.approve();
+      const { proposal: approved } = proposal.approve();
 
-      expect(() => proposal.reject(RejectReason.create("理由"))).toThrow(
+      expect(() => approved.reject(RejectReason.create("理由"))).toThrow(
         "問題提案を却下できるステータスではありません",
       );
     });
 
     it("rejected 状態で reject するとエラー", () => {
       const { proposal } = QuestionProposal.create(buildCreateParams());
-      proposal.reject(RejectReason.create("内容が不正確"));
+      const { proposal: rejected } = proposal.reject(
+        RejectReason.create("内容が不正確"),
+      );
 
-      expect(() => proposal.reject(RejectReason.create("別の理由"))).toThrow(
+      expect(() => rejected.reject(RejectReason.create("別の理由"))).toThrow(
         "問題提案を却下できるステータスではありません",
       );
     });
@@ -120,25 +130,28 @@ describe("QuestionProposal", () => {
       expect(event.payload.questionText.value).toBe("編集後の問題文");
       expect(event.payload.difficulty.value).toBe("hard");
       expect(event.occurredAt).toBeInstanceOf(Date);
-      expect(edited).toBe(proposal);
+      expect(edited).not.toBe(proposal);
+      expect(edited.text.value).toBe("編集後の問題文");
     });
 
     it("rejected 状態で編集でき、pending に戻る", () => {
       const { proposal } = QuestionProposal.create(buildCreateParams());
-      proposal.reject(RejectReason.create("内容が不正確"));
+      const { proposal: rejected } = proposal.reject(
+        RejectReason.create("内容が不正確"),
+      );
 
-      const { event } = proposal.edit(buildEditParams());
+      const { proposal: edited, event } = rejected.edit(buildEditParams());
 
       expect(event.type).toBe("QuestionProposalEdited");
       // 編集後は pending に戻るので approve できる
-      expect(() => proposal.approve()).not.toThrow();
+      expect(() => edited.approve()).not.toThrow();
     });
 
     it("approved 状態で編集するとエラー", () => {
       const { proposal } = QuestionProposal.create(buildCreateParams());
-      proposal.approve();
+      const { proposal: approved } = proposal.approve();
 
-      expect(() => proposal.edit(buildEditParams())).toThrow(
+      expect(() => approved.edit(buildEditParams())).toThrow(
         "問題提案を編集できるステータスではありません",
       );
     });
