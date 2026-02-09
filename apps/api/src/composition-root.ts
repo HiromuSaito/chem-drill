@@ -1,14 +1,14 @@
 import { db } from "./infrastructure/db/client.js";
-import { DrizzleUnitOfWork } from "./infrastructure/db/DrizzleUnitOfWork.js";
-import { DrizzleQuestionQueryService } from "./infrastructure/question/DrizzleQuestionQueryService.js";
-import { DrizzleQuestionRepository } from "./infrastructure/question/DrizzleQuestionRepository.js";
-import { GetRandomQuestionsUseCase } from "./application/question/GetRandomQuestionsUseCase.js";
-import { CreateQuestionUseCase } from "./application/question/CreateQuestionUseCase.js";
-import { CreateQuestionProposalUseCase } from "./application/questionProposal/CreateQuestionProposalUseCase.js";
-import { UpdateQuestionProposalUseCase } from "./application/questionProposal/UpdateQuestionProposalUseCase.js";
-import { ApproveQuestionProposalUseCase } from "./application/questionProposal/ApproveQuestionProposalUseCase.js";
-import { RejectQuestionProposalUseCase } from "./application/questionProposal/RejectQuestionProposalUseCase.js";
-import { DrizzleQuestionProposalRepository } from "./infrastructure/questionProposal/DrizzleQuestionProposalRepository.js";
+import { DrizzleUnitOfWork } from "./infrastructure/db/drizzle-unit-of-work.js";
+import { DrizzleQuestionQueryService } from "./infrastructure/question/drizzle-question-query-service.js";
+import { DrizzleQuestionRepository } from "./infrastructure/question/drizzle-question-repository.js";
+import { GetRandomQuestionsUseCase } from "./application/question/get-random-questions-use-case.js";
+import { CreateQuestionUseCase } from "./application/question/create-question-use-case.js";
+import { CreateQuestionProposalUseCase } from "./application/question-proposal/create-question-proposal-use-case.js";
+import { UpdateQuestionProposalUseCase } from "./application/question-proposal/update-question-proposal-use-case.js";
+import { ApproveQuestionProposalUseCase } from "./application/question-proposal/approve-question-proposal-use-case.js";
+import { RejectQuestionProposalUseCase } from "./application/question-proposal/reject-question-proposal-use-case.js";
+import { DrizzleQuestionProposalRepository } from "./infrastructure/question-proposal/drizzle-question-proposal-repository.js";
 
 // UnitOfWork
 const unitOfWork = new DrizzleUnitOfWork(db);
