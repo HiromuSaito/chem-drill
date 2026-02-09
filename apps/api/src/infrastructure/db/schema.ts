@@ -74,9 +74,9 @@ export const questionProposalStatusEnum = pgEnum("question_proposal_status", [
 export const questionProposalProjections = pgTable(
   "question_proposal_projections",
   {
-    id: uuid("id").primaryKey(),
+    questionProposalId: uuid("question_proposal_id").primaryKey(),
     status: questionProposalStatusEnum("status").notNull(),
-    questionText: varchar("question_text", { length: 500 }).notNull(),
+    text: varchar("text", { length: 500 }).notNull(),
     difficulty: difficultyEnum("difficulty").notNull(),
     choices: jsonb("choices").notNull().$type<string[]>(),
     correctIndexes: integer("correct_indexes").array().notNull(),
