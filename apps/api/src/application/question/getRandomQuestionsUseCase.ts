@@ -6,11 +6,18 @@ import type { UnitOfWork } from "../UnitOfWork.js";
 
 const DEFAULT_QUESTION_COUNT = 10;
 
-export async function getRandomQuestionsUseCase(
-  uow: UnitOfWork,
-  questionQueryService: QuestionQueryService,
-): Promise<QuestionWithCategory[]> {
-  return uow.run(async (tx) => {
-    return await questionQueryService.findRandom(tx, DEFAULT_QUESTION_COUNT);
-  });
+export class GetRandomQuestionsUseCase {
+  constructor(
+    private uow: UnitOfWork,
+    private questionQueryService: QuestionQueryService,
+  ) {}
+
+  async execute(): Promise<QuestionWithCategory[]> {
+    return this.uow.run(async (tx) => {
+      return await this.questionQueryService.findRandom(
+        tx,
+        DEFAULT_QUESTION_COUNT,
+      );
+    });
+  }
 }

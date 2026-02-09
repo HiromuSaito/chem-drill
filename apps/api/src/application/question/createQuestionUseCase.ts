@@ -17,22 +17,25 @@ export type CreateQuestionInput = {
   categoryId: string;
 };
 
-export async function createQuestionUseCase(
-  uow: UnitOfWork,
-  questionRepository: QuestionRepository,
-  input: CreateQuestionInput,
-): Promise<Question> {
-  return uow.run(async (tx) => {
-    const question = Question.create({
-      id: Id.random<Question>(),
-      text: QuestionText.create(input.text),
-      difficulty: Difficulty.create(input.difficulty),
-      choices: input.choices,
-      correctIndexes: CorrectIndexes.create(input.correctIndexes),
-      explanation: Explanation.create(input.explanation),
-      categoryId: Id.of<Category>(input.categoryId),
-    });
+export class CreateQuestionUseCase {
+  constructor(
+    private uow: UnitOfWork,
+    private questionRepository: QuestionRepository,
+  ) {}
 
-    return await questionRepository.save(tx, question);
-  });
+  async execute(input: CreateQuestionInput): Promise<Question> {
+    return this.uow.run(async (tx) => {
+      const question = Question.create({
+        id: Id.random<Question>(),
+        text: QuestionText.create(input.text),
+        difficulty: Difficulty.create(input.difficulty),
+        choices: input.choices,
+        correctIndexes: CorrectIndexes.create(input.correctIndexes),
+        explanation: Explanation.create(input.explanation),
+        categoryId: Id.of<Category>(input.categoryId),
+      });
+
+      return await this.questionRepository.save(tx, question);
+    });
+  }
 }

@@ -16,14 +16,14 @@ const createQuestionSchema = z.object({
 
 export const questionRouter = router({
   getRandomQuestions: publicProcedure.query(async ({ ctx }) => {
-    const questions = await ctx.deps.getRandomQuestions();
+    const questions = await ctx.deps.getRandomQuestions.execute();
     return questions.map((q) => toQuestionWithCategoryResponse(q));
   }),
 
   create: publicProcedure
     .input(createQuestionSchema)
     .mutation(async ({ ctx, input }) => {
-      const question = await ctx.deps.createQuestion(input);
+      const question = await ctx.deps.createQuestion.execute(input);
       return toCreatedQuestionResponse(question);
     }),
 });
