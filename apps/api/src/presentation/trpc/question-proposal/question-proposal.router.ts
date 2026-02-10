@@ -30,6 +30,11 @@ const rejectQuestionProposalSchema = z.object({
   rejectReason: z.string(),
 });
 
+const generateFromUrlSchema = z.object({
+  url: z.string().url(),
+  categoryId: z.string().uuid(),
+});
+
 export const questionProposalRouter = router({
   create: publicProcedure
     .input(createQuestionProposalSchema)
@@ -57,5 +62,12 @@ export const questionProposalRouter = router({
     .mutation(async ({ ctx, input }) => {
       const proposal = await ctx.deps.rejectQuestionProposal.execute(input);
       return toQuestionProposalResponse(proposal);
+    }),
+
+  generateFromUrl: publicProcedure
+    .input(generateFromUrlSchema)
+    .mutation(async ({ ctx, input }) => {
+      const proposals = await ctx.deps.generateQuestionProposals.execute(input);
+      return proposals.map(toQuestionProposalResponse);
     }),
 });

@@ -15,6 +15,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@google/genai": "^1.40.0",
     "@hono/node-server": "^1.13.0",
     "@hono/trpc-server": "^0.3.0",
     "@trpc/server": "^11.0.0",
