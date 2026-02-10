@@ -1,21 +1,21 @@
 import { eq } from "drizzle-orm";
-import { Id } from "../../domain/id";
-import { DifficultyLevel } from "../../domain/question/difficulty";
-import { QuestionProposalEvent } from "../../domain/question-proposal/events";
-import { QuestionProposal } from "../../domain/question-proposal/question-proposal";
-import { QuestionProposalRepository } from "../../domain/question-proposal/question-proposal-repository";
-import { Transaction } from "../db/client";
+import { Id } from "../../domain/id.js";
+import type { DifficultyLevel } from "../../domain/question/difficulty.js";
+import { QuestionProposalEvent } from "../../domain/question-proposal/events.js";
+import { QuestionProposal } from "../../domain/question-proposal/question-proposal.js";
+import type { QuestionProposalRepository } from "../../domain/question-proposal/question-proposal-repository.js";
+import { getCurrentTransaction } from "../db/transaction-context.js";
 import {
   questionProposalEvents,
   questionProposalProjections,
-} from "../db/schema";
+} from "../db/schema.js";
 
 export class DrizzleQuestionProposalRepository implements QuestionProposalRepository {
   async save(
-    tx: Transaction,
     proposal: QuestionProposal,
     event: QuestionProposalEvent,
   ): Promise<void> {
+    const tx = getCurrentTransaction();
     await tx.insert(questionProposalEvents).values({
       questionProposalId: event.payload.questionProposalId,
       type: event.type,
@@ -56,9 +56,9 @@ export class DrizzleQuestionProposalRepository implements QuestionProposalReposi
   }
 
   async findById(
-    tx: Transaction,
     questionProposalId: Id<QuestionProposal>,
   ): Promise<QuestionProposal> {
+    const tx = getCurrentTransaction();
     const rows = await tx
       .select({
         id: questionProposalEvents.id,

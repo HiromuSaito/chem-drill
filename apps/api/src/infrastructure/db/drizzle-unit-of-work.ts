@@ -1,10 +1,11 @@
 import type { UnitOfWork } from "../../application/unit-of-work.js";
-import type { Database, Transaction } from "./client.js";
+import type { Database } from "./client.js";
+import { runInTransaction } from "./transaction-context.js";
 
 export class DrizzleUnitOfWork implements UnitOfWork {
   constructor(private readonly db: Database) {}
 
-  async run<T>(work: (tx: Transaction) => Promise<T>): Promise<T> {
-    return this.db.transaction(work);
+  async run<T>(work: () => Promise<T>): Promise<T> {
+    return runInTransaction(this.db, work);
   }
 }

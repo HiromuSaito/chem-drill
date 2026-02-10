@@ -15,13 +15,13 @@ export class CreateCategoryUseCase {
   ) {}
 
   async execute(input: CreateCategoryInput): Promise<Category> {
-    return this.uow.run(async (tx) => {
+    return this.uow.run(async () => {
       const category = Category.create({
         id: Id.random<Category>(),
         name: CategoryName.create(input.name),
       });
 
-      await this.categoryRepository.save(tx, category);
+      await this.categoryRepository.save(category);
       return category;
     });
   }

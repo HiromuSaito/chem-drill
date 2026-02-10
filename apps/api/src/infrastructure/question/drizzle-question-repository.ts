@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import type { Transaction } from "../db/client.js";
 import { questions } from "../db/schema.js";
+import { getCurrentTransaction } from "../db/transaction-context.js";
 import { Id } from "../../domain/id.js";
 import type { Category } from "../../domain/category/category.js";
 import { Question } from "../../domain/question/question.js";
@@ -15,7 +15,8 @@ import { Explanation } from "../../domain/question/explanation.js";
 import type { QuestionRepository } from "../../domain/question/question-repository.js";
 
 export class DrizzleQuestionRepository implements QuestionRepository {
-  async save(tx: Transaction, question: Question): Promise<Question> {
+  async save(question: Question): Promise<Question> {
+    const tx = getCurrentTransaction();
     const [row] = await tx
       .insert(questions)
       .values({
@@ -52,7 +53,8 @@ export class DrizzleQuestionRepository implements QuestionRepository {
     });
   }
 
-  async delete(tx: Transaction, id: QuestionId): Promise<number> {
+  async delete(id: QuestionId): Promise<number> {
+    const tx = getCurrentTransaction();
     const deleted = await tx
       .delete(questions)
       .where(eq(questions.id, id))

@@ -2,15 +2,15 @@ import { eq } from "drizzle-orm";
 import { Id } from "../../domain/id.js";
 import { QuestionProposalEvent } from "../../domain/question-proposal/events.js";
 import { QuestionProposal } from "../../domain/question-proposal/question-proposal.js";
-import { QuestionProposalQueryService } from "../../domain/question-proposal/question-proposal-query-service.js";
-import type { Transaction } from "../../infrastructure/db/client.ts";
+import type { QuestionProposalQueryService } from "../../domain/question-proposal/question-proposal-query-service.js";
+import { getCurrentTransaction } from "../db/transaction-context.js";
 import { questionProposalEvents } from "../db/schema.js";
 
 export class DrizzleQuestionProposalQueryService implements QuestionProposalQueryService {
   async findEventsByQuestionProposalId(
-    tx: Transaction,
     questionProposalId: Id<QuestionProposal>,
   ): Promise<QuestionProposalEvent[]> {
+    const tx = getCurrentTransaction();
     const rows = await tx
       .select({
         id: questionProposalEvents.id,

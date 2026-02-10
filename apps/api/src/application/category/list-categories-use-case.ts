@@ -11,8 +11,8 @@ export class ListCategoriesUseCase {
   ) {}
 
   async execute(): Promise<CategoryDto[]> {
-    return this.uow.run(async (tx) => {
-      return await this.categoryQueryService.findAll(tx);
+    return this.uow.run(async () => {
+      return await this.categoryQueryService.findAll();
     });
   }
 }

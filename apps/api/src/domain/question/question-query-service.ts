@@ -1,5 +1,3 @@
-import type { Transaction } from "../../infrastructure/db/client.js";
-
 export type QuestionWithCategory = {
   id: string;
   text: string;
@@ -14,5 +12,5 @@ export type QuestionWithCategory = {
 };
 
 export interface QuestionQueryService {
-  findRandom(tx: Transaction, limit: number): Promise<QuestionWithCategory[]>;
+  findRandom(limit: number): Promise<QuestionWithCategory[]>;
 }

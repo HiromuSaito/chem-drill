@@ -34,7 +34,7 @@ export class GenerateQuestionProposalsUseCase {
     const proposals: QuestionProposal[] = [];
 
     for (const q of questions) {
-      const proposal = await this.uow.run(async (tx) => {
+      const proposal = await this.uow.run(async () => {
         const { proposal, event } = QuestionProposal.create({
           questionText: QuestionText.create(q.questionText),
           difficulty: Difficulty.create(q.difficulty),
@@ -44,7 +44,7 @@ export class GenerateQuestionProposalsUseCase {
           categoryId,
         });
 
-        await this.questionProposalRepository.save(tx, proposal, event);
+        await this.questionProposalRepository.save(proposal, event);
         return proposal;
       });
 

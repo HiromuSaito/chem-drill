@@ -1,8 +1,8 @@
-import { Id } from "../../domain/id";
-import { QuestionProposal } from "../../domain/question-proposal/question-proposal";
-import { QuestionProposalRepository } from "../../domain/question-proposal/question-proposal-repository";
-import { RejectReason } from "../../domain/question-proposal/reject-reason";
-import { UnitOfWork } from "../unit-of-work";
+import { Id } from "../../domain/id.js";
+import { QuestionProposal } from "../../domain/question-proposal/question-proposal.js";
+import type { QuestionProposalRepository } from "../../domain/question-proposal/question-proposal-repository.js";
+import { RejectReason } from "../../domain/question-proposal/reject-reason.js";
+import type { UnitOfWork } from "../unit-of-work.js";
 
 export type RejectQuestionProposalInput = {
   questionProposalId: string;
@@ -16,9 +16,8 @@ export class RejectQuestionProposalUseCase {
   ) {}
 
   async execute(input: RejectQuestionProposalInput): Promise<QuestionProposal> {
-    return this.uow.run(async (tx) => {
+    return this.uow.run(async () => {
       const proposal = await this.questionProposalRepository.findById(
-        tx,
         Id.of(input.questionProposalId),
       );
 
@@ -26,7 +25,7 @@ export class RejectQuestionProposalUseCase {
         RejectReason.create(input.rejectReason),
       );
 
-      await this.questionProposalRepository.save(tx, newProposal, event);
+      await this.questionProposalRepository.save(newProposal, event);
 
       return newProposal;
     });

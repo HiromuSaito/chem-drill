@@ -1,16 +1,14 @@
 import { eq, sql } from "drizzle-orm";
-import type { Transaction } from "../db/client.js";
 import { questions, categories } from "../db/schema.js";
+import { getCurrentTransaction } from "../db/transaction-context.js";
 import type {
   QuestionQueryService,
   QuestionWithCategory,
 } from "../../domain/question/question-query-service.js";
 
 export class DrizzleQuestionQueryService implements QuestionQueryService {
-  async findRandom(
-    tx: Transaction,
-    limit: number,
-  ): Promise<QuestionWithCategory[]> {
+  async findRandom(limit: number): Promise<QuestionWithCategory[]> {
+    const tx = getCurrentTransaction();
     const rows = await tx
       .select({
         id: questions.id,

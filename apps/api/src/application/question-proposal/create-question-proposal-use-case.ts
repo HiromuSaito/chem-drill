@@ -1,12 +1,12 @@
-import { Category } from "../../domain/category/category";
-import { Id } from "../../domain/id";
-import { CorrectIndexes } from "../../domain/question/correct-indexes";
-import { Difficulty } from "../../domain/question/difficulty";
-import { Explanation } from "../../domain/question/explanation";
-import { QuestionText } from "../../domain/question/question-text";
-import { QuestionProposal } from "../../domain/question-proposal/question-proposal";
-import { QuestionProposalRepository } from "../../domain/question-proposal/question-proposal-repository";
-import { UnitOfWork } from "../unit-of-work";
+import type { Category } from "../../domain/category/category.js";
+import { Id } from "../../domain/id.js";
+import { CorrectIndexes } from "../../domain/question/correct-indexes.js";
+import { Difficulty } from "../../domain/question/difficulty.js";
+import { Explanation } from "../../domain/question/explanation.js";
+import { QuestionText } from "../../domain/question/question-text.js";
+import { QuestionProposal } from "../../domain/question-proposal/question-proposal.js";
+import type { QuestionProposalRepository } from "../../domain/question-proposal/question-proposal-repository.js";
+import type { UnitOfWork } from "../unit-of-work.js";
 
 export type CreateQuestionProposalInput = {
   questionText: string;
@@ -24,7 +24,7 @@ export class CreateQuestionProposalUseCase {
   ) {}
 
   async execute(input: CreateQuestionProposalInput): Promise<QuestionProposal> {
-    return this.uow.run(async (tx) => {
+    return this.uow.run(async () => {
       const { proposal, event } = QuestionProposal.create({
         questionText: QuestionText.create(input.questionText),
         difficulty: Difficulty.create(input.difficulty),
@@ -34,7 +34,7 @@ export class CreateQuestionProposalUseCase {
         categoryId: Id.of<Category>(input.categoryId),
       });
 
-      await this.questionProposalRepository.save(tx, proposal, event);
+      await this.questionProposalRepository.save(proposal, event);
 
       return proposal;
     });

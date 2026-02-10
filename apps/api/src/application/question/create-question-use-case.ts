@@ -24,7 +24,7 @@ export class CreateQuestionUseCase {
   ) {}
 
   async execute(input: CreateQuestionInput): Promise<Question> {
-    return this.uow.run(async (tx) => {
+    return this.uow.run(async () => {
       const question = Question.create({
         id: Id.random<Question>(),
         text: QuestionText.create(input.text),
@@ -35,7 +35,7 @@ export class CreateQuestionUseCase {
         categoryId: Id.of<Category>(input.categoryId),
       });
 
-      return await this.questionRepository.save(tx, question);
+      return await this.questionRepository.save(question);
     });
   }
 }

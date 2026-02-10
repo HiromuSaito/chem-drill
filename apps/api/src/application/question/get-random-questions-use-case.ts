@@ -13,11 +13,8 @@ export class GetRandomQuestionsUseCase {
   ) {}
 
   async execute(): Promise<QuestionWithCategory[]> {
-    return this.uow.run(async (tx) => {
-      return await this.questionQueryService.findRandom(
-        tx,
-        DEFAULT_QUESTION_COUNT,
-      );
+    return this.uow.run(async () => {
+      return await this.questionQueryService.findRandom(DEFAULT_QUESTION_COUNT);
     });
   }
 }
