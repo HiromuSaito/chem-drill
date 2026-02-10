@@ -1,5 +1,5 @@
-// API 側から型をインポート（tRPC で型共有）
-export type { QuestionWithCategoryResponse as QuestionDto } from "../../../api/src/presentation/trpc/question/type";
+// API 側から型をインポート
+export type { QuestionWithCategoryResponse as QuestionDto } from "../../../api/src/presentation/routes/question/type";
 
 export type SessionPhase = "answering" | "reviewing" | "completed";
 

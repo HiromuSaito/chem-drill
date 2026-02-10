@@ -1,10 +1,17 @@
-import { trpc } from "./trpc";
+import { useQuery } from "@tanstack/react-query";
 import { FlaskConical } from "lucide-react";
+import { client } from "./api";
 import { SessionContainer } from "./features/question/session-container";
 
 export function App() {
-  const { data, isLoading, error } =
-    trpc.question.getRandomQuestions.useQuery();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["questions", "random"],
+    queryFn: async () => {
+      const res = await client.api.question.random.$get();
+      if (!res.ok) throw new Error("Failed to fetch questions");
+      return res.json();
+    },
+  });
 
   if (isLoading) {
     return (

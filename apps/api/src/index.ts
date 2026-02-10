@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
 import app from "./app";
 
-export type { AppRouter } from "./presentation/trpc/router";
+export type { AppType } from "./app";
 
 const port = 3001;
 
