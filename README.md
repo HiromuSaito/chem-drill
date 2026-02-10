@@ -7,7 +7,7 @@
 | レイヤー     | 技術                                      |
 | ------------ | ----------------------------------------- |
 | フロント     | Vite + React + shadcn/ui + TanStack Query |
-| バックエンド | Hono + tRPC on AWS Lambda                 |
+| バックエンド | Hono RPC on AWS Lambda                    |
 | ORM          | Drizzle                                   |
 | DB           | Neon（PostgreSQL）                        |
 | 認証         | Clerk                                     |
@@ -38,13 +38,20 @@ apps/api/src/
 │   ├── category/           #   CategoryId, CategoryName, Category
 │   └── question/           #   Question, QuestionRepository, QuestionQueryService
 ├── application/            # アプリケーション層（ユースケース）
-│   └── question/           #   getRandomQuestionsUseCase
+│   ├── category/           #   ListCategoriesUseCase, CreateCategoryUseCase
+│   ├── question/           #   GetRandomQuestionsUseCase, CreateQuestionUseCase
+│   └── question-proposal/  #   Create/Update/Approve/Reject/GenerateQuestionProposalsUseCase
 ├── infrastructure/         # インフラ層（実装）
 │   ├── db/                 #   client.ts, schema.ts
-│   └── question/           #   DrizzleQuestionRepository, DrizzleQuestionQueryService
-├── presentation/           # プレゼンテーション層（tRPC ルーター）
-│   └── trpc/
-│       └── question/       #   question.router.ts, type.ts
+│   ├── category/           #   DrizzleCategoryRepository, DrizzleCategoryQueryService
+│   ├── question/           #   DrizzleQuestionRepository, DrizzleQuestionQueryService
+│   ├── question-proposal/  #   DrizzleQuestionProposalRepository
+│   └── question-generation/ #  GeminiQuestionGenerationAdapter
+├── presentation/           # プレゼンテーション層（Hono ルート）
+│   └── routes/
+│       ├── category/       #   category.route.ts
+│       ├── question/       #   question.route.ts, type.ts
+│       └── question-proposal/ # question-proposal.route.ts, type.ts
 └── lib/                    # ユーティリティ
 ```
 
@@ -60,9 +67,9 @@ apps/api/src/
 ```
 composition-root.ts（依存関係の組み立て）
        ↓
-app.ts → tRPC Context に注入
+app.ts → Hono ルートに依存注入
        ↓
-presentation（ctx.deps 経由でユースケース呼び出し）
+presentation（deps 経由でユースケース呼び出し）
        ↓
 application（ユースケース）
        ↓

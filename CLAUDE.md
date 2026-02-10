@@ -9,15 +9,15 @@ Turborepo + pnpm workspace によるモノレポ構成。
 ### モノレポ構成
 
 - `apps/web` - Vite + React + shadcn/ui（SPA）
-- `apps/api` - Hono + tRPC on AWS Lambda
+- `apps/api` - Hono RPC on AWS Lambda
 - `apps/batch` - Gemini API によるクイズ自動生成
-- `packages/shared` - 共通ユーティリティ（型共有は tRPC が担う）
+- `packages/shared` - 共通ユーティリティ（型共有は Hono RPC (hc) が担う）
 - `infra/` - Terraform（environments/ + modules/）
 
 ## 技術スタック
 
 - **フロント**: Vite + React + shadcn/ui + TanStack Query
-- **バックエンド**: Hono + tRPC on AWS Lambda
+- **バックエンド**: Hono RPC on AWS Lambda
 - **ORM**: Drizzle（マイグレーションも Drizzle Kit を使用）
 - **DB**: Neon（サーバーレス PostgreSQL）
 - **認証**: Clerk
@@ -27,17 +27,17 @@ Turborepo + pnpm workspace によるモノレポ構成。
 
 ## 設計ルール
 
-### Hono + tRPC
+### Hono RPC
 
-- tRPC は `/trpc/*` にマウント
-- tRPC に乗らないエンドポイント（Clerk Webhook 等）は Hono で直接ハンドリング
+- API ルートは `/api/*` 以下に Hono ルートをマウント（`zValidator` でバリデーション）
+- Webhook 等の非 API エンドポイントは Hono で直接ハンドリング
 - 認証ミドルウェアは Hono レイヤーで処理
 
 ### フロントエンド
 
 - UI コンポーネントは shadcn/ui を使用
 - shadcn MCP サーバーを利用して正確なコンポーネント情報を参照すること
-- API との型共有は tRPC が担うため、手動の型定義は最小限に
+- API との型共有は Hono RPC (hc) が担うため、手動の型定義は最小限に
 
 ## コマンド
 
