@@ -34,8 +34,8 @@ export type CreatedQuestionResponse = {
   id: string;
   text: string;
   difficulty: string;
-  choices: readonly string[];
-  correctIndexes: readonly number[];
+  choices: string[];
+  correctIndexes: number[];
   explanation: string;
   categoryId: string;
 };
@@ -47,8 +47,8 @@ export function toCreatedQuestionResponse(
     id: question.id,
     text: question.text.value,
     difficulty: question.difficulty.value,
-    choices: question.choices,
-    correctIndexes: question.correctIndexes.values,
+    choices: [...question.choices],
+    correctIndexes: [...question.correctIndexes.values],
     explanation: question.explanation.value,
     categoryId: question.categoryId,
   };

@@ -1,13 +1,20 @@
-import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { createApiRoutes } from "./presentation/routes/index.js";
 import { dependencies } from "./composition-root";
 import { consoleLogger } from "./lib/logger";
+import { Scalar } from "@scalar/hono-api-reference";
+import { OpenAPIHono } from "@hono/zod-openapi";
 
-const app = new Hono();
+const app = new OpenAPIHono();
 
 // --------------- Middleware ---------------
+
+app.doc("/doc", {
+  openapi: "3.0.0",
+  info: { title: "Chem Drill API", version: "1.0.0" },
+});
+app.get("/docs", Scalar({ url: "/doc" }));
 app.use("*", cors({ origin: "http://localhost:5173" }));
 app.use(logger());
 

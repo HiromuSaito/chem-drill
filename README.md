@@ -98,6 +98,13 @@ pnpm dev
 
 web は `http://localhost:5173`、API は `http://localhost:3001` で起動します。
 
+### API ドキュメント
+
+開発サーバー起動後、以下の URL で API ドキュメントを確認できます。
+
+- **http://localhost:3001/docs** — Scalar による API リファレンス（リクエスト/レスポンスの確認・テスト実行が可能）
+- **http://localhost:3001/doc** — OpenAPI JSON（生のスキーマ定義）
+
 ### 個別起動
 
 ```bash

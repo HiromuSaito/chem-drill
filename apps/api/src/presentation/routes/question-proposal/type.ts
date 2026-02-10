@@ -5,8 +5,8 @@ export type QuestionProposalResponse = {
   status: string;
   text: string;
   difficulty: string;
-  choices: readonly string[];
-  correctIndexes: readonly number[];
+  choices: string[];
+  correctIndexes: number[];
   explanation: string;
   categoryId: string;
   rejectReason?: string;
@@ -20,8 +20,8 @@ export function toQuestionProposalResponse(
     status: proposal.status.value,
     text: proposal.text.value,
     difficulty: proposal.difficulty.value,
-    choices: proposal.choices,
-    correctIndexes: proposal.correctIndexes.values,
+    choices: [...proposal.choices],
+    correctIndexes: [...proposal.correctIndexes.values],
     explanation: proposal.explanation.value,
     categoryId: proposal.categoryId,
     rejectReason: proposal.rejectReason?.value,
