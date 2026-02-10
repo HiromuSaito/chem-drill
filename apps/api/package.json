@@ -15,11 +15,13 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.986.0",
     "@google/genai": "^1.40.0",
     "@hono/node-server": "^1.13.0",
     "@hono/zod-openapi": "^1.2.1",
     "@hono/zod-validator": "^0.7.6",
     "@scalar/hono-api-reference": "^0.9.40",
+    "better-auth": "^1.4.18",
     "drizzle-orm": "^0.39.0",
     "hono": "^4.6.0",
     "postgres": "^3.4.0",
