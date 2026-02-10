@@ -1,19 +1,17 @@
 # ChemDrill 🧪
 
-化学物質管理に関する知識を定借させるためのクイズアプリ。
+化学物質管理に関する知識を定着させるためのクイズアプリ。
 
 ## 技術スタック
 
-| レイヤー     | 技術                                      |
-| ------------ | ----------------------------------------- |
-| フロント     | Vite + React + shadcn/ui + TanStack Query |
-| バックエンド | Hono RPC on AWS Lambda                    |
-| ORM          | Drizzle                                   |
-| DB           | Neon（PostgreSQL）                        |
-| 認証         | Clerk                                     |
-| インフラ     | S3 + CloudFront / API Gateway + Lambda    |
-| IaC          | Terraform                                 |
-| バッチ       | Gemini API（gemini-2.0-flash）            |
+| レイヤー         | 技術                                        |
+| ---------------- | ------------------------------------------- |
+| フロント         | Vite + React + shadcn/ui + TanStack Query   |
+| バックエンド     | Hono (OpenAPIHono) on AWS Lambda            |
+| API ドキュメント | OpenAPI + Scalar                            |
+| ORM              | Drizzle                                     |
+| DB               | PostgreSQL（本番: Neon / ローカル: Docker） |
+| AI               | Gemini API（gemini-2.5-flash）              |
 
 ## プロジェクト構成
 
@@ -21,38 +19,22 @@
 chem-drill/
 ├── apps/
 │   ├── web/          # フロントエンド（SPA）
-│   ├── api/          # API
-│   └── batch/        # クイズ自動生成バッチ
-├── packages/
-│   └── shared/       # 共通ユーティリティ
-└── infra/            # Terraform
+│   └── api/          # API
+└── packages/
+    └── shared/       # 共通ユーティリティ
 ```
 
 ### API アーキテクチャ（クリーンアーキテクチャ + CQRS）
 
 ```
 apps/api/src/
-├── composition-root.ts     # 依存関係の組み立て（Composition Root）
-├── app.ts                  # Hono エントリーポイント
-├── domain/                 # ドメイン層（エンティティ・値オブジェクト・インターフェース）
-│   ├── category/           #   CategoryId, CategoryName, Category
-│   └── question/           #   Question, QuestionRepository, QuestionQueryService
-├── application/            # アプリケーション層（ユースケース）
-│   ├── category/           #   ListCategoriesUseCase, CreateCategoryUseCase
-│   ├── question/           #   GetRandomQuestionsUseCase, CreateQuestionUseCase
-│   └── question-proposal/  #   Create/Update/Approve/Reject/GenerateQuestionProposalsUseCase
-├── infrastructure/         # インフラ層（実装）
-│   ├── db/                 #   client.ts, schema.ts
-│   ├── category/           #   DrizzleCategoryRepository, DrizzleCategoryQueryService
-│   ├── question/           #   DrizzleQuestionRepository, DrizzleQuestionQueryService
-│   ├── question-proposal/  #   DrizzleQuestionProposalRepository
-│   └── question-generation/ #  GeminiQuestionGenerationAdapter
-├── presentation/           # プレゼンテーション層（Hono ルート）
-│   └── routes/
-│       ├── category/       #   category.route.ts
-│       ├── question/       #   question.route.ts, type.ts
-│       └── question-proposal/ # question-proposal.route.ts, type.ts
-└── lib/                    # ユーティリティ
+├── app.ts                # Hono エントリーポイント
+├── composition-root.ts   # 依存関係の組み立て（Composition Root）
+├── domain/               # ドメイン層（エンティティ・値オブジェクト・リポジトリインターフェース）
+├── application/          # アプリケーション層（ユースケース）
+├── infrastructure/       # インフラ層（Drizzle リポジトリ実装・外部 API アダプター）
+├── presentation/routes/  # プレゼンテーション層（OpenAPIHono ルート定義）
+└── lib/                  # ユーティリティ
 ```
 
 **CQRS パターン**
@@ -82,6 +64,7 @@ domain ← infrastructure（リポジトリ実装）
 
 - Node.js 20 LTS
 - pnpm 9.x（`corepack enable` で有効化可能）
+- Docker（ローカル DB 用）
 
 ### セットアップ手順
 
@@ -92,7 +75,10 @@ corepack enable
 # 2. 依存インストール
 pnpm install
 
-# 3. 開発サーバー起動（web + api 同時起動）
+# 3. ローカル DB を起動
+docker compose up -d
+
+# 4. 開発サーバー起動（web + api 同時起動）
 pnpm dev
 ```
 
@@ -160,39 +146,3 @@ pnpm format         # Prettier（修正）
 pnpm format:check   # Prettier（チェックのみ）
 pnpm type-check     # TypeScript 型チェック
 ```
-
-## 環境変数
-
-```bash
-# Neon
-DATABASE_URL=
-
-# Clerk
-CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-
-# Gemini（バッチ用）
-GEMINI_API_KEY=
-```
-
-## バッチ（クイズ自動生成）
-
-```bash
-pnpm --filter batch generate --url "https://..." --category "化学物質管理"
-```
-
-## 機能
-
-### MVP
-
-- カテゴリ別クイズ
-- 正誤フィードバック + 解説表示
-- スコア・正答率の記録
-
-### 発展
-
-- 管理画面（問題の追加・編集）
-- メンバーごとの進捗ダッシュボード
-- 苦手分野の可視化
-- Slack通知
-- バッチ定期実行（Lambda + EventBridge）
