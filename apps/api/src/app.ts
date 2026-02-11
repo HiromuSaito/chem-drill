@@ -5,6 +5,7 @@ import { dependencies } from "./composition-root";
 import { consoleLogger } from "./lib/logger";
 import { Scalar } from "@scalar/hono-api-reference";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { auth } from "./infrastructure/auth/auth.js";
 
 const app = new OpenAPIHono();
 
@@ -15,7 +16,20 @@ app.doc("/doc", {
   info: { title: "Chem Drill API", version: "1.0.0" },
 });
 app.get("/docs", Scalar({ url: "/doc" }));
-app.use("*", cors({ origin: "http://localhost:5173" }));
+
+app.use(
+  "*",
+  cors({
+    origin: process.env.CORS_ORIGIN ?? "http://localhost:5173",
+    credentials: true,
+  }),
+);
+
+// --------------- Auth routes (Better Auth) ---------------
+app.on(["POST", "GET"], "/api/auth/**", (c) => {
+  return auth.handler(c.req.raw);
+});
+
 app.use(logger());
 
 app.onError((err, c) => {

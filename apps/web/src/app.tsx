@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { FlaskConical } from "lucide-react";
-import { client } from "./api";
+import { client } from "./client";
 import { SessionContainer } from "./features/question/session-container";
 
 export function App() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["questions", "random"],
     queryFn: async () => {
-      const res = await client.api.question.random.$get();
+      const res = await client.api["random-question"].random.$get();
       if (!res.ok) throw new Error("Failed to fetch questions");
       return res.json();
     },
