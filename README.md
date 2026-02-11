@@ -11,6 +11,7 @@
 | API ドキュメント | OpenAPI + Scalar                            |
 | ORM              | Drizzle                                     |
 | DB               | PostgreSQL（本番: Neon / ローカル: Docker） |
+| 認証             | Better Auth（Email OTP パスワードレス認証） |
 | AI               | Gemini API（gemini-2.5-flash）              |
 
 ## プロジェクト構成
@@ -32,7 +33,9 @@ apps/api/src/
 ├── composition-root.ts   # 依存関係の組み立て（Composition Root）
 ├── domain/               # ドメイン層（エンティティ・値オブジェクト・リポジトリインターフェース）
 ├── application/          # アプリケーション層（ユースケース）
-├── infrastructure/       # インフラ層（Drizzle リポジトリ実装・外部 API アダプター）
+├── infrastructure/       # インフラ層（Drizzle リポジトリ実装・外部 API アダプター・認証）
+│   ├── auth/             # Better Auth インスタンス・ミドルウェア・メール送信
+│   └── db/               # Drizzle スキーマ・クライアント
 ├── presentation/routes/  # プレゼンテーション層（OpenAPIHono ルート定義）
 └── lib/                  # ユーティリティ
 ```

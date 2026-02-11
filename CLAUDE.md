@@ -19,6 +19,7 @@ pnpm workspace によるモノレポ構成の化学物質管理クイズアプ�
 - **API ドキュメント**: OpenAPI + Scalar
 - **ORM**: Drizzle（マイグレーションも Drizzle Kit を使用）
 - **DB**: PostgreSQL（本番: Neon / ローカル: Docker）
+- **認証**: Better Auth（Email OTP パスワードレス認証）
 - **AI**: Gemini API（gemini-2.5-flash）
 
 ## 設計ルール
@@ -27,14 +28,23 @@ pnpm workspace によるモノレポ構成の化学物質管理クイズアプ�
 
 - API ルートは `/api/*` 以下に OpenAPIHono ルートをマウント（`createRoute` + Zod スキーマでバリデーション & OpenAPI 定義）
 - Webhook 等の非 API エンドポイントは Hono で直接ハンドリング
-- 認証ミドルウェアは Hono レイヤーで処理
 - フロントとの型共有は `hc<AppType>` クライアントが担う
+
+### 認証
+
+- Better Auth の emailOTP プラグインによるパスワードレス認証
+- 認証エンドポイントは `/api/auth/**` に Better Auth ハンドラーをマウント（`app.on()` で AppType に影響しない）
+- `requireAuth` ミドルウェアで API ルートを保護（`/health` と `/random-question` は除外）
+- セッションは Cookie ベース（DB 管理）。CORS `credentials: true` + hc クライアント `credentials: "include"` が必須
+- フロントは `better-auth/react` の `authClient` で OTP 送信・検証・セッション取得を行う
 
 ### フロントエンド
 
 - UI コンポーネントは shadcn/ui を使用
 - shadcn MCP サーバーを利用して正確なコンポーネント情報を参照すること
 - API 呼び出しは `hc` + TanStack Query (`useQuery`) を使用
+- ルーティングは React Router (`react-router-dom`) を使用
+- 認証ガードは `ProtectedRoute` コンポーネントで `authClient.useSession()` により判定
 
 ## コマンド
 

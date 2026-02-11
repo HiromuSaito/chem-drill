@@ -98,3 +98,5 @@ export const questionProposalProjections = pgTable(
     index("idx_question_proposal_projections_category_id").on(table.categoryId),
   ],
 );
+
+export * from "./auth-schema";

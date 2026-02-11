@@ -79,13 +79,14 @@ const createQuestionRoute_ = createRoute({
 });
 
 export const createQuestionRoute = (deps: Dependencies) =>
-  new OpenAPIHono()
-    .openapi(getRandomRoute, async (c) => {
-      const questions = await deps.getRandomQuestions.execute();
-      return c.json(questions.map((q) => toQuestionWithCategoryResponse(q)));
-    })
-    .openapi(createQuestionRoute_, async (c) => {
-      const input = c.req.valid("json");
-      const question = await deps.createQuestion.execute(input);
-      return c.json(toCreatedQuestionResponse(question));
-    });
+  new OpenAPIHono().openapi(createQuestionRoute_, async (c) => {
+    const input = c.req.valid("json");
+    const question = await deps.createQuestion.execute(input);
+    return c.json(toCreatedQuestionResponse(question));
+  });
+
+export const createRandomQuestionRoute = (deps: Dependencies) =>
+  new OpenAPIHono().openapi(getRandomRoute, async (c) => {
+    const questions = await deps.getRandomQuestions.execute();
+    return c.json(questions.map((q) => toQuestionWithCategoryResponse(q)));
+  });
