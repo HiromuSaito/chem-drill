@@ -23,17 +23,17 @@ export function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    try {
-      await authClient.emailOtp.sendVerificationOtp({
-        email,
-        type: "sign-in",
-      });
-      navigate("/verify-otp", { state: { email } });
-    } catch {
+    const { error } = await authClient.emailOtp.sendVerificationOtp({
+      email,
+      type: "sign-in",
+    });
+    setIsLoading(false);
+
+    if (error) {
       setError("認証コードの送信に失敗しました。");
-    } finally {
-      setIsLoading(false);
+      return;
     }
+    navigate("/verify-otp", { state: { email } });
   };
 
   return (

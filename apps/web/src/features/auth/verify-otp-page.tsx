@@ -30,24 +30,23 @@ export function VerifyOtpPage() {
     setError("");
     setIsLoading(true);
 
-    try {
-      await authClient.signIn.emailOtp({ email, otp });
-      navigate("/", { replace: true });
-    } catch {
+    const { error } = await authClient.signIn.emailOtp({ email, otp });
+    setIsLoading(false);
+
+    if (error) {
       setError("認証コードが正しくないか、期限切れです。");
-    } finally {
-      setIsLoading(false);
+      return;
     }
+    navigate("/", { replace: true });
   };
 
   const handleResend = async () => {
     setError("");
-    try {
-      await authClient.emailOtp.sendVerificationOtp({
-        email,
-        type: "sign-in",
-      });
-    } catch {
+    const { error } = await authClient.emailOtp.sendVerificationOtp({
+      email,
+      type: "sign-in",
+    });
+    if (error) {
       setError("再送信に失敗しました。");
     }
   };
