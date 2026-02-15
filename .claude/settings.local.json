@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.better-auth.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm type-check:*)",
+      "Bash(pnpm --filter api db:push:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(git fetch:*)",
+      "Bash(git worktree add:*)",
+      "Bash(pnpm install:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(pnpm build:*)"
+    ]
+  }
+}

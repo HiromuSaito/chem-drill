@@ -51,6 +51,7 @@ export function VerifyOtpPage() {
       await authClient.updateUser({ name, username });
     }
 
+    await authClient.getSession();
     setIsLoading(false);
     navigate("/", { replace: true });
   };
