@@ -27,7 +27,9 @@ app.use(
 );
 
 // --------------- Auth routes (Better Auth) ---------------
-// app.use で登録することで app.route("/api", ...) 内の requireAuth より先に実行される
+// app.on(["POST", "GET"]) から app.use() に変更した理由:
+// 1. requireAuth より先に実行させ、認証エンドポイント自体が保護されないようにする
+// 2. Better Auth が内部で全 HTTP メソッドをハンドルするため、メソッド制限は不要
 app.use("/api/auth/*", async (c) => {
   return auth.handler(c.req.raw);
 });

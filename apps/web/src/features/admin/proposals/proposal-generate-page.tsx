@@ -32,12 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { client } from "@/client";
-
-const difficultyLabels: Record<string, string> = {
-  easy: "簡単",
-  medium: "普通",
-  hard: "難しい",
-};
+import { difficultyLabels } from "./constants";
 
 const generateSchema = z.object({
   url: z.string().trim().url("有効な URL を入力してください"),

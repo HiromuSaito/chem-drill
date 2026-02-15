@@ -36,7 +36,7 @@ export const requireAuth = createMiddleware<AuthEnv>(async (c, next) => {
 
 export const requireAdmin = createMiddleware<AuthEnv>(async (c, next) => {
   const user = c.get("user");
-  if (user.role !== "admin") {
+  if (!user || user.role !== "admin") {
     return c.json({ error: "Forbidden" }, 403);
   }
   await next();

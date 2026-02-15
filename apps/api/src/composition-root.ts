@@ -37,7 +37,9 @@ const questionProposalListQueryService =
 const userQueryService = new DrizzleUserQueryService();
 
 // ドメインサービス
-const categoryNameDuplicateChecker = new CategoryNameDuplicateChecker();
+const categoryNameDuplicateChecker = new CategoryNameDuplicateChecker(
+  categoryQueryService,
+);
 
 // 外部サービスアダプター（API キーは初回呼び出し時に遅延取得）
 const questionGenerationAdapter = new GeminiQuestionGenerationAdapter(() =>
@@ -76,7 +78,6 @@ const listCategories = new ListCategoriesUseCase(
 const createCategory = new CreateCategoryUseCase(
   unitOfWork,
   categoryRepository,
-  categoryQueryService,
   categoryNameDuplicateChecker,
 );
 const generateQuestionProposals = new GenerateQuestionProposalsUseCase(

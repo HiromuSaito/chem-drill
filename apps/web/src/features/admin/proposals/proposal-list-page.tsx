@@ -20,29 +20,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { client } from "@/client";
+import { statusLabels, statusVariants, difficultyLabels } from "./constants";
 
 const PAGE_SIZE = 20;
-
-const statusLabels: Record<string, string> = {
-  pending: "保留中",
-  approved: "承認済",
-  rejected: "却下",
-};
-
-const statusVariants: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  pending: "outline",
-  approved: "default",
-  rejected: "destructive",
-};
-
-const difficultyLabels: Record<string, string> = {
-  easy: "簡単",
-  medium: "普通",
-  hard: "難しい",
-};
 
 export function ProposalListPage() {
   const navigate = useNavigate();

@@ -29,19 +29,15 @@ const healthRoute = createRoute({
   },
 });
 
-// NOTE: requireAdmin の .use() を .route() の後に配置しているのは、
-// OpenAPIHono のチェーン内で .use() を .openapi() の間に挟むと
-// 型チェーンが壊れる問題を回避するため。
-// Hono はリクエスト時にパスマッチでミドルウェアを解決するため動作に影響はない。
 export const createApiRoutes = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(healthRoute, (c) => c.json({ status: "ok" }))
     .route("/random-question", createRandomQuestionRoute(deps))
     .route("/user", createUserRoute(deps))
     .use("/*", requireAuth)
-    .route("/category", createCategoryRoute(deps))
     .use("/category/create", requireAdmin)
     .use("/question/create", requireAdmin)
-    .route("/question", createQuestionRoute(deps))
     .use("/question-proposal/*", requireAdmin)
+    .route("/category", createCategoryRoute(deps))
+    .route("/question", createQuestionRoute(deps))
     .route("/question-proposal", createQuestionProposalRoute(deps));
