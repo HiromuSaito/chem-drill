@@ -6,10 +6,11 @@ import { Trophy } from "lucide-react";
 
 type Props = {
   results: AnswerResult[];
-  onRetry: () => void;
+  onRetry?: () => void;
+  children?: React.ReactNode;
 };
 
-export function ResultScreen({ results, onRetry }: Props) {
+export function ResultScreen({ results, onRetry, children }: Props) {
   const total = results.length;
   const correct = results.filter((r) => r.isCorrect).length;
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
@@ -38,9 +39,12 @@ export function ResultScreen({ results, onRetry }: Props) {
           <Progress value={percentage} className="h-3" />
         </div>
 
-        <Button onClick={onRetry} className="w-full">
-          もう一度挑戦する
-        </Button>
+        {onRetry && (
+          <Button onClick={onRetry} className="w-full">
+            もう一度挑戦する
+          </Button>
+        )}
+        {children}
       </CardContent>
     </Card>
   );

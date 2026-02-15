@@ -140,7 +140,15 @@ export function SignupPage() {
               )}
             </Button>
           </form>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            <Link
+              to="/trial"
+              className="text-primary underline underline-offset-4"
+            >
+              まずは試してみる
+            </Link>
+          </div>
+          <p className="mt-2 text-center text-sm text-muted-foreground">
             すでにアカウントをお持ちの方は
             <Link
               to="/login"

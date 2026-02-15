@@ -7,6 +7,7 @@ import { LoginPage } from "./features/auth/login-page";
 import { SignupPage } from "./features/auth/signup-page";
 import { VerifyOtpPage } from "./features/auth/verify-otp-page";
 import { ProtectedRoute } from "./features/auth/protected-route";
+import { TrialPage } from "./features/trial/trial-page";
 import "./index.css";
 
 function Root() {
@@ -19,6 +20,7 @@ function Root() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify-otp" element={<VerifyOtpPage />} />
+          <Route path="/trial" element={<TrialPage />} />
           <Route
             path="/*"
             element={

@@ -6,14 +6,27 @@ import { ResultScreen } from "./result-screen";
 
 type Props = {
   questions: QuestionDto[];
+  resultActions?: React.ReactNode;
+  showRetry?: boolean;
 };
 
-export function SessionContainer({ questions }: Props) {
+export function SessionContainer({
+  questions,
+  resultActions,
+  showRetry = true,
+}: Props) {
   const { state, selectSingle, toggleMulti, submit, next, reset } =
     useSessionReducer(questions);
 
   if (state.phase === "completed") {
-    return <ResultScreen results={state.results} onRetry={reset} />;
+    return (
+      <ResultScreen
+        results={state.results}
+        onRetry={showRetry ? reset : undefined}
+      >
+        {resultActions}
+      </ResultScreen>
+    );
   }
 
   const currentQuestion = questions[state.currentIndex];
