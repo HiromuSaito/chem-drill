@@ -5,6 +5,7 @@ type SessionUser = {
   id: string;
   email: string;
   name: string;
+  role: string;
 };
 
 export type AuthEnv = {
@@ -27,7 +28,16 @@ export const requireAuth = createMiddleware<AuthEnv>(async (c, next) => {
     id: session.user.id,
     email: session.user.email,
     name: session.user.name,
+    role: session.user.role ?? "user",
   });
   c.set("session", session.session);
+  await next();
+});
+
+export const requireAdmin = createMiddleware<AuthEnv>(async (c, next) => {
+  const user = c.get("user");
+  if (!user || user.role !== "admin") {
+    return c.json({ error: "Forbidden" }, 403);
+  }
   await next();
 });

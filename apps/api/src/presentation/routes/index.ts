@@ -7,7 +7,10 @@ import {
 } from "./question/question.route.js";
 import { createQuestionProposalRoute } from "./question-proposal/question-proposal.route.js";
 import { createUserRoute } from "./user/user.route.js";
-import { requireAuth } from "../../infrastructure/auth/auth-middleware.js";
+import {
+  requireAuth,
+  requireAdmin,
+} from "../../infrastructure/auth/auth-middleware.js";
 
 const healthRoute = createRoute({
   method: "get",
@@ -32,6 +35,9 @@ export const createApiRoutes = (deps: Dependencies) =>
     .route("/random-question", createRandomQuestionRoute(deps))
     .route("/user", createUserRoute(deps))
     .use("/*", requireAuth)
+    .use("/category/create", requireAdmin)
+    .use("/question/create", requireAdmin)
+    .use("/question-proposal/*", requireAdmin)
     .route("/category", createCategoryRoute(deps))
     .route("/question", createQuestionRoute(deps))
     .route("/question-proposal", createQuestionProposalRoute(deps));

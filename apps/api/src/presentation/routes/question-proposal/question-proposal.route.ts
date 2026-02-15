@@ -1,6 +1,6 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import type { Dependencies } from "../../../composition-root.js";
-import { toQuestionProposalResponse } from "./type.js";
+import { toQuestionProposalResponse, toProjectionResponse } from "./type.js";
 
 const questionProposalSchema = z
   .object({
@@ -58,6 +58,78 @@ const generateFromUrlSchema = z
     categoryId: z.string().uuid(),
   })
   .openapi("GenerateFromUrlRequest");
+
+const questionProposalWithDatesSchema = z
+  .object({
+    questionProposalId: z.string().uuid(),
+    status: z.string(),
+    text: z.string(),
+    difficulty: z.string(),
+    choices: z.array(z.string()),
+    correctIndexes: z.array(z.number().int()),
+    explanation: z.string(),
+    categoryId: z.string().uuid(),
+    rejectReason: z.string().nullable(),
+    questionCreated: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  })
+  .openapi("QuestionProposalProjection");
+
+const listProposalRoute = createRoute({
+  method: "get",
+  path: "/list",
+  tags: ["QuestionProposal"],
+  summary: "問題提案一覧を取得",
+  request: {
+    query: z.object({
+      status: z.enum(["pending", "approved", "rejected"]).optional(),
+      limit: z.coerce.number().int().min(1).max(100).default(20),
+      offset: z.coerce.number().int().min(0).default(0),
+    }),
+  },
+  responses: {
+    200: {
+      description: "問題提案一覧",
+      content: {
+        "application/json": {
+          schema: z.object({
+            items: z.array(questionProposalWithDatesSchema),
+            total: z.number().int(),
+          }),
+        },
+      },
+    },
+  },
+});
+
+const getProposalRoute = createRoute({
+  method: "get",
+  path: "/:id",
+  tags: ["QuestionProposal"],
+  summary: "問題提案詳細を取得",
+  request: {
+    params: z.object({
+      id: z.string().uuid(),
+    }),
+  },
+  responses: {
+    200: {
+      description: "問題提案詳細",
+      content: {
+        "application/json": { schema: questionProposalWithDatesSchema },
+      },
+    },
+    404: {
+      description: "見つかりません",
+      content: {
+        "application/json": {
+          schema: z.object({ error: z.string() }),
+        },
+      },
+    },
+  },
+});
 
 const proposalResponse = {
   200: {
@@ -132,6 +204,26 @@ const generateFromUrlRoute = createRoute({
 
 export const createQuestionProposalRoute = (deps: Dependencies) =>
   new OpenAPIHono()
+    .openapi(listProposalRoute, async (c) => {
+      const { status, limit, offset } = c.req.valid("query");
+      const result = await deps.listQuestionProposals.execute({
+        status,
+        limit,
+        offset,
+      });
+      return c.json({
+        items: result.items.map(toProjectionResponse),
+        total: result.total,
+      });
+    })
+    .openapi(getProposalRoute, async (c) => {
+      const { id } = c.req.valid("param");
+      const proposal = await deps.getQuestionProposal.execute(id);
+      if (!proposal) {
+        return c.json({ error: "Not found" }, 404);
+      }
+      return c.json(toProjectionResponse(proposal), 200);
+    })
     .openapi(createProposalRoute, async (c) => {
       const input = c.req.valid("json");
       const proposal = await deps.createQuestionProposal.execute(input);
