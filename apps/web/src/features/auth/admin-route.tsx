@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { authClient } from "@/auth-client";
 
-export function ProtectedRoute() {
+export function AdminRoute() {
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
@@ -12,8 +12,8 @@ export function ProtectedRoute() {
     );
   }
 
-  if (!session) {
-    return <Navigate to="/login" replace />;
+  if (session?.user.role !== "admin") {
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

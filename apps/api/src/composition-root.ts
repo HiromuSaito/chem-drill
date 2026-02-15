@@ -14,9 +14,13 @@ import { UpdateQuestionProposalUseCase } from "./application/question-proposal/u
 import { ApproveQuestionProposalUseCase } from "./application/question-proposal/approve-question-proposal-use-case.js";
 import { RejectQuestionProposalUseCase } from "./application/question-proposal/reject-question-proposal-use-case.js";
 import { GenerateQuestionProposalsUseCase } from "./application/question-proposal/generate-question-proposals-use-case.js";
+import { ListQuestionProposalsUseCase } from "./application/question-proposal/list-question-proposals-use-case.js";
+import { GetQuestionProposalUseCase } from "./application/question-proposal/get-question-proposal-use-case.js";
 import { DrizzleQuestionProposalRepository } from "./infrastructure/question-proposal/drizzle-question-proposal-repository.js";
+import { DrizzleQuestionProposalListQueryService } from "./infrastructure/question-proposal/drizzle-question-proposal-list-query-service.js";
 import { DrizzleUserQueryService } from "./infrastructure/user/drizzle-user-query-service.js";
 import { CheckUsernameAvailabilityUseCase } from "./application/user/check-username-availability-use-case.js";
+import { CategoryNameDuplicateChecker } from "./domain/category/category-name-duplicate-checker.js";
 import { requireEnv } from "./env.js";
 
 // UnitOfWork
@@ -28,7 +32,12 @@ const questionRepository = new DrizzleQuestionRepository();
 const categoryQueryService = new DrizzleCategoryQueryService();
 const categoryRepository = new DrizzleCategoryRepository();
 const questionProposalRepository = new DrizzleQuestionProposalRepository();
+const questionProposalListQueryService =
+  new DrizzleQuestionProposalListQueryService();
 const userQueryService = new DrizzleUserQueryService();
+
+// ドメインサービス
+const categoryNameDuplicateChecker = new CategoryNameDuplicateChecker();
 
 // 外部サービスアダプター（API キーは初回呼び出し時に遅延取得）
 const questionGenerationAdapter = new GeminiQuestionGenerationAdapter(() =>
@@ -67,11 +76,22 @@ const listCategories = new ListCategoriesUseCase(
 const createCategory = new CreateCategoryUseCase(
   unitOfWork,
   categoryRepository,
+  categoryQueryService,
+  categoryNameDuplicateChecker,
 );
 const generateQuestionProposals = new GenerateQuestionProposalsUseCase(
   unitOfWork,
   questionGenerationAdapter,
   questionProposalRepository,
+);
+
+const listQuestionProposals = new ListQuestionProposalsUseCase(
+  unitOfWork,
+  questionProposalListQueryService,
+);
+const getQuestionProposal = new GetQuestionProposalUseCase(
+  unitOfWork,
+  questionProposalListQueryService,
 );
 
 const checkUsernameAvailability = new CheckUsernameAvailabilityUseCase(
@@ -87,6 +107,8 @@ export const dependencies = {
   updateQuestionProposal,
   approveQuestionProposal,
   rejectQuestionProposal,
+  listQuestionProposals,
+  getQuestionProposal,
   listCategories,
   createCategory,
   generateQuestionProposals,

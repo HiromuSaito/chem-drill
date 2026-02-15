@@ -51,6 +51,14 @@ const createRoute_ = createRoute({
         "application/json": { schema: createCategoryResponseSchema },
       },
     },
+    409: {
+      description: "カテゴリ名が重複",
+      content: {
+        "application/json": {
+          schema: z.object({ error: z.string() }),
+        },
+      },
+    },
   },
 });
 
@@ -63,5 +71,8 @@ export const createCategoryRoute = (deps: Dependencies) =>
     .openapi(createRoute_, async (c) => {
       const input = c.req.valid("json");
       const category = await deps.createCategory.execute(input);
-      return c.json({ id: category.id as string, name: category.name.value });
+      return c.json(
+        { id: category.id as string, name: category.name.value },
+        200,
+      );
     });

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { FlaskConical, LogOut } from "lucide-react";
+import { FlaskConical, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { client } from "./client";
 import { authClient } from "./auth-client";
@@ -8,6 +8,7 @@ import { SessionContainer } from "./features/question/session-container";
 
 export function App() {
   const navigate = useNavigate();
+  const { data: session } = authClient.useSession();
 
   const handleSignOut = async () => {
     await authClient.signOut();
@@ -54,10 +55,22 @@ export function App() {
           <FlaskConical className="size-5 text-primary" />
           Chem Drill
         </h1>
-        <Button variant="ghost" size="sm" onClick={handleSignOut}>
-          <LogOut />
-          ログアウト
-        </Button>
+        <div className="flex items-center gap-2">
+          {session?.user.role === "admin" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/admin")}
+            >
+              <Shield className="size-4" />
+              管理画面
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" onClick={handleSignOut}>
+            <LogOut />
+            ログアウト
+          </Button>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
