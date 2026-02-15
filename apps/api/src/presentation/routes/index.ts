@@ -6,6 +6,7 @@ import {
   createRandomQuestionRoute,
 } from "./question/question.route.js";
 import { createQuestionProposalRoute } from "./question-proposal/question-proposal.route.js";
+import { createUserRoute } from "./user/user.route.js";
 import { requireAuth } from "../../infrastructure/auth/auth-middleware.js";
 
 const healthRoute = createRoute({
@@ -29,6 +30,7 @@ export const createApiRoutes = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(healthRoute, (c) => c.json({ status: "ok" }))
     .route("/random-question", createRandomQuestionRoute(deps))
+    .route("/user", createUserRoute(deps))
     .use("/*", requireAuth)
     .route("/category", createCategoryRoute(deps))
     .route("/question", createQuestionRoute(deps))

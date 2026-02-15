@@ -15,6 +15,8 @@ import { ApproveQuestionProposalUseCase } from "./application/question-proposal/
 import { RejectQuestionProposalUseCase } from "./application/question-proposal/reject-question-proposal-use-case.js";
 import { GenerateQuestionProposalsUseCase } from "./application/question-proposal/generate-question-proposals-use-case.js";
 import { DrizzleQuestionProposalRepository } from "./infrastructure/question-proposal/drizzle-question-proposal-repository.js";
+import { DrizzleUserQueryService } from "./infrastructure/user/drizzle-user-query-service.js";
+import { CheckUsernameAvailabilityUseCase } from "./application/user/check-username-availability-use-case.js";
 import { requireEnv } from "./env.js";
 
 // UnitOfWork
@@ -26,6 +28,7 @@ const questionRepository = new DrizzleQuestionRepository();
 const categoryQueryService = new DrizzleCategoryQueryService();
 const categoryRepository = new DrizzleCategoryRepository();
 const questionProposalRepository = new DrizzleQuestionProposalRepository();
+const userQueryService = new DrizzleUserQueryService();
 
 // 外部サービスアダプター（API キーは初回呼び出し時に遅延取得）
 const questionGenerationAdapter = new GeminiQuestionGenerationAdapter(() =>
@@ -71,7 +74,13 @@ const generateQuestionProposals = new GenerateQuestionProposalsUseCase(
   questionProposalRepository,
 );
 
+const checkUsernameAvailability = new CheckUsernameAvailabilityUseCase(
+  unitOfWork,
+  userQueryService,
+);
+
 export const dependencies = {
+  checkUsernameAvailability,
   getRandomQuestions,
   createQuestion,
   createQuestionProposal,

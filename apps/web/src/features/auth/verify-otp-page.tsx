@@ -15,7 +15,16 @@ import { authClient } from "@/auth-client";
 export function VerifyOtpPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const email = (location.state as { email?: string })?.email;
+  const state = location.state as {
+    email?: string;
+    name?: string;
+    username?: string;
+    type?: "sign-in" | "sign-up";
+  };
+  const email = state?.email;
+  const name = state?.name;
+  const username = state?.username;
+  const type = state?.type ?? "sign-in";
 
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -31,12 +40,18 @@ export function VerifyOtpPage() {
     setIsLoading(true);
 
     const { error } = await authClient.signIn.emailOtp({ email, otp });
-    setIsLoading(false);
 
     if (error) {
+      setIsLoading(false);
       setError("認証コードが正しくないか、期限切れです。");
       return;
     }
+
+    if (type === "sign-up" && name && username) {
+      await authClient.updateUser({ name, username });
+    }
+
+    setIsLoading(false);
     navigate("/", { replace: true });
   };
 
@@ -89,7 +104,13 @@ export function VerifyOtpPage() {
               className="w-full"
               disabled={isLoading || otp.length !== 6}
             >
-              {isLoading ? <Loader2 className="animate-spin" /> : "ログイン"}
+              {isLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : type === "sign-up" ? (
+                "アカウント作成"
+              ) : (
+                "ログイン"
+              )}
             </Button>
             <div className="text-center">
               <button
