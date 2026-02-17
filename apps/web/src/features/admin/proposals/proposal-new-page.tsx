@@ -156,7 +156,7 @@ export function ProposalNewPage() {
         </Button>
       </div>
 
-      <h2 className="text-2xl font-bold tracking-tight">問題提案を作成</h2>
+      <h2 className="text-2xl font-bold tracking-tight">出題案を作成</h2>
 
       <Form {...form}>
         <form

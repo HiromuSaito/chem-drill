@@ -66,7 +66,7 @@ describe("QuestionProposal", () => {
       const { proposal: approved } = proposal.approve();
 
       expect(() => approved.approve()).toThrow(
-        "問題提案を承認できるステータスではありません",
+        "出題案を承認できるステータスではありません",
       );
     });
 
@@ -77,7 +77,7 @@ describe("QuestionProposal", () => {
       );
 
       expect(() => rejected.approve()).toThrow(
-        "問題提案を承認できるステータスではありません",
+        "出題案を承認できるステータスではありません",
       );
     });
   });
@@ -104,7 +104,7 @@ describe("QuestionProposal", () => {
       const { proposal: approved } = proposal.approve();
 
       expect(() => approved.reject(RejectReason.create("理由"))).toThrow(
-        "問題提案を却下できるステータスではありません",
+        "出題案を却下できるステータスではありません",
       );
     });
 
@@ -115,7 +115,7 @@ describe("QuestionProposal", () => {
       );
 
       expect(() => rejected.reject(RejectReason.create("別の理由"))).toThrow(
-        "問題提案を却下できるステータスではありません",
+        "出題案を却下できるステータスではありません",
       );
     });
   });
@@ -152,7 +152,7 @@ describe("QuestionProposal", () => {
       const { proposal: approved } = proposal.approve();
 
       expect(() => approved.edit(buildEditParams())).toThrow(
-        "問題提案を編集できるステータスではありません",
+        "出題案を編集できるステータスではありません",
       );
     });
   });
@@ -203,7 +203,7 @@ describe("QuestionProposal", () => {
 
       // approved 状態なので approve するとエラー
       expect(() => restored.approve()).toThrow(
-        "問題提案を承認できるステータスではありません",
+        "出題案を承認できるステータスではありません",
       );
     });
 
@@ -226,7 +226,7 @@ describe("QuestionProposal", () => {
 
       // approved 状態なので edit するとエラー
       expect(() => restored.edit(buildEditParams())).toThrow(
-        "問題提案を編集できるステータスではありません",
+        "出題案を編集できるステータスではありません",
       );
     });
   });
