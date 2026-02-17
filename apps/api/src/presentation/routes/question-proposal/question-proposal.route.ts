@@ -80,7 +80,7 @@ const listProposalRoute = createRoute({
   method: "get",
   path: "/list",
   tags: ["QuestionProposal"],
-  summary: "問題提案一覧を取得",
+  summary: "出題案一覧を取得",
   request: {
     query: z.object({
       status: z.enum(["pending", "approved", "rejected"]).optional(),
@@ -90,7 +90,7 @@ const listProposalRoute = createRoute({
   },
   responses: {
     200: {
-      description: "問題提案一覧",
+      description: "出題案一覧",
       content: {
         "application/json": {
           schema: z.object({
@@ -107,7 +107,7 @@ const getProposalRoute = createRoute({
   method: "get",
   path: "/:id",
   tags: ["QuestionProposal"],
-  summary: "問題提案詳細を取得",
+  summary: "出題案詳細を取得",
   request: {
     params: z.object({
       id: z.string().uuid(),
@@ -115,7 +115,7 @@ const getProposalRoute = createRoute({
   },
   responses: {
     200: {
-      description: "問題提案詳細",
+      description: "出題案詳細",
       content: {
         "application/json": { schema: questionProposalWithDatesSchema },
       },
@@ -133,7 +133,7 @@ const getProposalRoute = createRoute({
 
 const proposalResponse = {
   200: {
-    description: "問題提案",
+    description: "出題案",
     content: { "application/json": { schema: questionProposalSchema } },
   },
 } as const;
@@ -142,7 +142,7 @@ const createProposalRoute = createRoute({
   method: "post",
   path: "/create",
   tags: ["QuestionProposal"],
-  summary: "問題提案を作成",
+  summary: "出題案を作成",
   request: {
     body: { content: { "application/json": { schema: createSchema } } },
   },
@@ -153,7 +153,7 @@ const updateProposalRoute = createRoute({
   method: "post",
   path: "/update",
   tags: ["QuestionProposal"],
-  summary: "問題提案を更新",
+  summary: "出題案を更新",
   request: {
     body: { content: { "application/json": { schema: updateSchema } } },
   },
@@ -164,7 +164,7 @@ const approveProposalRoute = createRoute({
   method: "post",
   path: "/approve",
   tags: ["QuestionProposal"],
-  summary: "問題提案を承認",
+  summary: "出題案を承認",
   request: {
     body: { content: { "application/json": { schema: approveSchema } } },
   },
@@ -175,7 +175,7 @@ const rejectProposalRoute = createRoute({
   method: "post",
   path: "/reject",
   tags: ["QuestionProposal"],
-  summary: "問題提案を却下",
+  summary: "出題案を却下",
   request: {
     body: { content: { "application/json": { schema: rejectSchema } } },
   },
@@ -186,7 +186,7 @@ const generateFromUrlRoute = createRoute({
   method: "post",
   path: "/generate-from-url",
   tags: ["QuestionProposal"],
-  summary: "URLから問題提案を自動生成",
+  summary: "URLから出題案を自動生成",
   request: {
     body: {
       content: { "application/json": { schema: generateFromUrlSchema } },
@@ -194,7 +194,7 @@ const generateFromUrlRoute = createRoute({
   },
   responses: {
     200: {
-      description: "生成された問題提案一覧",
+      description: "生成された出題案一覧",
       content: {
         "application/json": { schema: z.array(questionProposalSchema) },
       },

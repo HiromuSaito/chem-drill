@@ -53,7 +53,7 @@ export function ProposalListPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">問題提案</h2>
+        <h2 className="text-2xl font-bold tracking-tight">出題案</h2>
         <div className="flex items-center gap-2">
           <Button onClick={() => navigate("/admin/proposals/new")}>
             <Plus className="size-4" />

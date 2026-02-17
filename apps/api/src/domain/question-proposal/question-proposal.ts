@@ -82,7 +82,7 @@ export class QuestionProposal {
   } {
     if (!this.canEdit()) {
       throw new Error(
-        `問題提案を編集できるステータスではありません。ステータス=${this.status}`,
+        `出題案を編集できるステータスではありません。ステータス=${this.status}`,
       );
     }
 
@@ -115,7 +115,7 @@ export class QuestionProposal {
   } {
     if (!this.canApprove()) {
       throw new Error(
-        `問題提案を承認できるステータスではありません。ステータス=${this.status}`,
+        `出題案を承認できるステータスではありません。ステータス=${this.status}`,
       );
     }
 
@@ -147,7 +147,7 @@ export class QuestionProposal {
   } {
     if (!this.canReject()) {
       throw new Error(
-        `問題提案を却下できるステータスではありません。ステータス=${this.status}`,
+        `出題案を却下できるステータスではありません。ステータス=${this.status}`,
       );
     }
 

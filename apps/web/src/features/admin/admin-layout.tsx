@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/auth-client";
 
 const navItems = [
-  { to: "/admin/proposals", label: "問題提案", icon: FileText },
+  { to: "/admin/proposals", label: "出題案", icon: FileText },
   { to: "/admin/categories", label: "カテゴリ", icon: FolderOpen },
 ];
 
