@@ -55,7 +55,7 @@ export function CategoryListPage() {
   const { data: categories, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const res = await client.api.category.list.$get();
+      const res = await client.api.category.$get();
       if (!res.ok) throw new Error("Failed to fetch categories");
       return res.json();
     },
@@ -63,7 +63,7 @@ export function CategoryListPage() {
 
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
-      const res = await client.api.category.create.$post({
+      const res = await client.api.category.$post({
         json: { name },
       });
       if (!res.ok) {

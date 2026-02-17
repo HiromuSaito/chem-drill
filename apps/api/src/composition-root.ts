@@ -9,6 +9,8 @@ import { GetRandomQuestionsUseCase } from "./application/question/get-random-que
 import { CreateQuestionUseCase } from "./application/question/create-question-use-case.js";
 import { ListCategoriesUseCase } from "./application/category/list-categories-use-case.js";
 import { CreateCategoryUseCase } from "./application/category/create-category-use-case.js";
+import { UpdateCategoryUseCase } from "./application/category/update-category-use-case.js";
+import { DeleteCategoryUseCase } from "./application/category/delete-category-use-case.js";
 import { CreateQuestionProposalUseCase } from "./application/question-proposal/create-question-proposal-use-case.js";
 import { UpdateQuestionProposalUseCase } from "./application/question-proposal/update-question-proposal-use-case.js";
 import { ApproveQuestionProposalUseCase } from "./application/question-proposal/approve-question-proposal-use-case.js";
@@ -21,6 +23,7 @@ import { DrizzleQuestionProposalListQueryService } from "./infrastructure/questi
 import { DrizzleUserQueryService } from "./infrastructure/user/drizzle-user-query-service.js";
 import { CheckUsernameAvailabilityUseCase } from "./application/user/check-username-availability-use-case.js";
 import { CategoryNameDuplicateChecker } from "./domain/category/category-name-duplicate-checker.js";
+import { CategoryDeletionPolicy } from "./domain/category/category-deletion-policy.js";
 import { requireEnv } from "./env.js";
 
 // UnitOfWork
@@ -40,6 +43,7 @@ const userQueryService = new DrizzleUserQueryService();
 const categoryNameDuplicateChecker = new CategoryNameDuplicateChecker(
   categoryQueryService,
 );
+const categoryDeletionPolicy = new CategoryDeletionPolicy(categoryQueryService);
 
 // 外部サービスアダプター（API キーは初回呼び出し時に遅延取得）
 const questionGenerationAdapter = new GeminiQuestionGenerationAdapter(() =>
@@ -80,6 +84,16 @@ const createCategory = new CreateCategoryUseCase(
   categoryRepository,
   categoryNameDuplicateChecker,
 );
+const updateCategory = new UpdateCategoryUseCase(
+  unitOfWork,
+  categoryRepository,
+  categoryNameDuplicateChecker,
+);
+const deleteCategory = new DeleteCategoryUseCase(
+  unitOfWork,
+  categoryRepository,
+  categoryDeletionPolicy,
+);
 const generateQuestionProposals = new GenerateQuestionProposalsUseCase(
   unitOfWork,
   questionGenerationAdapter,
@@ -112,6 +126,8 @@ export const dependencies = {
   getQuestionProposal,
   listCategories,
   createCategory,
+  updateCategory,
+  deleteCategory,
   generateQuestionProposals,
 };
 

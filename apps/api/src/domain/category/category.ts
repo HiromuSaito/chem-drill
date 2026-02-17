@@ -11,6 +11,10 @@ export class Category {
     return new Category(params.id, params.name);
   }
 
+  changeName(newName: CategoryName): Category {
+    return new Category(this.id, newName);
+  }
+
   equals(other: Category): boolean {
     return this.id === other.id;
   }
