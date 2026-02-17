@@ -52,7 +52,7 @@ export function ProposalGeneratePage() {
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const res = await client.api.category.list.$get();
+      const res = await client.api.category.$get();
       if (!res.ok) throw new Error("Failed to fetch categories");
       return res.json();
     },

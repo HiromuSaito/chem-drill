@@ -1,6 +1,13 @@
-export class DomainConflictError extends Error {
+export class ConflictError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "DomainConflictError";
+    this.name = "ConflictError";
+  }
+}
+
+export class EntityNotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EntityNotFoundError";
   }
 }

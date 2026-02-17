@@ -35,7 +35,10 @@ export const createApiRoutes = (deps: Dependencies) =>
     .route("/random-question", createRandomQuestionRoute(deps))
     .route("/user", createUserRoute(deps))
     .use("/*", requireAuth)
-    .use("/category/create", requireAdmin)
+    .use("/category/*", async (c, next) => {
+      if (c.req.method === "GET") return next();
+      return requireAdmin(c, next);
+    })
     .use("/question/create", requireAdmin)
     .use("/question-proposal/*", requireAdmin)
     .route("/category", createCategoryRoute(deps))
