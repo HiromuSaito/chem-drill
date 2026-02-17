@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { App } from "./app";
+import { AppLayout } from "./components/app-layout";
 import { LoginPage } from "./features/auth/login-page";
 import { SignupPage } from "./features/auth/signup-page";
 import { VerifyOtpPage } from "./features/auth/verify-otp-page";
@@ -29,7 +30,10 @@ function Root() {
           <Route path="/verify-otp" element={<VerifyOtpPage />} />
           <Route path="/trial" element={<TrialPage />} />
           <Route element={<ProtectedRoute />}>
-            <Route path="/*" element={<App />} />
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<App />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
             <Route element={<AdminRoute />}>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Navigate to="proposals" replace />} />

@@ -1,0 +1,109 @@
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { FlaskConical, LogOut, Shield, BookOpen } from "lucide-react";
+import { authClient } from "@/auth-client";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarSeparator,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+
+const navItems = [{ to: "/", label: "クイズ", icon: BookOpen }];
+
+export function AppLayout() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { data: session } = authClient.useSession();
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    navigate("/login", { replace: true });
+  };
+
+  return (
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild>
+                <Link to="/">
+                  <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-md">
+                    <FlaskConical className="size-4" />
+                  </div>
+                  <span className="text-base font-semibold">Chem Drill</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarSeparator />
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {navItems.map(({ to, label, icon: Icon }) => (
+                  <SidebarMenuItem key={to}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location.pathname === to}
+                      tooltip={label}
+                    >
+                      <Link to={to}>
+                        <Icon />
+                        <span>{label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarSeparator />
+        <SidebarFooter>
+          <SidebarMenu>
+            {session?.user.role === "admin" && (
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="管理画面">
+                  <Link to="/admin">
+                    <Shield />
+                    <span>管理画面</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleSignOut} tooltip="ログアウト">
+                <LogOut />
+                <span>ログアウト</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex h-12 items-center gap-2 border-b px-4">
+          <SidebarTrigger />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <span className="text-sm font-medium text-muted-foreground">
+            {navItems.find((item) => item.to === location.pathname)?.label}
+          </span>
+        </header>
+        <div className="flex flex-1 flex-col p-4">
+          <Outlet />
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
