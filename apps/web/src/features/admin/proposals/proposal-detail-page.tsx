@@ -15,7 +15,7 @@ export function ProposalDetailPage() {
   const { data: proposal, isLoading } = useQuery({
     queryKey: ["question-proposal", id],
     queryFn: async () => {
-      const res = await client.api["question-proposal"][":id"].$get({
+      const res = await client.api["question-proposals"][":id"].$get({
         param: { id: id! },
       });
       if (!res.ok) throw new Error("Failed to fetch proposal");
@@ -26,8 +26,8 @@ export function ProposalDetailPage() {
 
   const approveMutation = useMutation({
     mutationFn: async () => {
-      const res = await client.api["question-proposal"].approve.$post({
-        json: { questionProposalId: id! },
+      const res = await client.api["question-proposals"][":id"].approve.$post({
+        param: { id: id! },
       });
       if (!res.ok) throw new Error("Failed to approve");
       return res.json();
@@ -39,9 +39,9 @@ export function ProposalDetailPage() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: EditFormData) => {
-      const res = await client.api["question-proposal"].update.$post({
+      const res = await client.api["question-proposals"][":id"].$put({
+        param: { id: id! },
         json: {
-          questionProposalId: id!,
           questionText: data.questionText,
           difficulty: data.difficulty,
           choices: data.choices.map((c) => c.value),
@@ -61,8 +61,9 @@ export function ProposalDetailPage() {
 
   const rejectMutation = useMutation({
     mutationFn: async (reason: string) => {
-      const res = await client.api["question-proposal"].reject.$post({
-        json: { questionProposalId: id!, rejectReason: reason },
+      const res = await client.api["question-proposals"][":id"].reject.$post({
+        param: { id: id! },
+        json: { rejectReason: reason },
       });
       if (!res.ok) throw new Error("Failed to reject");
       return res.json();

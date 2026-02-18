@@ -52,7 +52,7 @@ export function ProposalGeneratePage() {
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const res = await client.api.category.$get();
+      const res = await client.api.categories.$get();
       if (!res.ok) throw new Error("Failed to fetch categories");
       return res.json();
     },
@@ -60,7 +60,7 @@ export function ProposalGeneratePage() {
 
   const generateMutation = useMutation({
     mutationFn: async (data: GenerateForm) => {
-      const res = await client.api["question-proposal"][
+      const res = await client.api["question-proposals"][
         "generate-from-url"
       ].$post({
         json: data,

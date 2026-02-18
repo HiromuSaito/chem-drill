@@ -11,7 +11,7 @@ export function TrialPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["questions", "random", "trial"],
     queryFn: async () => {
-      const res = await client.api["random-question"].random.$get();
+      const res = await client.api.questions.random.$get();
       if (!res.ok) throw new Error("Failed to fetch questions");
       return res.json();
     },

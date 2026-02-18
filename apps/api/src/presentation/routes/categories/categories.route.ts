@@ -122,7 +122,7 @@ const categoryDeleteRoute = createRoute({
   },
 });
 
-export const createCategoryRoute = (deps: Dependencies) =>
+export const createCategoriesRoute = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(categoryListRoute, async (c) => {
       const categories = await deps.listCategories.execute();

@@ -39,7 +39,7 @@ export function ProposalListPage() {
       if (statusFilter !== "all") {
         query.status = statusFilter;
       }
-      const res = await client.api["question-proposal"].list.$get({
+      const res = await client.api["question-proposals"].$get({
         query,
       });
       if (!res.ok) throw new Error("Failed to fetch proposals");

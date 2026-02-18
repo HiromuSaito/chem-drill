@@ -1,13 +1,14 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
+import { createMiddleware } from "hono/factory";
 import type { Dependencies } from "../../composition-root.ts";
-import { createCategoryRoute } from "./category/category.route.ts";
-import { createQuestionRoute } from "./question/question.route.ts";
-import { createRandomQuestionRoute } from "./random-question/random-question.route.ts";
-import { createQuestionProposalRoute } from "./question-proposal/question-proposal.route.ts";
+import { createCategoriesRoute } from "./categories/categories.route.ts";
+import { createQuestionsRoute } from "./questions/questions.route.ts";
+import { createQuestionProposalsRoute } from "./question-proposals/question-proposals.route.ts";
 import { createUserRoute } from "./user/user.route.ts";
 import {
   requireAuth,
   requireAdmin,
+  type AuthEnv,
 } from "../../infrastructure/auth/auth-middleware.ts";
 
 const healthRoute = createRoute({
@@ -30,15 +31,28 @@ const healthRoute = createRoute({
 export const createApiRoutes = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(healthRoute, (c) => c.json({ status: "ok" }))
-    .route("/random-question", createRandomQuestionRoute(deps))
     .route("/user", createUserRoute(deps))
-    .use("/*", requireAuth)
-    .use("/category/*", async (c, next) => {
+    .use(
+      "/*",
+      createMiddleware<AuthEnv>(async (c, next) => {
+        if (
+          c.req.path.endsWith("/questions/random") &&
+          c.req.method === "GET"
+        ) {
+          return next();
+        }
+        await requireAuth(c, next);
+      }),
+    )
+    .use("/categories/*", async (c, next) => {
       if (c.req.method === "GET") return next();
       return requireAdmin(c, next);
     })
-    .use("/question/create", requireAdmin)
-    .use("/question-proposal/*", requireAdmin)
-    .route("/category", createCategoryRoute(deps))
-    .route("/question", createQuestionRoute(deps))
-    .route("/question-proposal", createQuestionProposalRoute(deps));
+    .use("/questions/*", async (c, next) => {
+      if (c.req.method === "GET") return next();
+      return requireAdmin(c, next);
+    })
+    .use("/question-proposals/*", requireAdmin)
+    .route("/categories", createCategoriesRoute(deps))
+    .route("/questions", createQuestionsRoute(deps))
+    .route("/question-proposals", createQuestionProposalsRoute(deps));

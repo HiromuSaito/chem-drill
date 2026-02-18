@@ -93,7 +93,7 @@ export function ProposalNewPage() {
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const res = await client.api.category.$get();
+      const res = await client.api.categories.$get();
       if (!res.ok) throw new Error("Failed to fetch categories");
       return res.json();
     },
@@ -101,7 +101,7 @@ export function ProposalNewPage() {
 
   const createMutation = useMutation({
     mutationFn: async (data: ProposalForm) => {
-      const res = await client.api["question-proposal"].create.$post({
+      const res = await client.api["question-proposals"].$post({
         json: {
           questionText: data.questionText,
           difficulty: data.difficulty,

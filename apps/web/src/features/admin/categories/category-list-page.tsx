@@ -81,7 +81,7 @@ export function CategoryListPage() {
   const { data: categories, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const res = await client.api.category.$get();
+      const res = await client.api.categories.$get();
       if (!res.ok) throw new Error("Failed to fetch categories");
       return res.json();
     },
@@ -89,7 +89,7 @@ export function CategoryListPage() {
 
   const createMutation = useMutation({
     mutationFn: async (name: string) => {
-      const res = await client.api.category.$post({
+      const res = await client.api.categories.$post({
         json: { name },
       });
       if (!res.ok) {
@@ -112,7 +112,7 @@ export function CategoryListPage() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      const res = await client.api.category[":id"].$put({
+      const res = await client.api.categories[":id"].$put({
         param: { id },
         json: { name },
       });
@@ -136,7 +136,7 @@ export function CategoryListPage() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await client.api.category[":id"].$delete({
+      const res = await client.api.categories[":id"].$delete({
         param: { id },
       });
       if (!res.ok) {
