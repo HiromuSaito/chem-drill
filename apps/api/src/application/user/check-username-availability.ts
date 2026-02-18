@@ -1,7 +1,7 @@
 import type { UserQueryService } from "../../domain/user/query-service/user-query-service.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
-export class CheckUsernameAvailabilityUseCase {
+export class CheckUsernameAvailability {
   constructor(
     private uow: UnitOfWork,
     private userQueryService: UserQueryService,

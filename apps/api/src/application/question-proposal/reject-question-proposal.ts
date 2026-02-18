@@ -1,27 +1,29 @@
 import { Id } from "../../domain/shared/id.ts";
 import { QuestionProposal } from "../../domain/question-proposal/entity/question-proposal.ts";
 import type { QuestionProposalRepository } from "../../domain/question-proposal/repository/question-proposal-repository.ts";
+import { RejectReason } from "../../domain/question-proposal/value-object/reject-reason.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
-export type ApproveQuestionProposalInput = {
+export type RejectQuestionProposalInput = {
   questionProposalId: string;
+  rejectReason: string;
 };
 
-export class ApproveQuestionProposalUseCase {
+export class RejectQuestionProposal {
   constructor(
     private uow: UnitOfWork,
     private questionProposalRepository: QuestionProposalRepository,
   ) {}
 
-  async execute(
-    input: ApproveQuestionProposalInput,
-  ): Promise<QuestionProposal> {
+  async execute(input: RejectQuestionProposalInput): Promise<QuestionProposal> {
     return this.uow.run(async () => {
       const proposal = await this.questionProposalRepository.findById(
         Id.of(input.questionProposalId),
       );
 
-      const { proposal: newProposal, event } = proposal.approve();
+      const { proposal: newProposal, event } = proposal.reject(
+        RejectReason.create(input.rejectReason),
+      );
 
       await this.questionProposalRepository.save(newProposal, event);
 

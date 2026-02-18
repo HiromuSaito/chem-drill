@@ -1,5 +1,6 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import type { Dependencies } from "../../../composition-root.ts";
+import { errorSchema } from "../shared/schema.ts";
 import { toQuestionProposalResponse, toProjectionResponse } from "./type.ts";
 
 const questionProposalSchema = z
@@ -76,7 +77,7 @@ const questionProposalWithDatesSchema = z
   })
   .openapi("QuestionProposalProjection");
 
-const listProposalRoute = createRoute({
+const proposalListRoute = createRoute({
   method: "get",
   path: "/list",
   tags: ["QuestionProposal"],
@@ -103,7 +104,7 @@ const listProposalRoute = createRoute({
   },
 });
 
-const getProposalRoute = createRoute({
+const proposalGetRoute = createRoute({
   method: "get",
   path: "/:id",
   tags: ["QuestionProposal"],
@@ -124,7 +125,7 @@ const getProposalRoute = createRoute({
       description: "見つかりません",
       content: {
         "application/json": {
-          schema: z.object({ error: z.string() }),
+          schema: errorSchema,
         },
       },
     },
@@ -138,7 +139,7 @@ const proposalResponse = {
   },
 } as const;
 
-const createProposalRoute = createRoute({
+const proposalCreateRoute = createRoute({
   method: "post",
   path: "/create",
   tags: ["QuestionProposal"],
@@ -149,7 +150,7 @@ const createProposalRoute = createRoute({
   responses: proposalResponse,
 });
 
-const updateProposalRoute = createRoute({
+const proposalUpdateRoute = createRoute({
   method: "post",
   path: "/update",
   tags: ["QuestionProposal"],
@@ -160,7 +161,7 @@ const updateProposalRoute = createRoute({
   responses: proposalResponse,
 });
 
-const approveProposalRoute = createRoute({
+const proposalApproveRoute = createRoute({
   method: "post",
   path: "/approve",
   tags: ["QuestionProposal"],
@@ -171,7 +172,7 @@ const approveProposalRoute = createRoute({
   responses: proposalResponse,
 });
 
-const rejectProposalRoute = createRoute({
+const proposalRejectRoute = createRoute({
   method: "post",
   path: "/reject",
   tags: ["QuestionProposal"],
@@ -182,7 +183,7 @@ const rejectProposalRoute = createRoute({
   responses: proposalResponse,
 });
 
-const generateFromUrlRoute = createRoute({
+const proposalGenerateRoute = createRoute({
   method: "post",
   path: "/generate-from-url",
   tags: ["QuestionProposal"],
@@ -204,7 +205,7 @@ const generateFromUrlRoute = createRoute({
 
 export const createQuestionProposalRoute = (deps: Dependencies) =>
   new OpenAPIHono()
-    .openapi(listProposalRoute, async (c) => {
+    .openapi(proposalListRoute, async (c) => {
       const { status, limit, offset } = c.req.valid("query");
       const result = await deps.listQuestionProposals.execute({
         status,
@@ -216,7 +217,7 @@ export const createQuestionProposalRoute = (deps: Dependencies) =>
         total: result.total,
       });
     })
-    .openapi(getProposalRoute, async (c) => {
+    .openapi(proposalGetRoute, async (c) => {
       const { id } = c.req.valid("param");
       const proposal = await deps.getQuestionProposal.execute(id);
       if (!proposal) {
@@ -224,27 +225,27 @@ export const createQuestionProposalRoute = (deps: Dependencies) =>
       }
       return c.json(toProjectionResponse(proposal), 200);
     })
-    .openapi(createProposalRoute, async (c) => {
+    .openapi(proposalCreateRoute, async (c) => {
       const input = c.req.valid("json");
       const proposal = await deps.createQuestionProposal.execute(input);
       return c.json(toQuestionProposalResponse(proposal));
     })
-    .openapi(updateProposalRoute, async (c) => {
+    .openapi(proposalUpdateRoute, async (c) => {
       const input = c.req.valid("json");
       const proposal = await deps.updateQuestionProposal.execute(input);
       return c.json(toQuestionProposalResponse(proposal));
     })
-    .openapi(approveProposalRoute, async (c) => {
+    .openapi(proposalApproveRoute, async (c) => {
       const input = c.req.valid("json");
       const proposal = await deps.approveQuestionProposal.execute(input);
       return c.json(toQuestionProposalResponse(proposal));
     })
-    .openapi(rejectProposalRoute, async (c) => {
+    .openapi(proposalRejectRoute, async (c) => {
       const input = c.req.valid("json");
       const proposal = await deps.rejectQuestionProposal.execute(input);
       return c.json(toQuestionProposalResponse(proposal));
     })
-    .openapi(generateFromUrlRoute, async (c) => {
+    .openapi(proposalGenerateRoute, async (c) => {
       const input = c.req.valid("json");
       const proposals = await deps.generateQuestionProposals.execute(input);
       return c.json(proposals.map(toQuestionProposalResponse));

@@ -1,10 +1,8 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import type { Dependencies } from "../../composition-root.ts";
 import { createCategoryRoute } from "./category/category.route.ts";
-import {
-  createQuestionRoute,
-  createRandomQuestionRoute,
-} from "./question/question.route.ts";
+import { createQuestionRoute } from "./question/question.route.ts";
+import { createRandomQuestionRoute } from "./random-question/random-question.route.ts";
 import { createQuestionProposalRoute } from "./question-proposal/question-proposal.route.ts";
 import { createUserRoute } from "./user/user.route.ts";
 import {

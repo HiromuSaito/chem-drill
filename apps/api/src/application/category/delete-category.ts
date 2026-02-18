@@ -5,7 +5,7 @@ import type { CategoryRepository } from "../../domain/category/repository/catego
 import type { Category } from "../../domain/category/entity/category.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
-export class DeleteCategoryUseCase {
+export class DeleteCategory {
   constructor(
     private uow: UnitOfWork,
     private categoryRepository: CategoryRepository,

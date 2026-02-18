@@ -11,7 +11,7 @@ export type UpdateCategoryInput = {
   name: string;
 };
 
-export class UpdateCategoryUseCase {
+export class UpdateCategory {
   constructor(
     private uow: UnitOfWork,
     private categoryRepository: CategoryRepository,

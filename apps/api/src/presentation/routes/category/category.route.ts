@@ -1,5 +1,7 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import type { Dependencies } from "../../../composition-root.ts";
+import { errorSchema } from "../shared/schema.ts";
+import { toCategoryResponse } from "./type.ts";
 
 const categorySchema = z
   .object({
@@ -8,9 +10,7 @@ const categorySchema = z
   })
   .openapi("Category");
 
-const errorSchema = z.object({ error: z.string() });
-
-const listRoute = createRoute({
+const categoryListRoute = createRoute({
   method: "get",
   path: "/",
   tags: ["Category"],
@@ -36,7 +36,7 @@ const createCategoryResponseSchema = z
   })
   .openapi("CreateCategoryResponse");
 
-const createRoute_ = createRoute({
+const categoryCreateRoute = createRoute({
   method: "post",
   path: "/",
   tags: ["Category"],
@@ -72,7 +72,7 @@ const updateCategorySchema = z
   })
   .openapi("UpdateCategoryRequest");
 
-const updateRoute = createRoute({
+const categoryUpdateRoute = createRoute({
   method: "put",
   path: "/:id",
   tags: ["Category"],
@@ -99,7 +99,7 @@ const updateRoute = createRoute({
   },
 });
 
-const deleteRoute = createRoute({
+const categoryDeleteRoute = createRoute({
   method: "delete",
   path: "/:id",
   tags: ["Category"],
@@ -124,31 +124,25 @@ const deleteRoute = createRoute({
 
 export const createCategoryRoute = (deps: Dependencies) =>
   new OpenAPIHono()
-    .openapi(listRoute, async (c) => {
+    .openapi(categoryListRoute, async (c) => {
       const categories = await deps.listCategories.execute();
       return c.json(categories);
     })
-    .openapi(createRoute_, async (c) => {
+    .openapi(categoryCreateRoute, async (c) => {
       const input = c.req.valid("json");
       const category = await deps.createCategory.execute(input);
-      return c.json(
-        { id: category.id as string, name: category.name.value },
-        201,
-      );
+      return c.json(toCategoryResponse(category), 201);
     })
-    .openapi(updateRoute, async (c) => {
+    .openapi(categoryUpdateRoute, async (c) => {
       const { id } = c.req.valid("param");
       const input = c.req.valid("json");
       const category = await deps.updateCategory.execute({
         id,
         name: input.name,
       });
-      return c.json(
-        { id: category.id as string, name: category.name.value },
-        200,
-      );
+      return c.json(toCategoryResponse(category), 200);
     })
-    .openapi(deleteRoute, async (c) => {
+    .openapi(categoryDeleteRoute, async (c) => {
       const { id } = c.req.valid("param");
       await deps.deleteCategory.execute(id);
       return c.body(null, 204);

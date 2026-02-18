@@ -6,7 +6,7 @@ import type { UnitOfWork } from "../unit-of-work.ts";
 
 const DEFAULT_QUESTION_COUNT = 10;
 
-export class GetRandomQuestionsUseCase {
+export class GetRandomQuestions {
   constructor(
     private uow: UnitOfWork,
     private questionQueryService: QuestionQueryService,

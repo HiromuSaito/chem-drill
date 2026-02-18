@@ -17,7 +17,7 @@ export type CreateQuestionInput = {
   categoryId: string;
 };
 
-export class CreateQuestionUseCase {
+export class CreateQuestion {
   constructor(
     private uow: UnitOfWork,
     private questionRepository: QuestionRepository,
@@ -35,7 +35,8 @@ export class CreateQuestionUseCase {
         categoryId: Id.of<Category>(input.categoryId),
       });
 
-      return await this.questionRepository.save(question);
+      await this.questionRepository.save(question);
+      return question;
     });
   }
 }

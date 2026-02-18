@@ -1,24 +1,6 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import type { Dependencies } from "../../../composition-root.ts";
-import {
-  toQuestionWithCategoryResponse,
-  toCreatedQuestionResponse,
-} from "./type.ts";
-
-const questionWithCategorySchema = z
-  .object({
-    id: z.string().uuid(),
-    text: z.string(),
-    difficulty: z.string(),
-    choices: z.array(z.string()),
-    correctIndexes: z.array(z.number().int()),
-    explanation: z.string(),
-    category: z.object({
-      categoryId: z.string().uuid(),
-      categoryName: z.string(),
-    }),
-  })
-  .openapi("QuestionWithCategory");
+import { toCreatedQuestionResponse } from "./type.ts";
 
 const createdQuestionSchema = z
   .object({
@@ -43,22 +25,7 @@ const createQuestionRequestSchema = z
   })
   .openapi("CreateQuestionRequest");
 
-const getRandomRoute = createRoute({
-  method: "get",
-  path: "/random",
-  tags: ["Question"],
-  summary: "ランダムな問題一覧を取得",
-  responses: {
-    200: {
-      description: "問題一覧",
-      content: {
-        "application/json": { schema: z.array(questionWithCategorySchema) },
-      },
-    },
-  },
-});
-
-const createQuestionRoute_ = createRoute({
+const questionCreateRoute = createRoute({
   method: "post",
   path: "/create",
   tags: ["Question"],
@@ -79,14 +46,8 @@ const createQuestionRoute_ = createRoute({
 });
 
 export const createQuestionRoute = (deps: Dependencies) =>
-  new OpenAPIHono().openapi(createQuestionRoute_, async (c) => {
+  new OpenAPIHono().openapi(questionCreateRoute, async (c) => {
     const input = c.req.valid("json");
     const question = await deps.createQuestion.execute(input);
     return c.json(toCreatedQuestionResponse(question));
-  });
-
-export const createRandomQuestionRoute = (deps: Dependencies) =>
-  new OpenAPIHono().openapi(getRandomRoute, async (c) => {
-    const questions = await deps.getRandomQuestions.execute();
-    return c.json(questions.map((q) => toQuestionWithCategoryResponse(q)));
   });

@@ -4,7 +4,7 @@ import type {
 } from "../../domain/category/query-service/category-query-service.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
-export class ListCategoriesUseCase {
+export class ListCategories {
   constructor(
     private uow: UnitOfWork,
     private categoryQueryService: CategoryQueryService,

@@ -5,23 +5,23 @@ import { DrizzleQuestionRepository } from "./infrastructure/question/drizzle-que
 import { DrizzleCategoryQueryService } from "./infrastructure/category/drizzle-category-query-service.ts";
 import { DrizzleCategoryRepository } from "./infrastructure/category/drizzle-category-repository.ts";
 import { GeminiQuestionGenerationAdapter } from "./infrastructure/question-generation/gemini-question-generation-adapter.ts";
-import { GetRandomQuestionsUseCase } from "./application/question/get-random-questions-use-case.ts";
-import { CreateQuestionUseCase } from "./application/question/create-question-use-case.ts";
-import { ListCategoriesUseCase } from "./application/category/list-categories-use-case.ts";
-import { CreateCategoryUseCase } from "./application/category/create-category-use-case.ts";
-import { UpdateCategoryUseCase } from "./application/category/update-category-use-case.ts";
-import { DeleteCategoryUseCase } from "./application/category/delete-category-use-case.ts";
-import { CreateQuestionProposalUseCase } from "./application/question-proposal/create-question-proposal-use-case.ts";
-import { UpdateQuestionProposalUseCase } from "./application/question-proposal/update-question-proposal-use-case.ts";
-import { ApproveQuestionProposalUseCase } from "./application/question-proposal/approve-question-proposal-use-case.ts";
-import { RejectQuestionProposalUseCase } from "./application/question-proposal/reject-question-proposal-use-case.ts";
-import { GenerateQuestionProposalsUseCase } from "./application/question-proposal/generate-question-proposals-use-case.ts";
-import { ListQuestionProposalsUseCase } from "./application/question-proposal/list-question-proposals-use-case.ts";
-import { GetQuestionProposalUseCase } from "./application/question-proposal/get-question-proposal-use-case.ts";
+import { GetRandomQuestions } from "./application/question/get-random-questions.ts";
+import { CreateQuestion } from "./application/question/create-question.ts";
+import { ListCategories } from "./application/category/list-categories.ts";
+import { CreateCategory } from "./application/category/create-category.ts";
+import { UpdateCategory } from "./application/category/update-category.ts";
+import { DeleteCategory } from "./application/category/delete-category.ts";
+import { CreateQuestionProposal } from "./application/question-proposal/create-question-proposal.ts";
+import { UpdateQuestionProposal } from "./application/question-proposal/update-question-proposal.ts";
+import { ApproveQuestionProposal } from "./application/question-proposal/approve-question-proposal.ts";
+import { RejectQuestionProposal } from "./application/question-proposal/reject-question-proposal.ts";
+import { GenerateQuestionProposals } from "./application/question-proposal/generate-question-proposals.ts";
+import { ListQuestionProposals } from "./application/question-proposal/list-question-proposals.ts";
+import { GetQuestionProposal } from "./application/question-proposal/get-question-proposal.ts";
 import { DrizzleQuestionProposalRepository } from "./infrastructure/question-proposal/drizzle-question-proposal-repository.ts";
 import { DrizzleQuestionProposalListQueryService } from "./infrastructure/question-proposal/drizzle-question-proposal-list-query-service.ts";
 import { DrizzleUserQueryService } from "./infrastructure/user/drizzle-user-query-service.ts";
-import { CheckUsernameAvailabilityUseCase } from "./application/user/check-username-availability-use-case.ts";
+import { CheckUsernameAvailability } from "./application/user/check-username-availability.ts";
 import { CategoryNameDuplicateChecker } from "./domain/category/service/category-name-duplicate-checker.ts";
 import { CategoryDeletionPolicy } from "./domain/category/service/category-deletion-policy.ts";
 import { requireEnv } from "./env.ts";
@@ -51,65 +51,59 @@ const questionGenerationAdapter = new GeminiQuestionGenerationAdapter(() =>
 );
 
 // ユースケース
-const getRandomQuestions = new GetRandomQuestionsUseCase(
+const getRandomQuestions = new GetRandomQuestions(
   unitOfWork,
   questionQueryService,
 );
-const createQuestion = new CreateQuestionUseCase(
-  unitOfWork,
-  questionRepository,
-);
-const createQuestionProposal = new CreateQuestionProposalUseCase(
+const createQuestion = new CreateQuestion(unitOfWork, questionRepository);
+const createQuestionProposal = new CreateQuestionProposal(
   unitOfWork,
   questionProposalRepository,
 );
-const updateQuestionProposal = new UpdateQuestionProposalUseCase(
+const updateQuestionProposal = new UpdateQuestionProposal(
   unitOfWork,
   questionProposalRepository,
 );
-const approveQuestionProposal = new ApproveQuestionProposalUseCase(
+const approveQuestionProposal = new ApproveQuestionProposal(
   unitOfWork,
   questionProposalRepository,
 );
-const rejectQuestionProposal = new RejectQuestionProposalUseCase(
+const rejectQuestionProposal = new RejectQuestionProposal(
   unitOfWork,
   questionProposalRepository,
 );
-const listCategories = new ListCategoriesUseCase(
-  unitOfWork,
-  categoryQueryService,
-);
-const createCategory = new CreateCategoryUseCase(
+const listCategories = new ListCategories(unitOfWork, categoryQueryService);
+const createCategory = new CreateCategory(
   unitOfWork,
   categoryRepository,
   categoryNameDuplicateChecker,
 );
-const updateCategory = new UpdateCategoryUseCase(
+const updateCategory = new UpdateCategory(
   unitOfWork,
   categoryRepository,
   categoryNameDuplicateChecker,
 );
-const deleteCategory = new DeleteCategoryUseCase(
+const deleteCategory = new DeleteCategory(
   unitOfWork,
   categoryRepository,
   categoryDeletionPolicy,
 );
-const generateQuestionProposals = new GenerateQuestionProposalsUseCase(
+const generateQuestionProposals = new GenerateQuestionProposals(
   unitOfWork,
   questionGenerationAdapter,
   questionProposalRepository,
 );
 
-const listQuestionProposals = new ListQuestionProposalsUseCase(
+const listQuestionProposals = new ListQuestionProposals(
   unitOfWork,
   questionProposalListQueryService,
 );
-const getQuestionProposal = new GetQuestionProposalUseCase(
+const getQuestionProposal = new GetQuestionProposal(
   unitOfWork,
   questionProposalListQueryService,
 );
 
-const checkUsernameAvailability = new CheckUsernameAvailabilityUseCase(
+const checkUsernameAvailability = new CheckUsernameAvailability(
   unitOfWork,
   userQueryService,
 );

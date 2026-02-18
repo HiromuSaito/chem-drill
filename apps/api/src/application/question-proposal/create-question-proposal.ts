@@ -17,7 +17,7 @@ export type CreateQuestionProposalInput = {
   categoryId: string;
 };
 
-export class CreateQuestionProposalUseCase {
+export class CreateQuestionProposal {
   constructor(
     private uow: UnitOfWork,
     private questionProposalRepository: QuestionProposalRepository,

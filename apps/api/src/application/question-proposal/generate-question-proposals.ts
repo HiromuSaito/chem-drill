@@ -11,7 +11,7 @@ import type { QuestionGenerationService } from "./question-generation-service.ts
 
 const QUESTION_COUNT = 10;
 
-export class GenerateQuestionProposalsUseCase {
+export class GenerateQuestionProposals {
   constructor(
     private uow: UnitOfWork,
     private questionGenerationService: QuestionGenerationService,

@@ -9,7 +9,7 @@ export type CreateCategoryInput = {
   name: string;
 };
 
-export class CreateCategoryUseCase {
+export class CreateCategory {
   constructor(
     private uow: UnitOfWork,
     private categoryRepository: CategoryRepository,
