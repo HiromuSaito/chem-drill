@@ -1,5 +1,5 @@
 import { SendEmailCommand, SESv2Client } from "@aws-sdk/client-sesv2";
-import { requireEnv } from "../../env.js";
+import { requireEnv } from "../../env.ts";
 
 const sesClient = new SESv2Client({
   ...(process.env.SES_ENDPOINT && { endpoint: process.env.SES_ENDPOINT }),

@@ -3,14 +3,14 @@ import {
   categories,
   questions,
   questionProposalProjections,
-} from "../db/schema.js";
-import { getCurrentTransaction } from "../db/transaction-context.js";
+} from "../db/schema.ts";
+import { getCurrentTransaction } from "../db/transaction-context.ts";
 import type {
   CategoryQueryService,
   CategoryDto,
-} from "../../domain/category/category-query-service.js";
-import type { CategoryId } from "../../domain/category/category-id.js";
-import type { CategoryName } from "../../domain/category/category-name.js";
+} from "../../domain/category/query-service/category-query-service.ts";
+import type { CategoryId } from "../../domain/category/entity/category.ts";
+import type { CategoryName } from "../../domain/category/value-object/category-name.ts";
 
 export class DrizzleCategoryQueryService implements CategoryQueryService {
   async findAll(): Promise<CategoryDto[]> {

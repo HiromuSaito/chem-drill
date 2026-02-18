@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { Id } from "../../id.js";
-import { Category } from "../category.js";
-import { CategoryName } from "../category-name.js";
+import { Id } from "../../shared/id.ts";
+import { Category } from "../entity/category.ts";
+import { CategoryName } from "../value-object/category-name.ts";
 
 describe("Category", () => {
   it("正常なパラメータで生成できる", () => {

@@ -1,5 +1,5 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import type { Dependencies } from "../../../composition-root.js";
+import type { Dependencies } from "../../../composition-root.ts";
 
 const checkUsernameRoute = createRoute({
   method: "get",

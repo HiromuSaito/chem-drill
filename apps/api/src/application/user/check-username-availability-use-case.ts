@@ -1,5 +1,5 @@
-import type { UserQueryService } from "../../domain/user/user-query-service.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+import type { UserQueryService } from "../../domain/user/query-service/user-query-service.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 export class CheckUsernameAvailabilityUseCase {
   constructor(

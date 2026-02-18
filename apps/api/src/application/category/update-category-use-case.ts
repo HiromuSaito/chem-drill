@@ -1,10 +1,10 @@
-import { Id } from "../../domain/id.js";
-import { CategoryName } from "../../domain/category/category-name.js";
-import { EntityNotFoundError } from "../../domain/errors.js";
-import type { CategoryNameDuplicateChecker } from "../../domain/category/category-name-duplicate-checker.js";
-import type { CategoryRepository } from "../../domain/category/category-repository.js";
-import type { Category } from "../../domain/category/category.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+import { Id } from "../../domain/shared/id.ts";
+import { CategoryName } from "../../domain/category/value-object/category-name.ts";
+import { EntityNotFoundError } from "../../domain/shared/errors.ts";
+import type { CategoryNameDuplicateChecker } from "../../domain/category/service/category-name-duplicate-checker.ts";
+import type { CategoryRepository } from "../../domain/category/repository/category-repository.ts";
+import type { Category } from "../../domain/category/entity/category.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 export type UpdateCategoryInput = {
   id: string;

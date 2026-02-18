@@ -1,12 +1,12 @@
-import type { Category } from "../../domain/category/category.js";
-import { Id } from "../../domain/id.js";
-import { CorrectIndexes } from "../../domain/question/correct-indexes.js";
-import { Difficulty } from "../../domain/question/difficulty.js";
-import { Explanation } from "../../domain/question/explanation.js";
-import { QuestionText } from "../../domain/question/question-text.js";
-import { QuestionProposal } from "../../domain/question-proposal/question-proposal.js";
-import type { QuestionProposalRepository } from "../../domain/question-proposal/question-proposal-repository.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+import type { Category } from "../../domain/category/entity/category.ts";
+import { Id } from "../../domain/shared/id.ts";
+import { CorrectIndexes } from "../../domain/shared/value-object/correct-indexes.ts";
+import { Difficulty } from "../../domain/shared/value-object/difficulty.ts";
+import { Explanation } from "../../domain/shared/value-object/explanation.ts";
+import { QuestionText } from "../../domain/shared/value-object/question-text.ts";
+import { QuestionProposal } from "../../domain/question-proposal/entity/question-proposal.ts";
+import type { QuestionProposalRepository } from "../../domain/question-proposal/repository/question-proposal-repository.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 export type UpdateQuestionProposalInput = {
   questionProposalId: string;

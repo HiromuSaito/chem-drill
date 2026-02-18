@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { Id } from "../../id.js";
-import type { Category } from "../category.js";
+import { Id } from "../../shared/id.ts";
+import type { Category } from "../entity/category.ts";
 
 describe("CategoryId", () => {
   it("正常なUUIDで生成できる", () => {

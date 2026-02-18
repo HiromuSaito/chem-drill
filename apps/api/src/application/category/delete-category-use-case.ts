@@ -1,9 +1,9 @@
-import { Id } from "../../domain/id.js";
-import { EntityNotFoundError } from "../../domain/errors.js";
-import type { CategoryDeletionPolicy } from "../../domain/category/category-deletion-policy.js";
-import type { CategoryRepository } from "../../domain/category/category-repository.js";
-import type { Category } from "../../domain/category/category.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+import { Id } from "../../domain/shared/id.ts";
+import { EntityNotFoundError } from "../../domain/shared/errors.ts";
+import type { CategoryDeletionPolicy } from "../../domain/category/service/category-deletion-policy.ts";
+import type { CategoryRepository } from "../../domain/category/repository/category-repository.ts";
+import type { Category } from "../../domain/category/entity/category.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 export class DeleteCategoryUseCase {
   constructor(

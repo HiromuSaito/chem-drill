@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CorrectIndexes } from "../correct-indexes.js";
+import { CorrectIndexes } from "../../shared/value-object/correct-indexes.ts";
 
 describe("CorrectIndexes", () => {
   it("単一のインデックスで生成できる", () => {

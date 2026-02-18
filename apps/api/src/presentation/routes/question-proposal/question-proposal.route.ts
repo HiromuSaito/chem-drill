@@ -1,6 +1,6 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import type { Dependencies } from "../../../composition-root.js";
-import { toQuestionProposalResponse, toProjectionResponse } from "./type.js";
+import type { Dependencies } from "../../../composition-root.ts";
+import { toQuestionProposalResponse, toProjectionResponse } from "./type.ts";
 
 const questionProposalSchema = z
   .object({

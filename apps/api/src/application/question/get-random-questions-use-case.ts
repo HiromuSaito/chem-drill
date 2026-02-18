@@ -1,8 +1,8 @@
 import type {
   QuestionQueryService,
   QuestionWithCategory,
-} from "../../domain/question/question-query-service.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+} from "../../domain/question/query-service/question-query-service.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 const DEFAULT_QUESTION_COUNT = 10;
 

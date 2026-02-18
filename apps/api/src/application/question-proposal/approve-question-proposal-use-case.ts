@@ -1,7 +1,7 @@
-import { Id } from "../../domain/id.js";
-import { QuestionProposal } from "../../domain/question-proposal/question-proposal.js";
-import type { QuestionProposalRepository } from "../../domain/question-proposal/question-proposal-repository.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+import { Id } from "../../domain/shared/id.ts";
+import { QuestionProposal } from "../../domain/question-proposal/entity/question-proposal.ts";
+import type { QuestionProposalRepository } from "../../domain/question-proposal/repository/question-proposal-repository.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 export type ApproveQuestionProposalInput = {
   questionProposalId: string;

@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { user } from "../db/auth-schema.js";
-import { getCurrentTransaction } from "../db/transaction-context.js";
-import type { UserQueryService } from "../../domain/user/user-query-service.js";
+import { user } from "../db/auth-schema.ts";
+import { getCurrentTransaction } from "../db/transaction-context.ts";
+import type { UserQueryService } from "../../domain/user/query-service/user-query-service.ts";
 
 export class DrizzleUserQueryService implements UserQueryService {
   async isUsernameAvailable(username: string): Promise<boolean> {

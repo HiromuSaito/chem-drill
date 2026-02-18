@@ -2,8 +2,8 @@ import type {
   QuestionProposalListQueryService,
   ListQuestionProposalsInput,
   ListQuestionProposalsResult,
-} from "../../domain/question-proposal/question-proposal-list-query-service.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+} from "../../domain/question-proposal/query-service/question-proposal-list-query-service.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 export class ListQuestionProposalsUseCase {
   constructor(

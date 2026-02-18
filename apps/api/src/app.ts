@@ -1,12 +1,12 @@
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { createApiRoutes } from "./presentation/routes/index.js";
-import { dependencies } from "./composition-root";
-import { consoleLogger } from "./lib/logger";
-import { ConflictError, EntityNotFoundError } from "./domain/errors.js";
+import { createApiRoutes } from "./presentation/routes/index.ts";
+import { dependencies } from "./composition-root.ts";
+import { consoleLogger } from "./lib/logger.ts";
+import { ConflictError, EntityNotFoundError } from "./domain/shared/errors.ts";
 import { Scalar } from "@scalar/hono-api-reference";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { auth } from "./infrastructure/auth/auth.js";
+import { auth } from "./infrastructure/auth/auth.ts";
 
 const app = new OpenAPIHono();
 

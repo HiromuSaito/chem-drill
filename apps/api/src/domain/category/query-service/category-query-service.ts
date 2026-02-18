@@ -1,5 +1,5 @@
-import type { CategoryId } from "./category-id.js";
-import type { CategoryName } from "./category-name.js";
+import type { CategoryId } from "../entity/category.ts";
+import type { CategoryName } from "../value-object/category-name.ts";
 
 export type CategoryDto = {
   id: string;

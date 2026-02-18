@@ -1,10 +1,10 @@
 import { eq, sql } from "drizzle-orm";
-import { questions, categories } from "../db/schema.js";
-import { getCurrentTransaction } from "../db/transaction-context.js";
+import { questions, categories } from "../db/schema.ts";
+import { getCurrentTransaction } from "../db/transaction-context.ts";
 import type {
   QuestionQueryService,
   QuestionWithCategory,
-} from "../../domain/question/question-query-service.js";
+} from "../../domain/question/query-service/question-query-service.ts";
 
 export class DrizzleQuestionQueryService implements QuestionQueryService {
   async findRandom(limit: number): Promise<QuestionWithCategory[]> {

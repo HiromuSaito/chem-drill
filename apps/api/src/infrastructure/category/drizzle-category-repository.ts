@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
-import { categories } from "../db/schema.js";
-import { getCurrentTransaction } from "../db/transaction-context.js";
-import type { CategoryRepository } from "../../domain/category/category-repository.js";
-import type { CategoryId } from "../../domain/category/category-id.js";
-import { Category } from "../../domain/category/category.js";
-import { CategoryName } from "../../domain/category/category-name.js";
-import { Id } from "../../domain/id.js";
+import { categories } from "../db/schema.ts";
+import { getCurrentTransaction } from "../db/transaction-context.ts";
+import type { CategoryRepository } from "../../domain/category/repository/category-repository.ts";
+import type { CategoryId } from "../../domain/category/entity/category.ts";
+import { Category } from "../../domain/category/entity/category.ts";
+import { CategoryName } from "../../domain/category/value-object/category-name.ts";
+import { Id } from "../../domain/shared/id.ts";
 
 export class DrizzleCategoryRepository implements CategoryRepository {
   async save(category: Category): Promise<void> {

@@ -1,9 +1,11 @@
-import type { CategoryId } from "../category/category-id.js";
-import { CorrectIndexes } from "./correct-indexes.js";
-import { Difficulty } from "./difficulty.js";
-import { Explanation } from "./explanation.js";
-import type { QuestionId } from "./question-id.js";
-import { QuestionText } from "./question-text.js";
+import type { CategoryId } from "../../category/entity/category.ts";
+import type { Id } from "../../shared/id.ts";
+import { CorrectIndexes } from "../../shared/value-object/correct-indexes.ts";
+import { Difficulty } from "../../shared/value-object/difficulty.ts";
+import { Explanation } from "../../shared/value-object/explanation.ts";
+import { QuestionText } from "../../shared/value-object/question-text.ts";
+
+export type QuestionId = Id<Question>;
 
 const MIN_CHOICES = 4;
 const MAX_CHOICES = 8;

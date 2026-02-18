@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { Id } from "../../id.js";
-import type { Question } from "../question.js";
+import { Id } from "../../shared/id.ts";
+import type { Question } from "../entity/question.ts";
 
 describe("QuestionId", () => {
   const VALID_UUID = "550e8400-e29b-41d4-a716-446655440000";

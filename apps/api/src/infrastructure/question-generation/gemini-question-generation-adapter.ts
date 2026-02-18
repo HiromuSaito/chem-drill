@@ -2,8 +2,8 @@ import { GoogleGenAI } from "@google/genai";
 import type {
   QuestionGenerationService,
   GeneratedQuestion,
-} from "../../application/question-proposal/question-generation-service.js";
-import { questionGenerationResultSchema } from "./schema.js";
+} from "../../application/question-proposal/question-generation-service.ts";
+import { questionGenerationResultSchema } from "./schema.ts";
 
 const MODEL = "gemini-2.5-flash";
 

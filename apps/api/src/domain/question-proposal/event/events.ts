@@ -1,12 +1,12 @@
-import type { CategoryId } from "../category/category-id.js";
-import { DomainEvent } from "../domain-event.js";
-import { Id } from "../id.js";
-import type { CorrectIndexes } from "../question/correct-indexes.js";
-import type { Difficulty } from "../question/difficulty.js";
-import type { Explanation } from "../question/explanation.js";
-import type { QuestionText } from "../question/question-text.js";
-import type { QuestionProposal } from "./question-proposal.js";
-import type { RejectReason } from "./reject-reason.js";
+import type { CategoryId } from "../../category/entity/category.ts";
+import { DomainEvent } from "../../shared/domain-event.ts";
+import { Id } from "../../shared/id.ts";
+import type { CorrectIndexes } from "../../shared/value-object/correct-indexes.ts";
+import type { Difficulty } from "../../shared/value-object/difficulty.ts";
+import type { Explanation } from "../../shared/value-object/explanation.ts";
+import type { QuestionText } from "../../shared/value-object/question-text.ts";
+import type { QuestionProposal } from "../entity/question-proposal.ts";
+import type { RejectReason } from "../value-object/reject-reason.ts";
 
 export type QuestionProposalCreated = DomainEvent<
   "QuestionProposalCreated",

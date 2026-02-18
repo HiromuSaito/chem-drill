@@ -1,5 +1,5 @@
-import type { QuestionProposal } from "../../../domain/question-proposal/question-proposal";
-import type { QuestionProposalProjectionDto } from "../../../domain/question-proposal/question-proposal-list-query-service";
+import type { QuestionProposal } from "../../../domain/question-proposal/entity/question-proposal.ts";
+import type { QuestionProposalProjectionDto } from "../../../domain/question-proposal/query-service/question-proposal-list-query-service.ts";
 
 export type QuestionProposalResponse = {
   id: string;

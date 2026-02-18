@@ -4,9 +4,9 @@ import type {
   ListQuestionProposalsInput,
   ListQuestionProposalsResult,
   QuestionProposalProjectionDto,
-} from "../../domain/question-proposal/question-proposal-list-query-service.js";
-import { getCurrentTransaction } from "../db/transaction-context.js";
-import { questionProposalProjections } from "../db/schema.js";
+} from "../../domain/question-proposal/query-service/question-proposal-list-query-service.ts";
+import { getCurrentTransaction } from "../db/transaction-context.ts";
+import { questionProposalProjections } from "../db/schema.ts";
 
 export class DrizzleQuestionProposalListQueryService implements QuestionProposalListQueryService {
   async list(

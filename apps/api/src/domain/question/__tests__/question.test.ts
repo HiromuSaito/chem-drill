@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { Id } from "../../id.js";
-import type { Category } from "../../category/category.js";
-import { CorrectIndexes } from "../correct-indexes.js";
-import { Difficulty } from "../difficulty.js";
-import { Explanation } from "../explanation.js";
-import { Question } from "../question.js";
-import { QuestionText } from "../question-text.js";
+import { Id } from "../../shared/id.ts";
+import type { Category } from "../../category/entity/category.ts";
+import { CorrectIndexes } from "../../shared/value-object/correct-indexes.ts";
+import { Difficulty } from "../../shared/value-object/difficulty.ts";
+import { Explanation } from "../../shared/value-object/explanation.ts";
+import { Question } from "../entity/question.ts";
+import { QuestionText } from "../../shared/value-object/question-text.ts";
 
 function buildCategoryId() {
   return Id.of<Category>("550e8400-e29b-41d4-a716-446655440099");

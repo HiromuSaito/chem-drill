@@ -1,5 +1,5 @@
 import { createMiddleware } from "hono/factory";
-import { auth } from "./auth.js";
+import { auth } from "./auth.ts";
 
 type SessionUser = {
   id: string;

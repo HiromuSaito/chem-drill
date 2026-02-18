@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CategoryName } from "../category-name.js";
+import { CategoryName } from "../value-object/category-name.ts";
 
 describe("CategoryName", () => {
   it("正常な値で生成できる", () => {

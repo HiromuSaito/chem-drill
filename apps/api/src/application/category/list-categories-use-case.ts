@@ -1,8 +1,8 @@
 import type {
   CategoryQueryService,
   CategoryDto,
-} from "../../domain/category/category-query-service.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+} from "../../domain/category/query-service/category-query-service.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 export class ListCategoriesUseCase {
   constructor(

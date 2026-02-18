@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import type { Database, Transaction } from "./client.js";
+import type { Database, Transaction } from "./client.ts";
 
 const transactionStorage = new AsyncLocalStorage<Transaction>();
 

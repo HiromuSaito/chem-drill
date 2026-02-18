@@ -1,6 +1,6 @@
-import type { UnitOfWork } from "../../application/unit-of-work.js";
-import type { Database } from "./client.js";
-import { runInTransaction } from "./transaction-context.js";
+import type { UnitOfWork } from "../../application/unit-of-work.ts";
+import type { Database } from "./client.ts";
+import { runInTransaction } from "./transaction-context.ts";
 
 export class DrizzleUnitOfWork implements UnitOfWork {
   constructor(private readonly db: Database) {}

@@ -1,6 +1,6 @@
-import { ConflictError } from "../errors.js";
-import type { CategoryName } from "./category-name.js";
-import type { CategoryQueryService } from "./category-query-service.js";
+import { ConflictError } from "../../shared/errors.ts";
+import type { CategoryName } from "../value-object/category-name.ts";
+import type { CategoryQueryService } from "../query-service/category-query-service.ts";
 
 export class CategoryNameDuplicateChecker {
   constructor(private queryService: CategoryQueryService) {}

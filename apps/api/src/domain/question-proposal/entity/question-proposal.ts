@@ -1,18 +1,18 @@
-import { CategoryId } from "../category/category-id";
-import { Id } from "../id";
-import { CorrectIndexes } from "../question/correct-indexes";
-import { Difficulty } from "../question/difficulty";
-import { Explanation } from "../question/explanation";
-import { QuestionText } from "../question/question-text";
-import {
+import type { CategoryId } from "../../category/entity/category.ts";
+import { Id } from "../../shared/id.ts";
+import { CorrectIndexes } from "../../shared/value-object/correct-indexes.ts";
+import { Difficulty } from "../../shared/value-object/difficulty.ts";
+import { Explanation } from "../../shared/value-object/explanation.ts";
+import { QuestionText } from "../../shared/value-object/question-text.ts";
+import type {
   QuestionProposalApproved,
   QuestionProposalCreated,
   QuestionProposalEdited,
   QuestionProposalEvent,
   QuestionProposalRejected,
-} from "./events";
-import { QuestionProposalStatus } from "./question-proposal-status";
-import { RejectReason } from "./reject-reason";
+} from "../event/events.ts";
+import { QuestionProposalStatus } from "../value-object/question-proposal-status.ts";
+import { RejectReason } from "../value-object/reject-reason.ts";
 
 export class QuestionProposal {
   private constructor(

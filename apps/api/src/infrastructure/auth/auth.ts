@@ -1,10 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, emailOTP } from "better-auth/plugins";
-import { db } from "../db/client.js";
-import * as schema from "../db/schema.js";
-import { requireEnv } from "../../env.js";
-import { sendOtpEmail } from "./send-otp-email.js";
+import { db } from "../db/client.ts";
+import * as schema from "../db/schema.ts";
+import { requireEnv } from "../../env.ts";
+import { sendOtpEmail } from "./send-otp-email.ts";
 
 export const auth = betterAuth({
   secret: requireEnv("BETTER_AUTH_SECRET"),

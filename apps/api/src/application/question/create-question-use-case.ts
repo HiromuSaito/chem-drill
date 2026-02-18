@@ -1,12 +1,12 @@
-import { Id } from "../../domain/id.js";
-import type { Category } from "../../domain/category/category.js";
-import { Question } from "../../domain/question/question.js";
-import { QuestionText } from "../../domain/question/question-text.js";
-import { Difficulty } from "../../domain/question/difficulty.js";
-import { CorrectIndexes } from "../../domain/question/correct-indexes.js";
-import { Explanation } from "../../domain/question/explanation.js";
-import type { QuestionRepository } from "../../domain/question/question-repository.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+import { Id } from "../../domain/shared/id.ts";
+import type { Category } from "../../domain/category/entity/category.ts";
+import { Question } from "../../domain/question/entity/question.ts";
+import { QuestionText } from "../../domain/shared/value-object/question-text.ts";
+import { Difficulty } from "../../domain/shared/value-object/difficulty.ts";
+import { CorrectIndexes } from "../../domain/shared/value-object/correct-indexes.ts";
+import { Explanation } from "../../domain/shared/value-object/explanation.ts";
+import type { QuestionRepository } from "../../domain/question/repository/question-repository.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 export type CreateQuestionInput = {
   text: string;

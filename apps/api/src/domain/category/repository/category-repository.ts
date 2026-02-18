@@ -1,5 +1,4 @@
-import type { Category } from "./category.js";
-import type { CategoryId } from "./category-id.js";
+import type { Category, CategoryId } from "../entity/category.ts";
 
 export interface CategoryRepository {
   save(category: Category): Promise<void>;

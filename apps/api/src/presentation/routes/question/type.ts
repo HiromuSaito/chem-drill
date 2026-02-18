@@ -1,5 +1,5 @@
-import type { Question } from "../../../domain/question/question";
-import type { QuestionWithCategory } from "../../../domain/question/question-query-service";
+import type { Question } from "../../../domain/question/entity/question.ts";
+import type { QuestionWithCategory } from "../../../domain/question/query-service/question-query-service.ts";
 
 export type QuestionWithCategoryResponse = {
   id: string;

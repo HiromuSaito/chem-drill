@@ -1,18 +1,18 @@
 import { eq } from "drizzle-orm";
-import { questions } from "../db/schema.js";
-import { getCurrentTransaction } from "../db/transaction-context.js";
-import { Id } from "../../domain/id.js";
-import type { Category } from "../../domain/category/category.js";
-import { Question } from "../../domain/question/question.js";
-import type { QuestionId } from "../../domain/question/question-id.js";
-import { QuestionText } from "../../domain/question/question-text.js";
+import { questions } from "../db/schema.ts";
+import { getCurrentTransaction } from "../db/transaction-context.ts";
+import { Id } from "../../domain/shared/id.ts";
+import type { Category } from "../../domain/category/entity/category.ts";
+import { Question } from "../../domain/question/entity/question.ts";
+import type { QuestionId } from "../../domain/question/entity/question.ts";
+import { QuestionText } from "../../domain/shared/value-object/question-text.ts";
 import {
   Difficulty,
   type DifficultyLevel,
-} from "../../domain/question/difficulty.js";
-import { CorrectIndexes } from "../../domain/question/correct-indexes.js";
-import { Explanation } from "../../domain/question/explanation.js";
-import type { QuestionRepository } from "../../domain/question/question-repository.js";
+} from "../../domain/shared/value-object/difficulty.ts";
+import { CorrectIndexes } from "../../domain/shared/value-object/correct-indexes.ts";
+import { Explanation } from "../../domain/shared/value-object/explanation.ts";
+import type { QuestionRepository } from "../../domain/question/repository/question-repository.ts";
 
 export class DrizzleQuestionRepository implements QuestionRepository {
   async save(question: Question): Promise<Question> {

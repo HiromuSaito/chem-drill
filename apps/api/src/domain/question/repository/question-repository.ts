@@ -1,5 +1,4 @@
-import type { Question } from "./question.js";
-import type { QuestionId } from "./question-id.js";
+import type { Question, QuestionId } from "../entity/question.ts";
 
 export interface QuestionRepository {
   save(question: Question): Promise<Question>;

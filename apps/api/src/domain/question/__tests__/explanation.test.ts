@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Explanation } from "../explanation.js";
+import { Explanation } from "../../shared/value-object/explanation.ts";
 
 describe("Explanation", () => {
   it("正常な値で生成できる", () => {

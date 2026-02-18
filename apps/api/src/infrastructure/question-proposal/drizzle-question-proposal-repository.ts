@@ -1,14 +1,14 @@
 import { eq } from "drizzle-orm";
-import { Id } from "../../domain/id.js";
-import type { DifficultyLevel } from "../../domain/question/difficulty.js";
-import { QuestionProposalEvent } from "../../domain/question-proposal/events.js";
-import { QuestionProposal } from "../../domain/question-proposal/question-proposal.js";
-import type { QuestionProposalRepository } from "../../domain/question-proposal/question-proposal-repository.js";
-import { getCurrentTransaction } from "../db/transaction-context.js";
+import { Id } from "../../domain/shared/id.ts";
+import type { DifficultyLevel } from "../../domain/shared/value-object/difficulty.ts";
+import { QuestionProposalEvent } from "../../domain/question-proposal/event/events.ts";
+import { QuestionProposal } from "../../domain/question-proposal/entity/question-proposal.ts";
+import type { QuestionProposalRepository } from "../../domain/question-proposal/repository/question-proposal-repository.ts";
+import { getCurrentTransaction } from "../db/transaction-context.ts";
 import {
   questionProposalEvents,
   questionProposalProjections,
-} from "../db/schema.js";
+} from "../db/schema.ts";
 
 export class DrizzleQuestionProposalRepository implements QuestionProposalRepository {
   async save(

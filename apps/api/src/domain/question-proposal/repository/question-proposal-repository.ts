@@ -1,6 +1,6 @@
-import { Id } from "../id.js";
-import { QuestionProposalEvent } from "./events.js";
-import { QuestionProposal } from "./question-proposal.js";
+import { Id } from "../../shared/id.ts";
+import { QuestionProposalEvent } from "../event/events.ts";
+import { QuestionProposal } from "../entity/question-proposal.ts";
 
 export interface QuestionProposalRepository {
   save(proposal: QuestionProposal, event: QuestionProposalEvent): Promise<void>;

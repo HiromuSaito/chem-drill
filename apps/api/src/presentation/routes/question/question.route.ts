@@ -1,9 +1,9 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import type { Dependencies } from "../../../composition-root.js";
+import type { Dependencies } from "../../../composition-root.ts";
 import {
   toQuestionWithCategoryResponse,
   toCreatedQuestionResponse,
-} from "./type.js";
+} from "./type.ts";
 
 const questionWithCategorySchema = z
   .object({

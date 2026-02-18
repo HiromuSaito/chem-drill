@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import type { Category } from "../../category/category.js";
-import { Id } from "../../id.js";
-import { CorrectIndexes } from "../../question/correct-indexes.js";
-import { Difficulty } from "../../question/difficulty.js";
-import { Explanation } from "../../question/explanation.js";
-import { QuestionText } from "../../question/question-text.js";
-import type { QuestionProposalEvent } from "../events.js";
-import { QuestionProposal } from "../question-proposal.js";
-import { RejectReason } from "../reject-reason.js";
+import type { Category } from "../../category/entity/category.ts";
+import { Id } from "../../shared/id.ts";
+import { CorrectIndexes } from "../../shared/value-object/correct-indexes.ts";
+import { Difficulty } from "../../shared/value-object/difficulty.ts";
+import { Explanation } from "../../shared/value-object/explanation.ts";
+import { QuestionText } from "../../shared/value-object/question-text.ts";
+import type { QuestionProposalEvent } from "../event/events.ts";
+import { QuestionProposal } from "../entity/question-proposal.ts";
+import { RejectReason } from "../value-object/reject-reason.ts";
 
 function buildCreateParams() {
   return {

@@ -1,5 +1,7 @@
-import type { CategoryId } from "./category-id.js";
-import { CategoryName } from "./category-name.js";
+import type { Id } from "../../shared/id.ts";
+import { CategoryName } from "../value-object/category-name.ts";
+
+export type CategoryId = Id<Category>;
 
 export class Category {
   private constructor(

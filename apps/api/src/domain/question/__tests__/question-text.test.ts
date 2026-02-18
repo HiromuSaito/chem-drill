@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { QuestionText } from "../question-text.js";
+import { QuestionText } from "../../shared/value-object/question-text.ts";
 
 describe("QuestionText", () => {
   it("通常の文字列で生成できる", () => {

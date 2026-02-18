@@ -1,9 +1,9 @@
-import { Id } from "../../domain/id.js";
-import { Category } from "../../domain/category/category.js";
-import { CategoryName } from "../../domain/category/category-name.js";
-import type { CategoryNameDuplicateChecker } from "../../domain/category/category-name-duplicate-checker.js";
-import type { CategoryRepository } from "../../domain/category/category-repository.js";
-import type { UnitOfWork } from "../unit-of-work.js";
+import { Id } from "../../domain/shared/id.ts";
+import { Category } from "../../domain/category/entity/category.ts";
+import { CategoryName } from "../../domain/category/value-object/category-name.ts";
+import type { CategoryNameDuplicateChecker } from "../../domain/category/service/category-name-duplicate-checker.ts";
+import type { CategoryRepository } from "../../domain/category/repository/category-repository.ts";
+import type { UnitOfWork } from "../unit-of-work.ts";
 
 export type CreateCategoryInput = {
   name: string;

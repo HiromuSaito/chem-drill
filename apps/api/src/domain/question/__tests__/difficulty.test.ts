@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Difficulty } from "../difficulty.js";
+import { Difficulty } from "../../shared/value-object/difficulty.ts";
 
 describe("Difficulty", () => {
   it.each(["easy", "medium", "hard"])("%s で生成できる", (level) => {

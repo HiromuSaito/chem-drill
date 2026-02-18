@@ -1,6 +1,6 @@
-import { ConflictError } from "../errors.js";
-import type { CategoryId } from "./category-id.js";
-import type { CategoryQueryService } from "./category-query-service.js";
+import { ConflictError } from "../../shared/errors.ts";
+import type { CategoryId } from "../entity/category.ts";
+import type { CategoryQueryService } from "../query-service/category-query-service.ts";
 
 export class CategoryDeletionPolicy {
   constructor(private queryService: CategoryQueryService) {}
