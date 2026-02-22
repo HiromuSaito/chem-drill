@@ -5,6 +5,7 @@ import {
   Shield,
   BookOpen,
   BarChart3,
+  Settings,
 } from "lucide-react";
 import { authClient } from "@/auth-client";
 import {
@@ -93,6 +94,18 @@ export function AppLayout() {
               </SidebarMenuItem>
             )}
             <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={location.pathname === "/account"}
+                tooltip="アカウント設定"
+              >
+                <Link to="/account">
+                  <Settings />
+                  <span>アカウント設定</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
               <SidebarMenuButton onClick={handleSignOut} tooltip="ログアウト">
                 <LogOut />
                 <span>ログアウト</span>
@@ -106,15 +119,15 @@ export function AppLayout() {
           <SidebarTrigger />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <span className="text-sm font-medium text-muted-foreground">
-            {
-              navItems.find(
-                (item) =>
-                  location.pathname === item.to ||
-                  location.pathname.startsWith(
-                    item.to === "/" ? "/drill" : item.to,
-                  ),
-              )?.label
-            }
+            {location.pathname === "/account"
+              ? "アカウント設定"
+              : navItems.find(
+                  (item) =>
+                    location.pathname === item.to ||
+                    location.pathname.startsWith(
+                      item.to === "/" ? "/drill" : item.to,
+                    ),
+                )?.label}
           </span>
         </header>
         <div className="flex flex-1 flex-col p-4">
