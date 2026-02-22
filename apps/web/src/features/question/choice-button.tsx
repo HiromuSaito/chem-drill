@@ -43,7 +43,7 @@ export function ChoiceButton({
     <Button
       variant="outline"
       className={cn(
-        "h-auto justify-start px-4 py-3 text-left",
+        "h-auto justify-start whitespace-normal px-4 py-3 text-left",
         getVariantClasses(),
       )}
       onClick={onClick}

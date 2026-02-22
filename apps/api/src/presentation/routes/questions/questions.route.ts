@@ -5,7 +5,7 @@ import {
   toQuestionWithCategoryResponse,
 } from "./type.ts";
 
-const questionWithCategorySchema = z
+export const questionWithCategorySchema = z
   .object({
     id: z.string().uuid(),
     text: z.string(),
@@ -25,6 +25,15 @@ const randomQuestionGetRoute = createRoute({
   path: "/random",
   tags: ["Question"],
   summary: "ランダムな問題一覧を取得",
+  request: {
+    query: z.object({
+      categoryId: z.string().uuid().optional(),
+      limit: z.coerce
+        .number()
+        .pipe(z.union([z.literal(5), z.literal(10), z.literal(20)]))
+        .optional(),
+    }),
+  },
   responses: {
     200: {
       description: "問題一覧",
@@ -81,7 +90,11 @@ const questionCreateRoute = createRoute({
 export const createQuestionsRoute = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(randomQuestionGetRoute, async (c) => {
-      const questions = await deps.getRandomQuestions.execute();
+      const { categoryId, limit } = c.req.valid("query");
+      const questions = await deps.getRandomQuestions.execute({
+        categoryId,
+        limit,
+      });
       return c.json(questions.map((q) => toQuestionWithCategoryResponse(q)));
     })
     .openapi(questionCreateRoute, async (c) => {

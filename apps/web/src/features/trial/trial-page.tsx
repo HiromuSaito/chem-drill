@@ -9,12 +9,13 @@ export function TrialPage() {
   const navigate = useNavigate();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["questions", "random", "trial"],
+    queryKey: ["questions", "trial"],
     queryFn: async () => {
-      const res = await client.api.questions.random.$get();
+      const res = await client.api.trial.questions.$get();
       if (!res.ok) throw new Error("Failed to fetch questions");
       return res.json();
     },
+    refetchOnWindowFocus: false,
   });
 
   if (isLoading) {

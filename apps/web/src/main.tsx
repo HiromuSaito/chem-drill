@@ -2,7 +2,6 @@ import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { App } from "./app";
 import { AppLayout } from "./components/app-layout";
 import { LoginPage } from "./features/auth/login-page";
 import { SignupPage } from "./features/auth/signup-page";
@@ -16,6 +15,8 @@ import { ProposalNewPage } from "./features/admin/proposals/proposal-new-page";
 import { ProposalGeneratePage } from "./features/admin/proposals/proposal-generate-page";
 import { ProposalDetailPage } from "./features/admin/proposals/proposal-detail-page";
 import { CategoryListPage } from "./features/admin/categories/category-list-page";
+import { CategorySelectPage } from "./features/drill/category-select-page";
+import { DrillPage } from "./features/drill/drill-page";
 import "./index.css";
 
 function Root() {
@@ -31,7 +32,8 @@ function Root() {
           <Route path="/trial" element={<TrialPage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
-              <Route path="/" element={<App />} />
+              <Route path="/" element={<CategorySelectPage />} />
+              <Route path="/drill" element={<DrillPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
             <Route element={<AdminRoute />}>

@@ -7,9 +7,12 @@ import type {
 } from "../../domain/question/query-service/question-query-service.ts";
 
 export class DrizzleQuestionQueryService implements QuestionQueryService {
-  async findRandom(limit: number): Promise<QuestionWithCategory[]> {
+  async findRandom(
+    limit: number,
+    categoryId?: string,
+  ): Promise<QuestionWithCategory[]> {
     const tx = getCurrentTransaction();
-    const rows = await tx
+    const query = tx
       .select({
         id: questions.id,
         text: questions.text,
@@ -24,6 +27,10 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
       .innerJoin(categories, eq(questions.categoryId, categories.id))
       .orderBy(sql`RANDOM()`)
       .limit(limit);
+
+    const rows = categoryId
+      ? await query.where(eq(questions.categoryId, categoryId))
+      : await query;
 
     return rows.map((row) => ({
       id: row.id,
