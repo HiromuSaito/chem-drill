@@ -18,8 +18,9 @@ export function QuestionDetailPage() {
   const { data: question, isLoading } = useQuery({
     queryKey: ["question", id],
     queryFn: async () => {
+      if (!id) throw new Error("id is required");
       const res = await client.api.questions[":id"].$get({
-        param: { id: id! },
+        param: { id },
       });
       if (!res.ok) throw new Error("Failed to fetch question");
       return res.json();

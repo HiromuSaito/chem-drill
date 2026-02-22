@@ -162,9 +162,7 @@ export const createQuestionsRoute = (deps: Dependencies) =>
         offset,
       );
       return c.json({
-        items: result.items.map((q) =>
-          toQuestionWithCategoryAndDatesResponse(q),
-        ),
+        items: result.items.map(toQuestionWithCategoryAndDatesResponse),
         total: result.total,
       });
     })
@@ -174,7 +172,7 @@ export const createQuestionsRoute = (deps: Dependencies) =>
         categoryId,
         limit,
       });
-      return c.json(questions.map((q) => toQuestionWithCategoryResponse(q)));
+      return c.json(questions.map(toQuestionWithCategoryResponse));
     })
     .openapi(questionGetByIdRoute, async (c) => {
       const { id } = c.req.valid("param");

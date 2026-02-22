@@ -9,32 +9,38 @@ import type {
 } from "../../domain/question/query-service/question-query-service.ts";
 
 export class DrizzleQuestionQueryService implements QuestionQueryService {
-  async findRandom(
-    limit: number,
-    categoryId?: string,
-  ): Promise<QuestionWithCategory[]> {
-    const tx = getCurrentTransaction();
-    const query = tx
-      .select({
-        id: questions.id,
-        text: questions.text,
-        difficulty: questions.difficulty,
-        choices: questions.choices,
-        correctIndexes: questions.correctIndexes,
-        explanation: questions.explanation,
-        categoryId: categories.id,
-        categoryName: categories.name,
-      })
-      .from(questions)
-      .innerJoin(categories, eq(questions.categoryId, categories.id))
-      .orderBy(sql`RANDOM()`)
-      .limit(limit);
+  private get baseSelect() {
+    return {
+      id: questions.id,
+      text: questions.text,
+      difficulty: questions.difficulty,
+      choices: questions.choices,
+      correctIndexes: questions.correctIndexes,
+      explanation: questions.explanation,
+      categoryId: categories.id,
+      categoryName: categories.name,
+    };
+  }
 
-    const rows = categoryId
-      ? await query.where(eq(questions.categoryId, categoryId))
-      : await query;
+  private get selectWithDates() {
+    return {
+      ...this.baseSelect,
+      createdAt: questions.createdAt,
+      updatedAt: questions.updatedAt,
+    };
+  }
 
-    return rows.map((row) => ({
+  private toQuestionWithCategory(row: {
+    id: string;
+    text: string;
+    difficulty: string;
+    choices: unknown;
+    correctIndexes: number[];
+    explanation: string;
+    categoryId: string;
+    categoryName: string;
+  }): QuestionWithCategory {
+    return {
       id: row.id,
       text: row.text,
       difficulty: row.difficulty,
@@ -45,7 +51,39 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
         categoryId: row.categoryId,
         categoryName: row.categoryName,
       },
-    }));
+    };
+  }
+
+  private toQuestionWithDates(
+    row: Parameters<typeof this.toQuestionWithCategory>[0] & {
+      createdAt: Date;
+      updatedAt: Date;
+    },
+  ): QuestionWithCategoryAndDates {
+    return {
+      ...this.toQuestionWithCategory(row),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  }
+
+  async findRandom(
+    limit: number,
+    categoryId?: string,
+  ): Promise<QuestionWithCategory[]> {
+    const tx = getCurrentTransaction();
+    const query = tx
+      .select(this.baseSelect)
+      .from(questions)
+      .innerJoin(categories, eq(questions.categoryId, categories.id))
+      .orderBy(sql`RANDOM()`)
+      .limit(limit);
+
+    const rows = categoryId
+      ? await query.where(eq(questions.categoryId, categoryId))
+      : await query;
+
+    return rows.map((row) => this.toQuestionWithCategory(row));
   }
 
   async list(
@@ -56,18 +94,7 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
     const tx = getCurrentTransaction();
 
     const baseQuery = tx
-      .select({
-        id: questions.id,
-        text: questions.text,
-        difficulty: questions.difficulty,
-        choices: questions.choices,
-        correctIndexes: questions.correctIndexes,
-        explanation: questions.explanation,
-        categoryId: categories.id,
-        categoryName: categories.name,
-        createdAt: questions.createdAt,
-        updatedAt: questions.updatedAt,
-      })
+      .select(this.selectWithDates)
       .from(questions)
       .innerJoin(categories, eq(questions.categoryId, categories.id))
       .orderBy(desc(questions.createdAt))
@@ -84,20 +111,7 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
       : await Promise.all([baseQuery, countQuery]);
 
     return {
-      items: rows.map((row) => ({
-        id: row.id,
-        text: row.text,
-        difficulty: row.difficulty,
-        choices: row.choices as string[],
-        correctIndexes: row.correctIndexes,
-        explanation: row.explanation,
-        category: {
-          categoryId: row.categoryId,
-          categoryName: row.categoryName,
-        },
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt,
-      })),
+      items: rows.map((row) => this.toQuestionWithDates(row)),
       total,
     };
   }
@@ -105,18 +119,7 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
   async findById(id: string): Promise<QuestionWithCategoryAndDates | null> {
     const tx = getCurrentTransaction();
     const rows = await tx
-      .select({
-        id: questions.id,
-        text: questions.text,
-        difficulty: questions.difficulty,
-        choices: questions.choices,
-        correctIndexes: questions.correctIndexes,
-        explanation: questions.explanation,
-        categoryId: categories.id,
-        categoryName: categories.name,
-        createdAt: questions.createdAt,
-        updatedAt: questions.updatedAt,
-      })
+      .select(this.selectWithDates)
       .from(questions)
       .innerJoin(categories, eq(questions.categoryId, categories.id))
       .where(eq(questions.id, id))
@@ -124,20 +127,6 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
 
     if (rows.length === 0) return null;
 
-    const row = rows[0];
-    return {
-      id: row.id,
-      text: row.text,
-      difficulty: row.difficulty,
-      choices: row.choices as string[],
-      correctIndexes: row.correctIndexes,
-      explanation: row.explanation,
-      category: {
-        categoryId: row.categoryId,
-        categoryName: row.categoryName,
-      },
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    };
+    return this.toQuestionWithDates(rows[0]);
   }
 }

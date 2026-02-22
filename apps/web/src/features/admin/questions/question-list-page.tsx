@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ export function QuestionListPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["questions", categoryFilter, offset],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const query: Record<string, string> = {
         limit: String(PAGE_SIZE),
