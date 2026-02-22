@@ -82,4 +82,14 @@ export class DrizzleQuestionProposalRepository implements QuestionProposalReposi
 
     return QuestionProposal.fromEvents(events);
   }
+
+  async markQuestionCreated(questionProposalId: string): Promise<void> {
+    const tx = getCurrentTransaction();
+    await tx
+      .update(questionProposalProjections)
+      .set({ questionCreated: true, updatedAt: new Date() })
+      .where(
+        eq(questionProposalProjections.questionProposalId, questionProposalId),
+      );
+  }
 }

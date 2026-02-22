@@ -203,11 +203,11 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(proposalListRoute, async (c) => {
       const { status, limit, offset } = c.req.valid("query");
-      const result = await deps.listQuestionProposals.execute({
+      const result = await deps.listQuestionProposals.execute(
         status,
         limit,
         offset,
-      });
+      );
       return c.json({
         items: result.items.map(toProjectionResponse),
         total: result.total,

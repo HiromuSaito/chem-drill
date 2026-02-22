@@ -1,23 +1,24 @@
 import { eq, desc, count } from "drizzle-orm";
 import type {
-  QuestionProposalListQueryService,
-  ListQuestionProposalsInput,
+  QuestionProposalProjectionQueryService,
   ListQuestionProposalsResult,
   QuestionProposalProjectionDto,
-} from "../../domain/question-proposal/query-service/question-proposal-list-query-service.ts";
+} from "../../domain/question-proposal/query-service/question-proposal-projection-query-service.ts";
 import { getCurrentTransaction } from "../db/transaction-context.ts";
 import { questionProposalProjections } from "../db/schema.ts";
 
-export class DrizzleQuestionProposalListQueryService implements QuestionProposalListQueryService {
+export class DrizzleQuestionProposalProjectionQueryService implements QuestionProposalProjectionQueryService {
   async list(
-    input: ListQuestionProposalsInput,
+    status: string | undefined,
+    limit: number,
+    offset: number,
   ): Promise<ListQuestionProposalsResult> {
     const tx = getCurrentTransaction();
 
-    const conditions = input.status
+    const conditions = status
       ? eq(
           questionProposalProjections.status,
-          input.status as "pending" | "approved" | "rejected",
+          status as "pending" | "approved" | "rejected",
         )
       : undefined;
 
@@ -27,8 +28,8 @@ export class DrizzleQuestionProposalListQueryService implements QuestionProposal
         .from(questionProposalProjections)
         .where(conditions)
         .orderBy(desc(questionProposalProjections.createdAt))
-        .limit(input.limit)
-        .offset(input.offset),
+        .limit(limit)
+        .offset(offset),
       tx
         .select({ count: count() })
         .from(questionProposalProjections)
