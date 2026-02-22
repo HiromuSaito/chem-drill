@@ -1,5 +1,8 @@
 import type { Question } from "../../../domain/question/entity/question.ts";
-import type { QuestionWithCategory } from "../../../domain/question/query-service/question-query-service.ts";
+import type {
+  QuestionWithCategory,
+  QuestionWithCategoryAndDates,
+} from "../../../domain/question/query-service/question-query-service.ts";
 
 export type QuestionWithCategoryResponse = {
   id: string;
@@ -27,6 +30,22 @@ export function toQuestionWithCategoryResponse(
       categoryId: question.category.categoryId,
       categoryName: question.category.categoryName,
     },
+  };
+}
+
+export type QuestionWithCategoryAndDatesResponse =
+  QuestionWithCategoryResponse & {
+    createdAt: string;
+    updatedAt: string;
+  };
+
+export function toQuestionWithCategoryAndDatesResponse(
+  question: QuestionWithCategoryAndDates,
+): QuestionWithCategoryAndDatesResponse {
+  return {
+    ...toQuestionWithCategoryResponse(question),
+    createdAt: question.createdAt.toISOString(),
+    updatedAt: question.updatedAt.toISOString(),
   };
 }
 

@@ -15,6 +15,8 @@ import { ProposalNewPage } from "./features/admin/proposals/proposal-new-page";
 import { ProposalGeneratePage } from "./features/admin/proposals/proposal-generate-page";
 import { ProposalDetailPage } from "./features/admin/proposals/proposal-detail-page";
 import { CategoryListPage } from "./features/admin/categories/category-list-page";
+import { QuestionListPage } from "./features/admin/questions/question-list-page";
+import { QuestionDetailPage } from "./features/admin/questions/question-detail-page";
 import { CategorySelectPage } from "./features/drill/category-select-page";
 import { DrillPage } from "./features/drill/drill-page";
 import "./index.css";
@@ -46,6 +48,8 @@ function Root() {
                   element={<ProposalGeneratePage />}
                 />
                 <Route path="proposals/:id" element={<ProposalDetailPage />} />
+                <Route path="questions" element={<QuestionListPage />} />
+                <Route path="questions/:id" element={<QuestionDetailPage />} />
                 <Route path="categories" element={<CategoryListPage />} />
               </Route>
             </Route>
