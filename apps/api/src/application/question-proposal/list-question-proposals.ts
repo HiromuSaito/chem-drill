@@ -1,21 +1,22 @@
 import type {
-  QuestionProposalListQueryService,
-  ListQuestionProposalsInput,
+  QuestionProposalProjectionQueryService,
   ListQuestionProposalsResult,
-} from "../../domain/question-proposal/query-service/question-proposal-list-query-service.ts";
+} from "../../domain/question-proposal/query-service/question-proposal-projection-query-service.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
 export class ListQuestionProposals {
   constructor(
     private uow: UnitOfWork,
-    private queryService: QuestionProposalListQueryService,
+    private queryService: QuestionProposalProjectionQueryService,
   ) {}
 
   async execute(
-    input: ListQuestionProposalsInput,
+    status: string | undefined,
+    limit: number,
+    offset: number,
   ): Promise<ListQuestionProposalsResult> {
     return this.uow.run(async () => {
-      return await this.queryService.list(input);
+      return await this.queryService.list(status, limit, offset);
     });
   }
 }

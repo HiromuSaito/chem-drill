@@ -2,11 +2,11 @@ import { eq } from "drizzle-orm";
 import { Id } from "../../domain/shared/id.ts";
 import { QuestionProposalEvent } from "../../domain/question-proposal/event/events.ts";
 import { QuestionProposal } from "../../domain/question-proposal/entity/question-proposal.ts";
-import type { QuestionProposalQueryService } from "../../domain/question-proposal/query-service/question-proposal-query-service.ts";
+import type { QuestionProposalEventQueryService } from "../../domain/question-proposal/query-service/question-proposal-event-query-service.ts";
 import { getCurrentTransaction } from "../db/transaction-context.ts";
 import { questionProposalEvents } from "../db/schema.ts";
 
-export class DrizzleQuestionProposalQueryService implements QuestionProposalQueryService {
+export class DrizzleQuestionProposalEventQueryService implements QuestionProposalEventQueryService {
   async findEventsByQuestionProposalId(
     questionProposalId: Id<QuestionProposal>,
   ): Promise<QuestionProposalEvent[]> {

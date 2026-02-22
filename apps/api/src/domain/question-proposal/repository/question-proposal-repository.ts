@@ -6,4 +6,6 @@ export interface QuestionProposalRepository {
   save(proposal: QuestionProposal, event: QuestionProposalEvent): Promise<void>;
 
   findById(questionProposalId: Id<QuestionProposal>): Promise<QuestionProposal>;
+
+  markQuestionCreated(questionProposalId: string): Promise<void>;
 }

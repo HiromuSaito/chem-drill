@@ -13,19 +13,17 @@ export type QuestionProposalProjectionDto = {
   updatedAt: Date;
 };
 
-export type ListQuestionProposalsInput = {
-  status?: string;
-  limit: number;
-  offset: number;
-};
-
 export type ListQuestionProposalsResult = {
   items: QuestionProposalProjectionDto[];
   total: number;
 };
 
-export interface QuestionProposalListQueryService {
-  list(input: ListQuestionProposalsInput): Promise<ListQuestionProposalsResult>;
+export interface QuestionProposalProjectionQueryService {
+  list(
+    status: string | undefined,
+    limit: number,
+    offset: number,
+  ): Promise<ListQuestionProposalsResult>;
   findById(
     questionProposalId: string,
   ): Promise<QuestionProposalProjectionDto | null>;

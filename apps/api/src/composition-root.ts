@@ -20,11 +20,14 @@ import { GenerateQuestionProposals } from "./application/question-proposal/gener
 import { ListQuestionProposals } from "./application/question-proposal/list-question-proposals.ts";
 import { GetQuestionProposal } from "./application/question-proposal/get-question-proposal.ts";
 import { DrizzleQuestionProposalRepository } from "./infrastructure/question-proposal/drizzle-question-proposal-repository.ts";
-import { DrizzleQuestionProposalListQueryService } from "./infrastructure/question-proposal/drizzle-question-proposal-list-query-service.ts";
+import { DrizzleQuestionProposalProjectionQueryService } from "./infrastructure/question-proposal/drizzle-question-proposal-projection-query-service.ts";
 import { DrizzleUserQueryService } from "./infrastructure/user/drizzle-user-query-service.ts";
 import { CheckUsernameAvailability } from "./application/user/check-username-availability.ts";
 import { CategoryNameDuplicateChecker } from "./domain/category/service/category-name-duplicate-checker.ts";
 import { CategoryDeletionPolicy } from "./domain/category/service/category-deletion-policy.ts";
+import { OnQuestionProposalApproved } from "./application/question-proposal/on-question-proposal-approved.ts";
+import { InMemoryEventPublisher } from "./infrastructure/event/in-memory-event-publisher.ts";
+import { consoleLogger } from "./lib/logger.ts";
 import { requireEnv } from "./env.ts";
 
 // UnitOfWork
@@ -36,9 +39,18 @@ const questionRepository = new DrizzleQuestionRepository();
 const categoryQueryService = new DrizzleCategoryQueryService();
 const categoryRepository = new DrizzleCategoryRepository();
 const questionProposalRepository = new DrizzleQuestionProposalRepository();
-const questionProposalListQueryService =
-  new DrizzleQuestionProposalListQueryService();
+const questionProposalProjectionQueryService =
+  new DrizzleQuestionProposalProjectionQueryService();
 const userQueryService = new DrizzleUserQueryService();
+// イベントパブリッシャー & ハンドラ
+const eventPublisher = new InMemoryEventPublisher(consoleLogger);
+const onQuestionProposalApproved = new OnQuestionProposalApproved(
+  unitOfWork,
+  questionProposalProjectionQueryService,
+  questionRepository,
+  questionProposalRepository,
+);
+eventPublisher.register(onQuestionProposalApproved);
 
 // ドメインサービス
 const categoryNameDuplicateChecker = new CategoryNameDuplicateChecker(
@@ -72,6 +84,7 @@ const updateQuestionProposal = new UpdateQuestionProposal(
 const approveQuestionProposal = new ApproveQuestionProposal(
   unitOfWork,
   questionProposalRepository,
+  eventPublisher,
 );
 const rejectQuestionProposal = new RejectQuestionProposal(
   unitOfWork,
@@ -101,11 +114,11 @@ const generateQuestionProposals = new GenerateQuestionProposals(
 
 const listQuestionProposals = new ListQuestionProposals(
   unitOfWork,
-  questionProposalListQueryService,
+  questionProposalProjectionQueryService,
 );
 const getQuestionProposal = new GetQuestionProposal(
   unitOfWork,
-  questionProposalListQueryService,
+  questionProposalProjectionQueryService,
 );
 
 const checkUsernameAvailability = new CheckUsernameAvailability(

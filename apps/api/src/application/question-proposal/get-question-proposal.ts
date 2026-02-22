@@ -1,13 +1,13 @@
 import type {
-  QuestionProposalListQueryService,
+  QuestionProposalProjectionQueryService,
   QuestionProposalProjectionDto,
-} from "../../domain/question-proposal/query-service/question-proposal-list-query-service.ts";
+} from "../../domain/question-proposal/query-service/question-proposal-projection-query-service.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
 export class GetQuestionProposal {
   constructor(
     private uow: UnitOfWork,
-    private queryService: QuestionProposalListQueryService,
+    private queryService: QuestionProposalProjectionQueryService,
   ) {}
 
   async execute(id: string): Promise<QuestionProposalProjectionDto | null> {
