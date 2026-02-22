@@ -180,7 +180,7 @@ export const createQuestionsRoute = (deps: Dependencies) =>
       if (!question) {
         return c.json({ error: "問題が見つかりません" }, 404);
       }
-      return c.json(toQuestionWithCategoryAndDatesResponse(question));
+      return c.json(toQuestionWithCategoryAndDatesResponse(question), 200);
     })
     .openapi(questionCreateRoute, async (c) => {
       const input = c.req.valid("json");

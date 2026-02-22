@@ -17,7 +17,7 @@ const usernamePattern = /^[a-z0-9_-]{3,20}$/;
 function AccountForm({
   user,
 }: {
-  user: { name: string; username: string | null; email: string };
+  user: { name: string; username?: string | null; email: string };
 }) {
   const [name, setName] = useState(user.name);
   const [username, setUsername] = useState(user.username ?? "");
