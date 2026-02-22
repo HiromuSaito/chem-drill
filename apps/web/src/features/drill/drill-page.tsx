@@ -55,6 +55,7 @@ export function DrillPage() {
     <div className="mx-auto w-full max-w-2xl px-4 py-8">
       <SessionContainer
         questions={data}
+        categoryId={categoryId}
         onAbort={() => navigate("/")}
         resultActions={
           <Button

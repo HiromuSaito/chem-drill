@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { CircleStop } from "lucide-react";
 import type { QuestionDto } from "@/types/question";
 import { Button } from "@/components/ui/button";
+import { client } from "@/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +21,7 @@ import { ResultScreen } from "./result-screen";
 
 type Props = {
   questions: QuestionDto[];
+  categoryId?: string;
   resultActions?: React.ReactNode;
   showRetry?: boolean;
   onAbort?: () => void;
@@ -26,6 +29,7 @@ type Props = {
 
 export function SessionContainer({
   questions,
+  categoryId,
   resultActions,
   showRetry = true,
   onAbort,
@@ -33,6 +37,33 @@ export function SessionContainer({
   const { state, selectSingle, toggleMulti, submit, next, reset } =
     useSessionReducer(questions);
   const [showAbortDialog, setShowAbortDialog] = useState(false);
+  const startedAtRef = useRef(new Date().toISOString());
+  const hasSavedRef = useRef(false);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const res = await client.api["drill-sessions"].$post({
+        json: {
+          categoryId: categoryId ?? null,
+          answers: state.results.map((r) => ({
+            questionId: r.questionId,
+            selectedIndexes: r.selectedIndexes,
+            isCorrect: r.isCorrect,
+          })),
+          startedAt: startedAtRef.current,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to save session");
+      return res.json();
+    },
+  });
+
+  useEffect(() => {
+    if (state.phase === "completed" && !hasSavedRef.current) {
+      hasSavedRef.current = true;
+      saveMutation.mutate();
+    }
+  }, [state.phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (state.phase === "completed") {
     return (

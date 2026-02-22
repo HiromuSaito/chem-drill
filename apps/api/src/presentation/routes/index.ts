@@ -5,6 +5,8 @@ import { createQuestionsRoute } from "./questions/questions.route.ts";
 import { createQuestionProposalsRoute } from "./question-proposals/question-proposals.route.ts";
 import { createTrialRoute } from "./trial/trial.route.ts";
 import { createUserRoute } from "./user/user.route.ts";
+import { createDrillSessionsRoute } from "./drill-sessions/drill-sessions.route.ts";
+import { createDrillStatsRoute } from "./drill-stats/drill-stats.route.ts";
 import {
   requireAuth,
   requireAdmin,
@@ -44,4 +46,6 @@ export const createApiRoutes = (deps: Dependencies) =>
     .use("/question-proposals/*", requireAdmin)
     .route("/categories", createCategoriesRoute(deps))
     .route("/questions", createQuestionsRoute(deps))
-    .route("/question-proposals", createQuestionProposalsRoute(deps));
+    .route("/question-proposals", createQuestionProposalsRoute(deps))
+    .route("/drill-sessions", createDrillSessionsRoute(deps))
+    .route("/drill-stats", createDrillStatsRoute(deps));

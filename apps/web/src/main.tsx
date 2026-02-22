@@ -19,6 +19,7 @@ import { QuestionListPage } from "./features/admin/questions/question-list-page"
 import { QuestionDetailPage } from "./features/admin/questions/question-detail-page";
 import { CategorySelectPage } from "./features/drill/category-select-page";
 import { DrillPage } from "./features/drill/drill-page";
+import { StatsPage } from "./features/stats/stats-page";
 import "./index.css";
 
 function Root() {
@@ -36,6 +37,7 @@ function Root() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<CategorySelectPage />} />
               <Route path="/drill" element={<DrillPage />} />
+              <Route path="/stats" element={<StatsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
             <Route element={<AdminRoute />}>
