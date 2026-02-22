@@ -1,5 +1,11 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { FlaskConical, LogOut, Shield, BookOpen } from "lucide-react";
+import {
+  FlaskConical,
+  LogOut,
+  Shield,
+  BookOpen,
+  BarChart3,
+} from "lucide-react";
 import { authClient } from "@/auth-client";
 import {
   Sidebar,
@@ -18,7 +24,10 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 
-const navItems = [{ to: "/", label: "ドリル", icon: BookOpen }];
+const navItems = [
+  { to: "/", label: "ドリル", icon: BookOpen },
+  { to: "/stats", label: "成績", icon: BarChart3 },
+];
 
 export function AppLayout() {
   const navigate = useNavigate();

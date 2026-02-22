@@ -29,6 +29,12 @@ import { CategoryNameDuplicateChecker } from "./domain/category/service/category
 import { CategoryDeletionPolicy } from "./domain/category/service/category-deletion-policy.ts";
 import { OnQuestionProposalApproved } from "./application/question-proposal/on-question-proposal-approved.ts";
 import { InMemoryEventPublisher } from "./infrastructure/event/in-memory-event-publisher.ts";
+import { DrizzleDrillSessionRepository } from "./infrastructure/drill-session/drizzle-drill-session-repository.ts";
+import { DrizzleDrillStatsQueryService } from "./infrastructure/drill-session/drizzle-drill-stats-query-service.ts";
+import { SaveDrillSession } from "./application/drill-session/save-drill-session.ts";
+import { GetDrillStats } from "./application/drill-session/get-drill-stats.ts";
+import { GetRecentSessions } from "./application/drill-session/get-recent-sessions.ts";
+import { GetCategoryScores } from "./application/drill-session/get-category-scores.ts";
 import { consoleLogger } from "./lib/logger.ts";
 import { requireEnv } from "./env.ts";
 
@@ -44,6 +50,8 @@ const questionProposalRepository = new DrizzleQuestionProposalRepository();
 const questionProposalProjectionQueryService =
   new DrizzleQuestionProposalProjectionQueryService();
 const userQueryService = new DrizzleUserQueryService();
+const drillSessionRepository = new DrizzleDrillSessionRepository();
+const drillStatsQueryService = new DrizzleDrillStatsQueryService();
 // イベントパブリッシャー & ハンドラ
 const eventPublisher = new InMemoryEventPublisher(consoleLogger);
 const onQuestionProposalApproved = new OnQuestionProposalApproved(
@@ -130,6 +138,20 @@ const checkUsernameAvailability = new CheckUsernameAvailability(
   userQueryService,
 );
 
+const saveDrillSession = new SaveDrillSession(
+  unitOfWork,
+  drillSessionRepository,
+);
+const getDrillStats = new GetDrillStats(unitOfWork, drillStatsQueryService);
+const getRecentSessions = new GetRecentSessions(
+  unitOfWork,
+  drillStatsQueryService,
+);
+const getCategoryScores = new GetCategoryScores(
+  unitOfWork,
+  drillStatsQueryService,
+);
+
 export const dependencies = {
   checkUsernameAvailability,
   getRandomQuestions,
@@ -148,6 +170,10 @@ export const dependencies = {
   updateCategory,
   deleteCategory,
   generateQuestionProposals,
+  saveDrillSession,
+  getDrillStats,
+  getRecentSessions,
+  getCategoryScores,
 };
 
 export type Dependencies = typeof dependencies;

@@ -3,12 +3,14 @@ import {
   pgEnum,
   uuid,
   varchar,
+  text,
   integer,
   jsonb,
   timestamp,
   index,
   boolean,
 } from "drizzle-orm/pg-core";
+import { user } from "./auth-schema";
 
 export const difficultyEnum = pgEnum("difficulty", ["easy", "medium", "hard"]);
 
@@ -96,6 +98,51 @@ export const questionProposalProjections = pgTable(
   (table) => [
     index("idx_question_proposal_projections_status").on(table.status),
     index("idx_question_proposal_projections_category_id").on(table.categoryId),
+  ],
+);
+
+export const drillSessions = pgTable(
+  "drill_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id),
+    /** null = 全カテゴリ横断（「すべて」選択時） */
+    categoryId: uuid("category_id").references(() => categories.id),
+    totalCount: integer("total_count").notNull(),
+    correctCount: integer("correct_count").notNull(),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+    completedAt: timestamp("completed_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("idx_drill_sessions_user_id").on(table.userId),
+    index("idx_drill_sessions_user_category").on(
+      table.userId,
+      table.categoryId,
+    ),
+    index("idx_drill_sessions_completed_at").on(table.completedAt),
+  ],
+);
+
+export const drillAnswers = pgTable(
+  "drill_answers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => drillSessions.id),
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => questions.id),
+    selectedIndexes: integer("selected_indexes").array().notNull(),
+    isCorrect: boolean("is_correct").notNull(),
+  },
+  (table) => [
+    index("idx_drill_answers_session_id").on(table.sessionId),
+    index("idx_drill_answers_question_id").on(table.questionId),
   ],
 );
 

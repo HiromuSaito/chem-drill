@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { client } from "@/client";
 
@@ -23,6 +24,35 @@ export function CategorySelectPage() {
       return res.json();
     },
   });
+
+  const { data: categoryScores } = useQuery({
+    queryKey: ["drill-stats", "category-scores"],
+    queryFn: async () => {
+      const res = await client.api["drill-stats"]["category-scores"].$get();
+      if (!res.ok) throw new Error("Failed to fetch category scores");
+      return res.json();
+    },
+  });
+
+  const { data: overallStats } = useQuery({
+    queryKey: ["drill-stats"],
+    queryFn: async () => {
+      const res = await client.api["drill-stats"].$get({ query: {} });
+      if (!res.ok) throw new Error("Failed to fetch overall stats");
+      return res.json();
+    },
+  });
+
+  const scoreMap = new Map(categoryScores?.map((s) => [s.categoryId, s]) ?? []);
+
+  const overallCorrectRate =
+    overallStats && overallStats.totalAnswered > 0
+      ? overallStats.correctCount / overallStats.totalAnswered
+      : null;
+  const overallCoverageRate =
+    overallStats && overallStats.totalQuestions > 0
+      ? overallStats.uniqueQuestionsAnswered / overallStats.totalQuestions
+      : null;
 
   if (isLoading) {
     return (
@@ -69,29 +99,60 @@ export function CategorySelectPage() {
             <p className="text-sm text-muted-foreground">
               {totalQuestionCount} 問
             </p>
+            {overallCorrectRate !== null ? (
+              <div className="mt-2 flex gap-2">
+                <Badge variant="outline" className="text-xs">
+                  正答率 {Math.round(overallCorrectRate * 100)}%
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  カバー率 {Math.round((overallCoverageRate ?? 0) * 100)}%
+                </Badge>
+              </div>
+            ) : (
+              <Badge variant="secondary" className="mt-2 text-xs">
+                未挑戦
+              </Badge>
+            )}
           </CardContent>
         </Card>
 
-        {categories?.map((category) => (
-          <Card
-            key={category.id}
-            className={`cursor-pointer transition-colors ${
-              selectedCategoryId === category.id
-                ? "border-primary ring-1 ring-primary"
-                : "hover:border-primary/50"
-            }`}
-            onClick={() => setSelectedCategoryId(category.id)}
-          >
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">{category.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                {category.questionCount} 問
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        {categories?.map((category) => {
+          const score = scoreMap.get(category.id);
+          return (
+            <Card
+              key={category.id}
+              className={`cursor-pointer transition-colors ${
+                selectedCategoryId === category.id
+                  ? "border-primary ring-1 ring-primary"
+                  : "hover:border-primary/50"
+              }`}
+              onClick={() => setSelectedCategoryId(category.id)}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">{category.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  {category.questionCount} 問
+                </p>
+                {score ? (
+                  <div className="mt-2 flex gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      正答率 {Math.round(score.correctRate * 100)}%
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      カバー率 {Math.round(score.coverageRate * 100)}%
+                    </Badge>
+                  </div>
+                ) : (
+                  <Badge variant="secondary" className="mt-2 text-xs">
+                    未挑戦
+                  </Badge>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <div className="space-y-3">
