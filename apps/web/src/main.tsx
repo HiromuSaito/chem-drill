@@ -20,6 +20,7 @@ import { QuestionDetailPage } from "./features/admin/questions/question-detail-p
 import { CategorySelectPage } from "./features/drill/category-select-page";
 import { DrillPage } from "./features/drill/drill-page";
 import { StatsPage } from "./features/stats/stats-page";
+import { AccountPage } from "./features/account/account-page";
 import "./index.css";
 
 function Root() {
@@ -38,6 +39,7 @@ function Root() {
               <Route path="/" element={<CategorySelectPage />} />
               <Route path="/drill" element={<DrillPage />} />
               <Route path="/stats" element={<StatsPage />} />
+              <Route path="/account" element={<AccountPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
             <Route element={<AdminRoute />}>
