@@ -59,7 +59,12 @@ const categoryFormSchema = z.object({
 
 type CategoryForm = z.infer<typeof categoryFormSchema>;
 
-type Category = { id: string; name: string };
+type Category = {
+  id: string;
+  name: string;
+  questionCount: number;
+  proposalCount: number;
+};
 
 export function CategoryListPage() {
   const queryClient = useQueryClient();
@@ -212,6 +217,12 @@ export function CategoryListPage() {
             <TableHeader className="bg-primary/10">
               <TableRow className="border-b-2 border-primary/30">
                 <TableHead className="font-bold text-primary">名前</TableHead>
+                <TableHead className="w-24 text-right font-bold text-primary">
+                  問題数
+                </TableHead>
+                <TableHead className="w-24 text-right font-bold text-primary">
+                  出題案
+                </TableHead>
                 <TableHead className="w-12" />
               </TableRow>
             </TableHeader>
@@ -219,7 +230,7 @@ export function CategoryListPage() {
               {categories?.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={2}
+                    colSpan={4}
                     className="text-center text-muted-foreground"
                   >
                     カテゴリがありません
@@ -229,6 +240,12 @@ export function CategoryListPage() {
                 categories?.map((cat) => (
                   <TableRow key={cat.id}>
                     <TableCell className="font-medium">{cat.name}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {cat.questionCount}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      {cat.proposalCount}
+                    </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

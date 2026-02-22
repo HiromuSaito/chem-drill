@@ -5,6 +5,7 @@ export type CategoryDto = {
   id: string;
   name: string;
   questionCount: number;
+  proposalCount: number;
 };
 
 export interface CategoryQueryService {

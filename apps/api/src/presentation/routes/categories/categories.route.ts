@@ -15,6 +15,7 @@ const categoryWithCountSchema = z
     id: z.string().uuid(),
     name: z.string(),
     questionCount: z.number().int(),
+    proposalCount: z.number().int(),
   })
   .openapi("CategoryWithCount");
 
