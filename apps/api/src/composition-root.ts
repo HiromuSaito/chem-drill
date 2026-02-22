@@ -6,6 +6,7 @@ import { DrizzleCategoryQueryService } from "./infrastructure/category/drizzle-c
 import { DrizzleCategoryRepository } from "./infrastructure/category/drizzle-category-repository.ts";
 import { GeminiQuestionGenerationAdapter } from "./infrastructure/question-generation/gemini-question-generation-adapter.ts";
 import { GetRandomQuestions } from "./application/question/get-random-questions.ts";
+import { GetTrialQuestions } from "./application/question/get-trial-questions.ts";
 import { CreateQuestion } from "./application/question/create-question.ts";
 import { ListCategories } from "./application/category/list-categories.ts";
 import { CreateCategory } from "./application/category/create-category.ts";
@@ -52,6 +53,10 @@ const questionGenerationAdapter = new GeminiQuestionGenerationAdapter(() =>
 
 // ユースケース
 const getRandomQuestions = new GetRandomQuestions(
+  unitOfWork,
+  questionQueryService,
+);
+const getTrialQuestions = new GetTrialQuestions(
   unitOfWork,
   questionQueryService,
 );
@@ -111,6 +116,7 @@ const checkUsernameAvailability = new CheckUsernameAvailability(
 export const dependencies = {
   checkUsernameAvailability,
   getRandomQuestions,
+  getTrialQuestions,
   createQuestion,
   createQuestionProposal,
   updateQuestionProposal,

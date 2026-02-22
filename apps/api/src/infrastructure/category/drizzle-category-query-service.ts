@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 import {
   categories,
   questions,
@@ -19,10 +19,17 @@ export class DrizzleCategoryQueryService implements CategoryQueryService {
       .select({
         id: categories.id,
         name: categories.name,
+        questionCount: count(questions.id),
       })
-      .from(categories);
+      .from(categories)
+      .leftJoin(questions, eq(categories.id, questions.categoryId))
+      .groupBy(categories.id, categories.name);
 
-    return rows;
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      questionCount: Number(row.questionCount),
+    }));
   }
 
   async existsByName(name: CategoryName): Promise<boolean> {

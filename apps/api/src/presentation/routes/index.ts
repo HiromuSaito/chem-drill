@@ -1,14 +1,13 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import { createMiddleware } from "hono/factory";
 import type { Dependencies } from "../../composition-root.ts";
 import { createCategoriesRoute } from "./categories/categories.route.ts";
 import { createQuestionsRoute } from "./questions/questions.route.ts";
 import { createQuestionProposalsRoute } from "./question-proposals/question-proposals.route.ts";
+import { createTrialRoute } from "./trial/trial.route.ts";
 import { createUserRoute } from "./user/user.route.ts";
 import {
   requireAuth,
   requireAdmin,
-  type AuthEnv,
 } from "../../infrastructure/auth/auth-middleware.ts";
 
 const healthRoute = createRoute({
@@ -32,18 +31,8 @@ export const createApiRoutes = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(healthRoute, (c) => c.json({ status: "ok" }))
     .route("/user", createUserRoute(deps))
-    .use(
-      "/*",
-      createMiddleware<AuthEnv>(async (c, next) => {
-        if (
-          c.req.path.endsWith("/questions/random") &&
-          c.req.method === "GET"
-        ) {
-          return next();
-        }
-        await requireAuth(c, next);
-      }),
-    )
+    .route("/trial", createTrialRoute(deps))
+    .use("/*", requireAuth)
     .use("/categories/*", async (c, next) => {
       if (c.req.method === "GET") return next();
       return requireAdmin(c, next);

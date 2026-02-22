@@ -4,6 +4,7 @@ import type { CategoryName } from "../value-object/category-name.ts";
 export type CategoryDto = {
   id: string;
   name: string;
+  questionCount: number;
 };
 
 export interface CategoryQueryService {

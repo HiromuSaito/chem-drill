@@ -12,5 +12,8 @@ export type QuestionWithCategory = {
 };
 
 export interface QuestionQueryService {
-  findRandom(limit: number): Promise<QuestionWithCategory[]>;
+  findRandom(
+    limit: number,
+    categoryId?: string,
+  ): Promise<QuestionWithCategory[]>;
 }

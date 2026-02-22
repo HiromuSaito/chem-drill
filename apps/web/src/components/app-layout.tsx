@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 
-const navItems = [{ to: "/", label: "クイズ", icon: BookOpen }];
+const navItems = [{ to: "/", label: "ドリル", icon: BookOpen }];
 
 export function AppLayout() {
   const navigate = useNavigate();
@@ -97,7 +97,15 @@ export function AppLayout() {
           <SidebarTrigger />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <span className="text-sm font-medium text-muted-foreground">
-            {navItems.find((item) => item.to === location.pathname)?.label}
+            {
+              navItems.find(
+                (item) =>
+                  location.pathname === item.to ||
+                  location.pathname.startsWith(
+                    item.to === "/" ? "/drill" : item.to,
+                  ),
+              )?.label
+            }
           </span>
         </header>
         <div className="flex flex-1 flex-col p-4">

@@ -10,6 +10,14 @@ const categorySchema = z
   })
   .openapi("Category");
 
+const categoryWithCountSchema = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string(),
+    questionCount: z.number().int(),
+  })
+  .openapi("CategoryWithCount");
+
 const categoryListRoute = createRoute({
   method: "get",
   path: "/",
@@ -18,7 +26,9 @@ const categoryListRoute = createRoute({
   responses: {
     200: {
       description: "カテゴリ一覧",
-      content: { "application/json": { schema: z.array(categorySchema) } },
+      content: {
+        "application/json": { schema: z.array(categoryWithCountSchema) },
+      },
     },
   },
 });
