@@ -1,10 +1,18 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { FileText, FolderOpen, ArrowLeft, LogOut, Shield } from "lucide-react";
+import {
+  FileText,
+  FolderOpen,
+  BookOpen,
+  ArrowLeft,
+  LogOut,
+  Shield,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { authClient } from "@/auth-client";
 
 const navItems = [
   { to: "/admin/proposals", label: "出題案", icon: FileText },
+  { to: "/admin/questions", label: "問題", icon: BookOpen },
   { to: "/admin/categories", label: "カテゴリ", icon: FolderOpen },
 ];
 

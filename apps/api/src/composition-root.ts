@@ -8,6 +8,8 @@ import { GeminiQuestionGenerationAdapter } from "./infrastructure/question-gener
 import { GetRandomQuestions } from "./application/question/get-random-questions.ts";
 import { GetTrialQuestions } from "./application/question/get-trial-questions.ts";
 import { CreateQuestion } from "./application/question/create-question.ts";
+import { ListQuestions } from "./application/question/list-questions.ts";
+import { GetQuestion } from "./application/question/get-question.ts";
 import { ListCategories } from "./application/category/list-categories.ts";
 import { CreateCategory } from "./application/category/create-category.ts";
 import { UpdateCategory } from "./application/category/update-category.ts";
@@ -73,6 +75,8 @@ const getTrialQuestions = new GetTrialQuestions(
   questionQueryService,
 );
 const createQuestion = new CreateQuestion(unitOfWork, questionRepository);
+const listQuestions = new ListQuestions(unitOfWork, questionQueryService);
+const getQuestion = new GetQuestion(unitOfWork, questionQueryService);
 const createQuestionProposal = new CreateQuestionProposal(
   unitOfWork,
   questionProposalRepository,
@@ -131,6 +135,8 @@ export const dependencies = {
   getRandomQuestions,
   getTrialQuestions,
   createQuestion,
+  listQuestions,
+  getQuestion,
   createQuestionProposal,
   updateQuestionProposal,
   approveQuestionProposal,
