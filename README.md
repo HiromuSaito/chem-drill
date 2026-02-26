@@ -61,6 +61,41 @@ application（ユースケース）
 domain ← infrastructure（リポジトリ実装）
 ```
 
+## インフラ
+
+[SST (v4)](https://sst.dev/) を使用してインフラをコード管理しています。
+
+```
+ユーザー → API Gateway (HTTP API) → Lambda → Hono アプリ → Neon (PostgreSQL)
+```
+
+- **IaC**: SST（Pulumi ベース）
+- **設定ファイル**: `sst.config.ts`（モノレポルート）
+- **シークレット**: `sst.Secret` で管理（`sst secret set` で値を設定）
+
+### ステージ
+
+| ステージ     | 用途       | リソース削除ポリシー | 保護 |
+| ------------ | ---------- | -------------------- | ---- |
+| `dev`        | 開発・検証 | `remove`（即削除）   | なし |
+| `production` | 本番       | `retain`（保持）     | あり |
+
+### デプロイ
+
+```bash
+# 1. シークレットを設定（初回のみ。必要な変数は sst.config.ts を参照）
+npx sst secret set <シークレット名> "<値>" --stage <ステージ>
+
+# 設定済みシークレットの確認
+npx sst secret list --stage <ステージ>
+
+# 2. デプロイ
+pnpm sst:deploy --stage dev
+
+# 3. ヘルスチェック
+curl <出力されたAPI URL>/api/health
+```
+
 ## 環境構築
 
 ### 前提条件

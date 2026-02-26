@@ -9,6 +9,8 @@
     "format:check": "prettier --check .",
     "test": "turbo test",
     "type-check": "turbo type-check",
+    "sst:deploy": "sst deploy",
+    "sst:dev": "sst dev",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -28,6 +30,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
+    "sst": "^4.0.6",
     "turbo": "^2.3.0",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.54.0"

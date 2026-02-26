@@ -17,6 +17,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["**/dist/", "**/node_modules/", "**/.turbo/", "**/*.js"],
+    ignores: ["**/dist/", "**/node_modules/", "**/.turbo/", "**/*.js", "sst.config.ts"],
   },
 );

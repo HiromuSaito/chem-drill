@@ -17,6 +17,7 @@ pnpm workspace によるモノレポ構成の化学物質管理クイズアプ�
 - **フロント**: Vite + React + shadcn/ui + TanStack Query
 - **バックエンド**: Hono (OpenAPIHono) on AWS Lambda
 - **API ドキュメント**: OpenAPI + Scalar
+- **IaC**: SST v4（Pulumi ベース）
 - **ORM**: Drizzle（マイグレーションも Drizzle Kit を使用）
 - **DB**: PostgreSQL（本番: Neon / ローカル: Docker）
 - **認証**: Better Auth（Email OTP パスワードレス認証）
@@ -46,6 +47,13 @@ pnpm workspace によるモノレポ構成の化学物質管理クイズアプ�
 - ルーティングは React Router (`react-router-dom`) を使用
 - 認証ガードは `ProtectedRoute` コンポーネントで `authClient.useSession()` により判定
 
+### SST / インフラ
+
+- インフラ定義は `sst.config.ts`（モノレポルート）に集約
+- シークレットは `sst.Secret` で管理し、Lambda には `environment` で `process.env` として渡す
+- ローカル開発は既存の `pnpm dev` をそのまま使用（SST は本番/ステージングデプロイ専用）
+- `dev` と `production` の 2 ステージ構成
+
 ## コマンド
 
 ```bash
@@ -71,6 +79,13 @@ pnpm lint
 # Drizzle マイグレーション
 pnpm --filter api db:generate
 pnpm --filter api db:push
+
+# SST デプロイ
+pnpm sst:deploy --stage dev
+pnpm sst:deploy --stage production
+
+# SST シークレット設定
+npx sst secret set <Name> <Value> --stage <stage>
 ```
 
 ## MCP設定
