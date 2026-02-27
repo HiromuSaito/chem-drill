@@ -12,15 +12,35 @@ export default $config({
     };
   },
   async run() {
+    const { createBasicAuthEdge } = await import("./infra/basic-auth");
     // --- シークレット定義 ---
     const databaseUrl = new sst.Secret("DatabaseUrl");
     const geminiApiKey = new sst.Secret("GeminiApiKey");
     const betterAuthSecret = new sst.Secret("BetterAuthSecret");
-    const corsOrigin = new sst.Secret("CorsOrigin");
     const sesFromEmail = new sst.Secret("SesFromEmail");
+    const basicAuthUser = new sst.Secret("BasicAuthUser");
+    const basicAuthPassword = new sst.Secret("BasicAuthPassword");
 
     // --- API Gateway (HTTP API) ---
     const api = new sst.aws.ApiGatewayV2("Api");
+
+    // --- Static Site (S3 + CloudFront) ---
+    const site = new sst.aws.StaticSite("Web", {
+      path: "apps/web",
+      build: {
+        command: "pnpm run build",
+        output: "dist",
+      },
+      environment: {
+        VITE_API_URL: api.url,
+      },
+      // dev ステージのみ Basic 認証
+      edge: createBasicAuthEdge(
+        $app.stage,
+        basicAuthUser.value,
+        basicAuthPassword.value,
+      ),
+    });
 
     // キャッチオールルート: 全リクエストを Hono に委譲
     api.route("$default", {
@@ -30,7 +50,7 @@ export default $config({
         GEMINI_API_KEY: geminiApiKey.value,
         BETTER_AUTH_SECRET: betterAuthSecret.value,
         BETTER_AUTH_URL: api.url,
-        CORS_ORIGIN: corsOrigin.value,
+        CORS_ORIGIN: site.url,
         SES_FROM_EMAIL: sesFromEmail.value,
       },
       nodejs: {
@@ -38,6 +58,9 @@ export default $config({
       },
     });
 
-    return { apiUrl: api.url };
+    return {
+      apiUrl: api.url,
+      siteUrl: site.url,
+    };
   },
 });

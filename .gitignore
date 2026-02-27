@@ -20,5 +20,6 @@ dist/
 
 # SST
 .sst/
+sst-env.d.ts
 
 .tmp

@@ -66,7 +66,9 @@ domain ← infrastructure（リポジトリ実装）
 [SST (v4)](https://sst.dev/) を使用してインフラをコード管理しています。
 
 ```
-ユーザー → API Gateway (HTTP API) → Lambda → Hono アプリ → Neon (PostgreSQL)
+ユーザー → CloudFront → S3 (SPA)
+              ↓ API呼び出し
+         API Gateway (HTTP API) → Lambda → Hono アプリ → Neon (PostgreSQL)
 ```
 
 - **IaC**: SST（Pulumi ベース）
@@ -89,10 +91,13 @@ npx sst secret set <シークレット名> "<値>" --stage <ステージ>
 # 設定済みシークレットの確認
 npx sst secret list --stage <ステージ>
 
-# 2. デプロイ
+# 2. デプロイ前の差分確認（terraform plan 相当）
+npx sst diff --stage dev
+
+# 3. デプロイ
 pnpm sst:deploy --stage dev
 
-# 3. ヘルスチェック
+# 4. ヘルスチェック
 curl <出力されたAPI URL>/api/health
 ```
 
