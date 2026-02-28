@@ -31,9 +31,15 @@ export default $config({
 
     // --- API Gateway (HTTP API) ---
     const api = new sst.aws.ApiGatewayV2("Api", {
+      cors: false,
       domain: {
         name: apiDomain,
         dns: sst.aws.dns(),
+      },
+      transform: {
+        api: {
+          corsConfiguration: undefined,
+        },
       },
     });
 
@@ -66,8 +72,8 @@ export default $config({
         DATABASE_URL: databaseUrl.value,
         GEMINI_API_KEY: geminiApiKey.value,
         BETTER_AUTH_SECRET: betterAuthSecret.value,
-        BETTER_AUTH_URL: api.url,
-        CORS_ORIGIN: site.url,
+        BETTER_AUTH_URL: `https://${apiDomain}`,
+        CORS_ORIGIN: `https://${siteDomain}`,
         SES_FROM_EMAIL: sesFromEmail.value,
       },
       nodejs: {
