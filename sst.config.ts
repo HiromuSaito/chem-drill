@@ -21,11 +21,34 @@ export default $config({
     const basicAuthUser = new sst.Secret("BasicAuthUser");
     const basicAuthPassword = new sst.Secret("BasicAuthPassword");
 
+    // --- ドメイン設定 ---
+    const isProduction = $app.stage === "production";
+    const domain = "chem-drill.com";
+    const siteDomain = isProduction ? domain : `${$app.stage}.${domain}`;
+    const apiDomain = isProduction
+      ? `api.${domain}`
+      : `api.${$app.stage}.${domain}`;
+
     // --- API Gateway (HTTP API) ---
-    const api = new sst.aws.ApiGatewayV2("Api");
+    const api = new sst.aws.ApiGatewayV2("Api", {
+      cors: false,
+      domain: {
+        name: apiDomain,
+        dns: sst.aws.dns(),
+      },
+      transform: {
+        api: {
+          corsConfiguration: undefined,
+        },
+      },
+    });
 
     // --- Static Site (S3 + CloudFront) ---
     const site = new sst.aws.StaticSite("Web", {
+      domain: {
+        name: siteDomain,
+        dns: sst.aws.dns(),
+      },
       path: "apps/web",
       build: {
         command: "pnpm run build",
@@ -49,8 +72,8 @@ export default $config({
         DATABASE_URL: databaseUrl.value,
         GEMINI_API_KEY: geminiApiKey.value,
         BETTER_AUTH_SECRET: betterAuthSecret.value,
-        BETTER_AUTH_URL: api.url,
-        CORS_ORIGIN: site.url,
+        BETTER_AUTH_URL: `https://${apiDomain}`,
+        CORS_ORIGIN: `https://${siteDomain}`,
         SES_FROM_EMAIL: sesFromEmail.value,
       },
       nodejs: {
