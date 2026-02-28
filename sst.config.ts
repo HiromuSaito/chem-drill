@@ -21,11 +21,28 @@ export default $config({
     const basicAuthUser = new sst.Secret("BasicAuthUser");
     const basicAuthPassword = new sst.Secret("BasicAuthPassword");
 
+    // --- ドメイン設定 ---
+    const isProduction = $app.stage === "production";
+    const domain = "chem-drill.com";
+    const siteDomain = isProduction ? domain : `${$app.stage}.${domain}`;
+    const apiDomain = isProduction
+      ? `api.${domain}`
+      : `api.${$app.stage}.${domain}`;
+
     // --- API Gateway (HTTP API) ---
-    const api = new sst.aws.ApiGatewayV2("Api");
+    const api = new sst.aws.ApiGatewayV2("Api", {
+      domain: {
+        name: apiDomain,
+        dns: sst.aws.dns(),
+      },
+    });
 
     // --- Static Site (S3 + CloudFront) ---
     const site = new sst.aws.StaticSite("Web", {
+      domain: {
+        name: siteDomain,
+        dns: sst.aws.dns(),
+      },
       path: "apps/web",
       build: {
         command: "pnpm run build",
