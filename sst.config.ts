@@ -71,12 +71,6 @@ export default $config({
       ? `api.${domain}`
       : `api.${$app.stage}.${domain}`;
 
-    // --- SES ARN（shared ステージで作成済みの EmailIdentity を参照）---
-    const callerIdentity = aws.getCallerIdentity({});
-    const sesIdentityArn = callerIdentity.then(
-      (id) => `arn:aws:ses:ap-northeast-1:${id.accountId}:identity/${domain}`,
-    );
-
     // --- API Gateway (HTTP API) ---
     const api = new sst.aws.ApiGatewayV2("Api", {
       cors: false,
@@ -119,7 +113,7 @@ export default $config({
       permissions: [
         {
           actions: ["ses:SendEmail", "ses:SendRawEmail"],
-          resources: [sesIdentityArn],
+          resources: ["*"],
         },
       ],
       environment: {
