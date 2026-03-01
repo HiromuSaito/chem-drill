@@ -3,8 +3,11 @@ export default $config({
   app(input) {
     return {
       name: "chem-drill",
-      removal: input?.stage === "production" ? "retain" : "remove",
-      protect: ["production"].includes(input?.stage ?? ""),
+      removal:
+        input?.stage === "production" || input?.stage === "shared"
+          ? "retain"
+          : "remove",
+      protect: ["production", "shared"].includes(input?.stage ?? ""),
       home: "aws",
       providers: {
         aws: { region: "ap-northeast-1" },
@@ -12,7 +15,47 @@ export default $config({
     };
   },
   async run() {
+    const domain = "chem-drill.com";
+    const isShared = $app.stage === "shared";
+
+    // --- shared ステージ: SES リソースのみ作成 ---
+    if (isShared) {
+      const sesIdentity = new aws.sesv2.EmailIdentity("SesIdentity", {
+        emailIdentity: domain,
+        dkimSigningAttributes: {
+          nextSigningKeyLength: "RSA_2048_BIT",
+        },
+      });
+
+      const zoneId = aws.route53
+        .getZone({ name: domain })
+        .then((z) => z.zoneId);
+      const tokens = sesIdentity.dkimSigningAttributes.tokens;
+      for (let i = 0; i < 3; i++) {
+        const token = tokens.apply((t) => t[i]);
+        new aws.route53.Record(`SesDkim${i}`, {
+          zoneId,
+          name: token.apply((t) => `${t}._domainkey.${domain}`),
+          type: "CNAME",
+          ttl: 300,
+          records: [token.apply((t) => `${t}.dkim.amazonses.com`)],
+        });
+      }
+
+      new aws.route53.Record("SesDmarc", {
+        zoneId,
+        name: `_dmarc.${domain}`,
+        type: "TXT",
+        ttl: 300,
+        records: ["v=DMARC1; p=none;"],
+      });
+
+      return {};
+    }
+
+    // --- dev / production ステージ ---
     const { createBasicAuthEdge } = await import("./infra/basic-auth");
+
     // --- シークレット定義 ---
     const databaseUrl = new sst.Secret("DatabaseUrl");
     const geminiApiKey = new sst.Secret("GeminiApiKey");
@@ -23,7 +66,6 @@ export default $config({
 
     // --- ドメイン設定 ---
     const isProduction = $app.stage === "production";
-    const domain = "chem-drill.com";
     const siteDomain = isProduction ? domain : `${$app.stage}.${domain}`;
     const apiDomain = isProduction
       ? `api.${domain}`
@@ -68,6 +110,12 @@ export default $config({
     // キャッチオールルート: 全リクエストを Hono に委譲
     api.route("$default", {
       handler: "apps/api/src/lambda.handler",
+      permissions: [
+        {
+          actions: ["ses:SendEmail", "ses:SendRawEmail"],
+          resources: ["*"],
+        },
+      ],
       environment: {
         DATABASE_URL: databaseUrl.value,
         GEMINI_API_KEY: geminiApiKey.value,
