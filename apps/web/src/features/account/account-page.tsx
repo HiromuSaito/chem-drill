@@ -1,5 +1,13 @@
-import { useState } from "react";
-import { User, AtSign, Mail, Loader2, Check } from "lucide-react";
+import { useState, useRef } from "react";
+import {
+  User,
+  AtSign,
+  Mail,
+  Loader2,
+  Check,
+  Camera,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,10 +17,136 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { UserIcon } from "@/components/user-icon";
 import { authClient } from "@/auth-client";
 import { client } from "@/client";
+import { ICON_ALLOWED_TYPES, ICON_MAX_SIZE } from "shared";
 
 const usernamePattern = /^[a-z0-9_-]{3,20}$/;
+
+function IconSection({
+  user,
+}: {
+  user: { name: string; image?: string | null };
+}) {
+  const [image, setImage] = useState(user.image);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setError("");
+    setSuccess("");
+
+    if (!ICON_ALLOWED_TYPES.includes(file.type)) {
+      setError("JPEG、PNG、WebP、GIF のみアップロードできます");
+      return;
+    }
+
+    if (file.size > ICON_MAX_SIZE) {
+      setError("ファイルサイズは 5MB 以下にしてください");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const res = await client.api.user.icon.$post({
+        form: { file },
+      });
+
+      if (!res.ok) {
+        const data = (await res.json()) as { error?: string };
+        setError(data.error ?? "アップロードに失敗しました");
+        return;
+      }
+
+      const { imageUrl } = await res.json();
+      setImage(imageUrl);
+      setSuccess("アイコンを変更しました");
+      await authClient.updateUser({ image: imageUrl });
+    } catch {
+      setError("アップロードに失敗しました");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleDelete = async () => {
+    setError("");
+    setSuccess("");
+    setIsUploading(true);
+    try {
+      const res = await client.api.user.icon.$delete();
+
+      if (!res.ok) {
+        setError("削除に失敗しました");
+        return;
+      }
+
+      setImage(null);
+      setSuccess("アイコンを削除しました");
+      await authClient.updateUser({ image: null });
+    } catch {
+      setError("削除に失敗しました");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-3 pb-2">
+      <div className="relative group">
+        <UserIcon name={user.name} image={image} className="size-20 text-2xl" />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+          className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer"
+        >
+          {isUploading ? (
+            <Loader2 className="size-6 text-white animate-spin" />
+          ) : (
+            <Camera className="size-6 text-white" />
+          )}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </div>
+      {image && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={handleDelete}
+          disabled={isUploading}
+          className="text-muted-foreground text-xs h-7"
+        >
+          <Trash2 className="size-3 mr-1" />
+          アイコンを削除
+        </Button>
+      )}
+      {success && (
+        <p className="text-xs text-green-600 flex items-center gap-1">
+          <Check className="size-3" />
+          {success}
+        </p>
+      )}
+      {error && <p className="text-destructive text-xs">{error}</p>}
+    </div>
+  );
+}
 
 function AccountForm({
   user,
@@ -135,7 +269,12 @@ export function AccountPage() {
           <CardDescription>表示名とユーザー名を変更できます</CardDescription>
         </CardHeader>
         <CardContent>
-          {session?.user && <AccountForm user={session.user} />}
+          {session?.user && (
+            <>
+              <IconSection user={session.user} />
+              <AccountForm user={session.user} />
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

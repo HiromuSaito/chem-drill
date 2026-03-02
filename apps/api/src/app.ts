@@ -4,6 +4,7 @@ import { createApiRoutes } from "./presentation/routes/index.ts";
 import { dependencies } from "./composition-root.ts";
 import { consoleLogger } from "./lib/logger.ts";
 import { ConflictError, EntityNotFoundError } from "./domain/shared/errors.ts";
+import { HTTPException } from "hono/http-exception";
 import { Scalar } from "@scalar/hono-api-reference";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { auth } from "./infrastructure/auth/auth.ts";
@@ -34,6 +35,9 @@ app.use("/api/auth/*", async (c) => {
 app.use(logger());
 
 app.onError((err, c) => {
+  if (err instanceof HTTPException) {
+    return c.json({ error: err.message }, err.status);
+  }
   if (err instanceof EntityNotFoundError) {
     return c.json({ error: err.message }, 404);
   }

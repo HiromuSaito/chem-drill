@@ -35,6 +35,10 @@ import { SaveDrillSession } from "./application/drill-session/save-drill-session
 import { GetDrillStats } from "./application/drill-session/get-drill-stats.ts";
 import { GetRecentSessions } from "./application/drill-session/get-recent-sessions.ts";
 import { GetCategoryScores } from "./application/drill-session/get-category-scores.ts";
+import { S3IconStorage } from "./infrastructure/storage/s3-icon-storage.ts";
+import { SharpIconProcessor } from "./infrastructure/storage/sharp-icon-processor.ts";
+import { UploadIcon } from "./application/user/upload-icon.ts";
+import { DeleteIcon } from "./application/user/delete-icon.ts";
 import { consoleLogger } from "./lib/logger.ts";
 import { requireEnv } from "./env.ts";
 
@@ -72,6 +76,13 @@ const categoryDeletionPolicy = new CategoryDeletionPolicy(categoryQueryService);
 const questionGenerationAdapter = new GeminiQuestionGenerationAdapter(() =>
   requireEnv("GEMINI_API_KEY"),
 );
+
+// アイコンストレージ & プロセッサー
+const iconStorage = new S3IconStorage(
+  () => requireEnv("ICON_BUCKET_NAME"),
+  () => process.env.S3_ENDPOINT,
+);
+const iconProcessor = new SharpIconProcessor();
 
 // ユースケース
 const getRandomQuestions = new GetRandomQuestions(
@@ -138,6 +149,9 @@ const checkUsernameAvailability = new CheckUsernameAvailability(
   userQueryService,
 );
 
+const uploadIcon = new UploadIcon(iconStorage, iconProcessor);
+const deleteIcon = new DeleteIcon(iconStorage);
+
 const saveDrillSession = new SaveDrillSession(
   unitOfWork,
   drillSessionRepository,
@@ -154,6 +168,8 @@ const getCategoryScores = new GetCategoryScores(
 
 export const dependencies = {
   checkUsernameAvailability,
+  uploadIcon,
+  deleteIcon,
   getRandomQuestions,
   getTrialQuestions,
   createQuestion,
