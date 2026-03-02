@@ -15,5 +15,14 @@ services:
     container_name: chem-drill-ses
     ports:
       - "8005:8005"
+  localstack:
+    image: localstack/localstack
+    container_name: chem-drill-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3
+    volumes:
+      - ./localstack/init:/etc/localstack/init/ready.d
 volumes:
   pgdata:

@@ -5,9 +5,9 @@ import {
   Shield,
   BookOpen,
   BarChart3,
-  Settings,
 } from "lucide-react";
 import { authClient } from "@/auth-client";
+import { UserIcon } from "@/components/user-icon";
 import {
   Sidebar,
   SidebarContent,
@@ -100,7 +100,11 @@ export function AppLayout() {
                 tooltip="アカウント設定"
               >
                 <Link to="/account">
-                  <Settings />
+                  <UserIcon
+                    name={session?.user.name ?? ""}
+                    image={session?.user.image}
+                    size="sm"
+                  />
                   <span>アカウント設定</span>
                 </Link>
               </SidebarMenuButton>

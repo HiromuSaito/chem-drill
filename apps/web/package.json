@@ -23,6 +23,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.71.1",
     "react-router-dom": "^7.13.0",
+    "shared": "workspace:*",
     "recharts": "2.15.4",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",

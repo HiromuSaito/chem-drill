@@ -64,6 +64,11 @@ export default $config({
     const basicAuthUser = new sst.Secret("BasicAuthUser");
     const basicAuthPassword = new sst.Secret("BasicAuthPassword");
 
+    // --- アイコンストレージ ---
+    const iconBucket = new sst.aws.Bucket("IconBucket", {
+      access: "public",
+    });
+
     // --- ドメイン設定 ---
     const isProduction = $app.stage === "production";
     const siteDomain = isProduction ? domain : `${$app.stage}.${domain}`;
@@ -123,10 +128,17 @@ export default $config({
         BETTER_AUTH_URL: `https://${apiDomain}`,
         CORS_ORIGIN: `https://${siteDomain}`,
         SES_FROM_EMAIL: sesFromEmail.value,
+        ICON_BUCKET_NAME: iconBucket.name,
       },
       nodejs: {
-        install: ["postgres"],
+        install: ["postgres", "sharp"],
       },
+      permissions: [
+        {
+          actions: ["s3:PutObject", "s3:DeleteObject"],
+          resources: [$interpolate`${iconBucket.arn}/*`],
+        },
+      ],
     });
 
     return {
