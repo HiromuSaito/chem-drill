@@ -3,6 +3,7 @@ import {
   FileText,
   FolderOpen,
   BookOpen,
+  Users,
   ArrowLeft,
   LogOut,
   Shield,
@@ -14,6 +15,7 @@ const navItems = [
   { to: "/admin/proposals", label: "出題案", icon: FileText },
   { to: "/admin/questions", label: "問題", icon: BookOpen },
   { to: "/admin/categories", label: "カテゴリ", icon: FolderOpen },
+  { to: "/admin/users", label: "ユーザー", icon: Users },
 ];
 
 export function AdminLayout() {
