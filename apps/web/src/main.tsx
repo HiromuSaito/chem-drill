@@ -18,6 +18,7 @@ import { CategoryListPage } from "./features/admin/categories/category-list-page
 import { QuestionListPage } from "./features/admin/questions/question-list-page";
 import { QuestionDetailPage } from "./features/admin/questions/question-detail-page";
 import { UserListPage } from "./features/admin/users/user-list-page";
+import { UserDetailPage } from "./features/admin/users/user-detail-page";
 import { CategorySelectPage } from "./features/drill/category-select-page";
 import { DrillPage } from "./features/drill/drill-page";
 import { StatsPage } from "./features/stats/stats-page";
@@ -57,6 +58,7 @@ function Root() {
                 <Route path="questions/:id" element={<QuestionDetailPage />} />
                 <Route path="categories" element={<CategoryListPage />} />
                 <Route path="users" element={<UserListPage />} />
+                <Route path="users/:id" element={<UserDetailPage />} />
               </Route>
             </Route>
           </Route>
