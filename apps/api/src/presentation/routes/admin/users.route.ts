@@ -55,9 +55,12 @@ const getUserRoute = createRoute({
       description: "ユーザー詳細",
       content: {
         "application/json": {
-          schema: userListItemSchema.openapi("AdminUser"),
+          schema: userListItemSchema,
         },
       },
+    },
+    404: {
+      description: "ユーザーが見つかりません",
     },
   },
 });

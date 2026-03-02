@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
@@ -26,8 +26,17 @@ const roleLabels: Record<string, string> = {
 export function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [selectedCategoryId, setSelectedCategoryId] = useState(ALL_CATEGORIES);
+  const [prevId, setPrevId] = useState(id);
+  if (id !== prevId) {
+    setPrevId(id);
+    setSelectedCategoryId(ALL_CATEGORIES);
+  }
 
-  const { data: user, isLoading: isUserLoading } = useQuery({
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    isError: isUserError,
+  } = useQuery({
     queryKey: ["admin-user", id],
     queryFn: async () => {
       const res = await client.api.admin.users[":id"].$get({
@@ -66,16 +75,19 @@ export function UserDetailPage() {
     enabled: !!id,
   });
 
-  const fetchRecentSessions = async (query: Record<string, string>) => {
-    const res = await client.api.admin.users[":id"].stats[
-      "recent-sessions"
-    ].$get({
-      param: { id: id! },
-      query,
-    });
-    if (!res.ok) throw new Error("Failed to fetch recent sessions");
-    return res.json();
-  };
+  const fetchRecentSessions = useCallback(
+    async (query: Record<string, string>) => {
+      const res = await client.api.admin.users[":id"].stats[
+        "recent-sessions"
+      ].$get({
+        param: { id: id! },
+        query,
+      });
+      if (!res.ok) throw new Error("Failed to fetch recent sessions");
+      return res.json();
+    },
+    [id],
+  );
 
   const correctRate =
     stats && stats.totalAnswered > 0
@@ -90,8 +102,23 @@ export function UserDetailPage() {
     return <p className="text-muted-foreground">読み込み中...</p>;
   }
 
-  if (!user) {
-    return <p className="text-muted-foreground">ユーザーが見つかりません</p>;
+  if (isUserError || !user) {
+    return (
+      <div className="space-y-4">
+        <Link
+          to="/admin/users"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          ユーザー一覧に戻る
+        </Link>
+        <p className="text-muted-foreground">
+          {isUserError
+            ? "ユーザー情報の取得に失敗しました"
+            : "ユーザーが見つかりません"}
+        </p>
+      </div>
+    );
   }
 
   return (
