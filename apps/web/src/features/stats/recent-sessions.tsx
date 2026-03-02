@@ -5,23 +5,43 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { client } from "@/client";
 
+type SessionSummary = {
+  sessionId: string;
+  categoryId: string | null;
+  categoryName: string | null;
+  totalCount: number;
+  correctCount: number;
+  completedAt: string;
+};
+
 type Props = {
   categoryId?: string;
+  fetchFn?: (query: Record<string, string>) => Promise<SessionSummary[]>;
+  queryKeyPrefix?: string;
 };
 
 const PAGE_SIZE = 10;
 
-export function RecentSessions({ categoryId }: Props) {
+export function RecentSessions({
+  categoryId,
+  fetchFn,
+  queryKeyPrefix = "drill-sessions",
+}: Props) {
   const [offset, setOffset] = useState(0);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["drill-sessions", "recent", categoryId, offset],
+    queryKey: [queryKeyPrefix, "recent", categoryId, offset],
     queryFn: async () => {
       const query: Record<string, string> = {
         limit: String(PAGE_SIZE + 1),
         offset: String(offset),
       };
       if (categoryId) query.categoryId = categoryId;
+
+      if (fetchFn) {
+        return fetchFn(query);
+      }
+
       const res = await client.api["drill-sessions"].recent.$get({ query });
       if (!res.ok) throw new Error("Failed to fetch recent sessions");
       return res.json();

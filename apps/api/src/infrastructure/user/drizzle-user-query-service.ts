@@ -3,6 +3,7 @@ import { user, session } from "../db/auth-schema.ts";
 import { getCurrentTransaction } from "../db/transaction-context.ts";
 import type {
   UserQueryService,
+  UserListItemDto,
   ListUsersResult,
 } from "../../domain/user/query-service/user-query-service.ts";
 
@@ -15,6 +16,49 @@ export class DrizzleUserQueryService implements UserQueryService {
       .where(eq(user.username, username))
       .limit(1);
     return rows.length === 0;
+  }
+
+  async findById(userId: string): Promise<UserListItemDto | null> {
+    const tx = getCurrentTransaction();
+
+    const lastLoginSubquery = tx
+      .select({
+        userId: session.userId,
+        lastLoginAt: max(session.createdAt).as("last_login_at"),
+      })
+      .from(session)
+      .groupBy(session.userId)
+      .as("last_login");
+
+    const rows = await tx
+      .select({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        image: user.image,
+        createdAt: user.createdAt,
+        lastLoginAt: lastLoginSubquery.lastLoginAt,
+      })
+      .from(user)
+      .leftJoin(lastLoginSubquery, eq(user.id, lastLoginSubquery.userId))
+      .where(eq(user.id, userId))
+      .limit(1);
+
+    if (rows.length === 0) return null;
+
+    const row = rows[0]!;
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      username: row.username,
+      role: row.role,
+      image: row.image,
+      createdAt: row.createdAt,
+      lastLoginAt: row.lastLoginAt ? new Date(row.lastLoginAt) : null,
+    };
   }
 
   async listUsers(

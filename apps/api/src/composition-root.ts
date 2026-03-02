@@ -26,6 +26,7 @@ import { DrizzleQuestionProposalProjectionQueryService } from "./infrastructure/
 import { DrizzleUserQueryService } from "./infrastructure/user/drizzle-user-query-service.ts";
 import { CheckUsernameAvailability } from "./application/user/check-username-availability.ts";
 import { ListUsers } from "./application/user/list-users.ts";
+import { GetUser } from "./application/user/get-user.ts";
 import { CategoryNameDuplicateChecker } from "./domain/category/service/category-name-duplicate-checker.ts";
 import { CategoryDeletionPolicy } from "./domain/category/service/category-deletion-policy.ts";
 import { OnQuestionProposalApproved } from "./application/question-proposal/on-question-proposal-approved.ts";
@@ -151,6 +152,7 @@ const checkUsernameAvailability = new CheckUsernameAvailability(
 );
 
 const listUsers = new ListUsers(unitOfWork, userQueryService);
+const getUser = new GetUser(unitOfWork, userQueryService);
 
 const uploadIcon = new UploadIcon(iconStorage, iconProcessor);
 const deleteIcon = new DeleteIcon(iconStorage);
@@ -172,6 +174,7 @@ const getCategoryScores = new GetCategoryScores(
 export const dependencies = {
   checkUsernameAvailability,
   listUsers,
+  getUser,
   uploadIcon,
   deleteIcon,
   getRandomQuestions,

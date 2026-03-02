@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ const roleLabels: Record<string, string> = {
 };
 
 export function UserListPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [offset, setOffset] = useState(0);
@@ -120,7 +122,11 @@ export function UserListPage() {
                   </TableRow>
                 ) : (
                   data?.items.map((item) => (
-                    <TableRow key={item.id}>
+                    <TableRow
+                      key={item.id}
+                      className="cursor-pointer"
+                      onClick={() => navigate(`/admin/users/${item.id}`)}
+                    >
                       <TableCell>
                         <UserIcon
                           name={item.name}
