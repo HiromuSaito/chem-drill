@@ -1,10 +1,9 @@
 import type {
   DrillStatsQueryService,
-  OverallStatsDto,
-  StatsDto,
   LatestAnswerRow,
   CategoryQuestionCountRow,
 } from "../../domain/drill-session/query-service/drill-stats-query-service.ts";
+import type { OverallStatsDto, StatsDto } from "./dto.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
 export class GetDrillStats {
@@ -51,25 +50,17 @@ export class GetDrillStats {
     latestAnswers: LatestAnswerRow[],
     questionCounts: CategoryQuestionCountRow[],
   ): OverallStatsDto {
-    const countMap = new Map(
-      questionCounts.map((r) => [r.categoryId, r.total]),
-    );
+    const countMap = new Map(questionCounts.map((r) => [r.categoryId, r]));
     const totalQuestions = questionCounts.reduce((sum, r) => sum + r.total, 0);
     const correctCount = latestAnswers.filter((a) => a.isCorrect).length;
 
-    const categoryMap = new Map<
-      string,
-      { categoryName: string; answers: LatestAnswerRow[] }
-    >();
+    const categoryMap = new Map<string, LatestAnswerRow[]>();
     for (const a of latestAnswers) {
       const existing = categoryMap.get(a.categoryId);
       if (existing) {
-        existing.answers.push(a);
+        existing.push(a);
       } else {
-        categoryMap.set(a.categoryId, {
-          categoryName: a.categoryName,
-          answers: [a],
-        });
+        categoryMap.set(a.categoryId, [a]);
       }
     }
 
@@ -79,13 +70,13 @@ export class GetDrillStats {
       uniqueQuestionsAnswered: latestAnswers.length,
       totalQuestions,
       categoryStats: Array.from(categoryMap.entries()).map(
-        ([categoryId, { categoryName, answers }]) => ({
+        ([categoryId, answers]) => ({
           categoryId,
-          categoryName,
+          categoryName: countMap.get(categoryId)?.categoryName ?? "",
           totalAnswered: answers.length,
           correctCount: answers.filter((a) => a.isCorrect).length,
           uniqueQuestionsAnswered: answers.length,
-          totalQuestions: countMap.get(categoryId) ?? 0,
+          totalQuestions: countMap.get(categoryId)?.total ?? 0,
         }),
       ),
     };

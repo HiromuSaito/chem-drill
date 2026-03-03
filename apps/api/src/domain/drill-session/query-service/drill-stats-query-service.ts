@@ -4,11 +4,11 @@ export type LatestAnswerRow = {
   questionId: string;
   isCorrect: boolean;
   categoryId: string;
-  categoryName: string;
 };
 
 export type CategoryQuestionCountRow = {
   categoryId: string;
+  categoryName: string;
   total: number;
 };
 
@@ -19,31 +19,6 @@ export type SessionSummaryDto = {
   totalCount: number;
   correctCount: number;
   completedAt: string;
-};
-
-// --- ユースケースが返す集計済み DTO ---
-
-export type StatsDto = {
-  totalAnswered: number;
-  correctCount: number;
-  uniqueQuestionsAnswered: number;
-  totalQuestions: number;
-};
-
-export type OverallStatsDto = StatsDto & {
-  categoryStats: Array<
-    StatsDto & {
-      categoryId: string;
-      categoryName: string;
-    }
-  >;
-};
-
-export type CategoryScoreDto = {
-  categoryId: string;
-  categoryName: string;
-  correctRate: number;
-  coverageRate: number;
 };
 
 // --- クエリサービスIF（データ取得のみ） ---

@@ -30,12 +30,10 @@ export class DrizzleDrillStatsQueryService implements DrillStatsQueryService {
         questionId: drillAnswers.questionId,
         isCorrect: drillAnswers.isCorrect,
         categoryId: questions.categoryId,
-        categoryName: categories.name,
       })
       .from(drillAnswers)
       .innerJoin(drillSessions, eq(drillAnswers.sessionId, drillSessions.id))
       .innerJoin(questions, eq(drillAnswers.questionId, questions.id))
-      .innerJoin(categories, eq(questions.categoryId, categories.id))
       .where(and(...conditions))
       .orderBy(drillAnswers.questionId, desc(drillSessions.completedAt));
   }
@@ -48,10 +46,12 @@ export class DrizzleDrillStatsQueryService implements DrillStatsQueryService {
     const query = tx
       .select({
         categoryId: questions.categoryId,
+        categoryName: categories.name,
         total: count(questions.id),
       })
       .from(questions)
-      .groupBy(questions.categoryId);
+      .innerJoin(categories, eq(questions.categoryId, categories.id))
+      .groupBy(questions.categoryId, categories.name);
 
     if (categoryId) {
       return query.where(eq(questions.categoryId, categoryId));
@@ -67,43 +67,14 @@ export class DrizzleDrillStatsQueryService implements DrillStatsQueryService {
   ): Promise<SessionSummaryDto[]> {
     const tx = getCurrentTransaction();
 
+    const conditions = [eq(drillSessions.userId, userId)];
     if (categoryId) {
-      // そのカテゴリの問題を含むセッションIDを抽出してフィルタ
       const sessionIds = tx
         .selectDistinct({ sessionId: drillAnswers.sessionId })
         .from(drillAnswers)
         .innerJoin(questions, eq(drillAnswers.questionId, questions.id))
         .where(eq(questions.categoryId, categoryId));
-
-      const rows = await tx
-        .select({
-          sessionId: drillSessions.id,
-          categoryId: drillSessions.categoryId,
-          categoryName: categories.name,
-          totalCount: drillSessions.totalCount,
-          correctCount: drillSessions.correctCount,
-          completedAt: drillSessions.completedAt,
-        })
-        .from(drillSessions)
-        .leftJoin(categories, eq(drillSessions.categoryId, categories.id))
-        .where(
-          and(
-            eq(drillSessions.userId, userId),
-            inArray(drillSessions.id, sessionIds),
-          ),
-        )
-        .orderBy(desc(drillSessions.completedAt))
-        .limit(limit)
-        .offset(offset);
-
-      return rows.map((r) => ({
-        sessionId: r.sessionId,
-        categoryId: r.categoryId,
-        categoryName: r.categoryName,
-        totalCount: r.totalCount,
-        correctCount: r.correctCount,
-        completedAt: r.completedAt.toISOString(),
-      }));
+      conditions.push(inArray(drillSessions.id, sessionIds));
     }
 
     const rows = await tx
@@ -117,7 +88,7 @@ export class DrizzleDrillStatsQueryService implements DrillStatsQueryService {
       })
       .from(drillSessions)
       .leftJoin(categories, eq(drillSessions.categoryId, categories.id))
-      .where(eq(drillSessions.userId, userId))
+      .where(and(...conditions))
       .orderBy(desc(drillSessions.completedAt))
       .limit(limit)
       .offset(offset);

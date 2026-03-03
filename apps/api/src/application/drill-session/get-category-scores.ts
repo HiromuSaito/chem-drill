@@ -1,8 +1,5 @@
-import type {
-  DrillStatsQueryService,
-  CategoryScoreDto,
-  LatestAnswerRow,
-} from "../../domain/drill-session/query-service/drill-stats-query-service.ts";
+import type { DrillStatsQueryService } from "../../domain/drill-session/query-service/drill-stats-query-service.ts";
+import type { CategoryScoreDto } from "./dto.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
 export class GetCategoryScores {
@@ -18,36 +15,30 @@ export class GetCategoryScores {
         this.queryService.getQuestionCounts(),
       ]);
 
-      const countMap = new Map(
-        questionCounts.map((r) => [r.categoryId, r.total]),
-      );
+      const countMap = new Map(questionCounts.map((r) => [r.categoryId, r]));
 
-      const categoryMap = new Map<
-        string,
-        { categoryName: string; answers: LatestAnswerRow[] }
-      >();
+      const categoryMap = new Map<string, { correct: number; total: number }>();
       for (const a of latestAnswers) {
         const existing = categoryMap.get(a.categoryId);
         if (existing) {
-          existing.answers.push(a);
+          existing.total++;
+          if (a.isCorrect) existing.correct++;
         } else {
           categoryMap.set(a.categoryId, {
-            categoryName: a.categoryName,
-            answers: [a],
+            correct: a.isCorrect ? 1 : 0,
+            total: 1,
           });
         }
       }
 
       return Array.from(categoryMap.entries()).map(
-        ([categoryId, { categoryName, answers }]) => {
-          const totalQuestions = countMap.get(categoryId) ?? 0;
-          const correctCount = answers.filter((a) => a.isCorrect).length;
+        ([categoryId, { correct, total }]) => {
+          const totalQuestions = countMap.get(categoryId)?.total ?? 0;
           return {
             categoryId,
-            categoryName,
-            correctRate: answers.length > 0 ? correctCount / answers.length : 0,
-            coverageRate:
-              totalQuestions > 0 ? answers.length / totalQuestions : 0,
+            categoryName: countMap.get(categoryId)?.categoryName ?? "",
+            correctRate: total > 0 ? correct / total : 0,
+            coverageRate: totalQuestions > 0 ? total / totalQuestions : 0,
           };
         },
       );

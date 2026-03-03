@@ -16,15 +16,13 @@ export class DrizzleDrillSessionRepository implements DrillSessionRepository {
       completedAt: session.completedAt,
     });
 
-    if (session.answers.length > 0) {
-      await tx.insert(drillAnswers).values(
-        session.answers.map((a) => ({
-          sessionId: session.id,
-          questionId: a.questionId,
-          selectedIndexes: a.selectedIndexes,
-          isCorrect: a.isCorrect,
-        })),
-      );
-    }
+    await tx.insert(drillAnswers).values(
+      session.answers.map((a) => ({
+        sessionId: session.id,
+        questionId: a.questionId,
+        selectedIndexes: a.selectedIndexes,
+        isCorrect: a.isCorrect,
+      })),
+    );
   }
 }
