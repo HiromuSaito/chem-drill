@@ -1,4 +1,4 @@
-import { eq, desc, count } from "drizzle-orm";
+import { eq, and, desc, count } from "drizzle-orm";
 import type {
   QuestionProposalProjectionQueryService,
   ListQuestionProposalsResult,
@@ -10,17 +10,22 @@ import { questionProposalProjections } from "../db/schema.ts";
 export class DrizzleQuestionProposalProjectionQueryService implements QuestionProposalProjectionQueryService {
   async list(
     status: string | undefined,
+    categoryId: string | undefined,
     limit: number,
     offset: number,
   ): Promise<ListQuestionProposalsResult> {
     const tx = getCurrentTransaction();
 
-    const conditions = status
+    const statusCondition = status
       ? eq(
           questionProposalProjections.status,
           status as "pending" | "approved" | "rejected",
         )
       : undefined;
+    const categoryCondition = categoryId
+      ? eq(questionProposalProjections.categoryId, categoryId)
+      : undefined;
+    const conditions = and(statusCondition, categoryCondition);
 
     const [items, totalResult] = await Promise.all([
       tx
