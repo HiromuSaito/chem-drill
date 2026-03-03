@@ -1,15 +1,26 @@
-// --- クエリサービスが返す生データ型 ---
+// --- DTO ---
 
-export type LatestAnswerRow = {
-  questionId: string;
-  isCorrect: boolean;
-  categoryId: string;
+export type StatsDto = {
+  totalAnswered: number;
+  correctCount: number;
+  uniqueQuestionsAnswered: number;
+  totalQuestions: number;
 };
 
-export type CategoryQuestionCountRow = {
+export type OverallStatsDto = StatsDto & {
+  categoryStats: Array<
+    StatsDto & {
+      categoryId: string;
+      categoryName: string;
+    }
+  >;
+};
+
+export type CategoryScoreDto = {
   categoryId: string;
   categoryName: string;
-  total: number;
+  correctRate: number;
+  coverageRate: number;
 };
 
 export type SessionSummaryDto = {
@@ -21,15 +32,17 @@ export type SessionSummaryDto = {
   completedAt: string;
 };
 
-// --- クエリサービスIF（データ取得のみ） ---
+// --- クエリサービスIF（集計済み DTO を返す） ---
 
 export interface DrillStatsQueryService {
-  getLatestAnswers(
-    userId: string,
-    categoryId?: string,
-  ): Promise<LatestAnswerRow[]>;
+  getOverallStats(userId: string): Promise<OverallStatsDto>;
 
-  getQuestionCounts(categoryId?: string): Promise<CategoryQuestionCountRow[]>;
+  getCategoryStats(
+    userId: string,
+    categoryId: string,
+  ): Promise<StatsDto | null>;
+
+  getCategoryScores(userId: string): Promise<CategoryScoreDto[]>;
 
   getRecentSessions(
     userId: string,
