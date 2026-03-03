@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Plus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,10 +27,21 @@ const PAGE_SIZE = 20;
 export function ProposalListPage() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [offset, setOffset] = useState(0);
 
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const res = await client.api.categories.$get();
+      if (!res.ok) throw new Error("Failed to fetch categories");
+      return res.json();
+    },
+  });
+
   const { data, isLoading } = useQuery({
-    queryKey: ["question-proposals", statusFilter, offset],
+    queryKey: ["question-proposals", statusFilter, categoryFilter, offset],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       const query: Record<string, string> = {
         limit: String(PAGE_SIZE),
@@ -38,6 +49,9 @@ export function ProposalListPage() {
       };
       if (statusFilter !== "all") {
         query.status = statusFilter;
+      }
+      if (categoryFilter !== "all") {
+        query.categoryId = categoryFilter;
       }
       const res = await client.api["question-proposals"].$get({
         query,
@@ -87,6 +101,25 @@ export function ProposalListPage() {
             <SelectItem value="rejected">却下</SelectItem>
           </SelectContent>
         </Select>
+        <Select
+          value={categoryFilter}
+          onValueChange={(v) => {
+            setCategoryFilter(v);
+            setOffset(0);
+          }}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">すべてのカテゴリ</SelectItem>
+            {categoriesData?.map((cat) => (
+              <SelectItem key={cat.id} value={cat.id}>
+                {cat.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {data && (
           <span className="text-sm text-muted-foreground">{data.total} 件</span>
         )}
@@ -107,6 +140,9 @@ export function ProposalListPage() {
                     難易度
                   </TableHead>
                   <TableHead className="font-bold text-primary">
+                    カテゴリ
+                  </TableHead>
+                  <TableHead className="font-bold text-primary">
                     ステータス
                   </TableHead>
                   <TableHead className="font-bold text-primary">
@@ -118,7 +154,7 @@ export function ProposalListPage() {
                 {data?.items.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={5}
                       className="text-center text-muted-foreground"
                     >
                       提案がありません
@@ -139,6 +175,12 @@ export function ProposalListPage() {
                       <TableCell>
                         <Badge variant="secondary">
                           {difficultyLabels[item.difficulty] ?? item.difficulty}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {categoriesData?.find((c) => c.id === item.categoryId)
+                            ?.name ?? item.categoryId}
                         </Badge>
                       </TableCell>
                       <TableCell>

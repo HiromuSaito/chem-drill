@@ -21,6 +21,7 @@ export type ListQuestionProposalsResult = {
 export interface QuestionProposalProjectionQueryService {
   list(
     status: string | undefined,
+    categoryId: string | undefined,
     limit: number,
     offset: number,
   ): Promise<ListQuestionProposalsResult>;

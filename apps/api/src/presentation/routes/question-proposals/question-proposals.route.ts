@@ -81,6 +81,7 @@ const proposalListRoute = createRoute({
   request: {
     query: z.object({
       status: z.enum(["pending", "approved", "rejected"]).optional(),
+      categoryId: z.string().uuid().optional(),
       limit: z.coerce.number().int().min(1).max(100).default(20),
       offset: z.coerce.number().int().min(0).default(0),
     }),
@@ -202,9 +203,10 @@ const proposalGenerateRoute = createRoute({
 export const createQuestionProposalsRoute = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(proposalListRoute, async (c) => {
-      const { status, limit, offset } = c.req.valid("query");
+      const { status, categoryId, limit, offset } = c.req.valid("query");
       const result = await deps.listQuestionProposals.execute(
         status,
+        categoryId,
         limit,
         offset,
       );
