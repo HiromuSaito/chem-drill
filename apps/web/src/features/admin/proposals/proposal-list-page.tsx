@@ -180,7 +180,7 @@ export function ProposalListPage() {
                       <TableCell>
                         <Badge variant="outline">
                           {categoriesData?.find((c) => c.id === item.categoryId)
-                            ?.name ?? item.categoryId}
+                            ?.name ?? "—"}
                         </Badge>
                       </TableCell>
                       <TableCell>
