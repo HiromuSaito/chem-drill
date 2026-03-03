@@ -27,7 +27,7 @@ export function AdminLayout() {
   };
 
   return (
-    <div className="flex min-h-svh">
+    <div className="flex h-svh">
       <aside className="flex w-56 flex-col border-r bg-background">
         <div className="flex items-center gap-2 px-4 py-4">
           <Shield className="size-5 text-primary" />
@@ -70,7 +70,7 @@ export function AdminLayout() {
           </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto bg-muted/40 p-6">
+      <main className="min-h-0 flex-1 overflow-auto bg-muted/40 p-6">
         <Outlet />
       </main>
     </div>
