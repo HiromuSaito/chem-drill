@@ -28,6 +28,30 @@ const checkUsernameRoute = createRoute({
   },
 });
 
+const checkEmailRoute = createRoute({
+  method: "get",
+  path: "/check-email",
+  tags: ["User"],
+  summary: "メールアドレスの登録有無チェック",
+  request: {
+    query: z.object({
+      email: z.string().email(),
+    }),
+  },
+  responses: {
+    200: {
+      description: "チェック結果",
+      content: {
+        "application/json": {
+          schema: z
+            .object({ registered: z.boolean() })
+            .openapi("CheckEmailResponse"),
+        },
+      },
+    },
+  },
+});
+
 const uploadIconRoute = createRoute({
   method: "post",
   path: "/icon",
@@ -85,6 +109,11 @@ export const createUserRoute = (deps: Dependencies) =>
       const { username } = c.req.valid("query");
       const available = await deps.checkUsernameAvailability.execute(username);
       return c.json({ available });
+    })
+    .openapi(checkEmailRoute, async (c) => {
+      const { email } = c.req.valid("query");
+      const registered = await deps.checkEmailRegistered.execute(email);
+      return c.json({ registered });
     })
     .openapi(uploadIconRoute, async (c) => {
       const body = await c.req.parseBody();

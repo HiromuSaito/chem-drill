@@ -68,6 +68,16 @@ export class DrizzleUserQueryService implements UserQueryService {
     return rows.length === 0;
   }
 
+  async isEmailRegistered(email: string): Promise<boolean> {
+    const tx = getCurrentTransaction();
+    const rows = await tx
+      .select({ id: user.id })
+      .from(user)
+      .where(eq(user.email, email))
+      .limit(1);
+    return rows.length > 0;
+  }
+
   async findById(userId: string): Promise<UserListItemDto | null> {
     const tx = getCurrentTransaction();
     const lastLogin = createLastLoginSubquery(tx);
