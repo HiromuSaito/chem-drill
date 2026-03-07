@@ -5,7 +5,7 @@ import type {
   QuestionProposalProjectionDto,
 } from "../../domain/question-proposal/query-service/question-proposal-projection-query-service.ts";
 import { getCurrentTransaction } from "../db/transaction-context.ts";
-import { questionProposalProjections } from "../db/schema.ts";
+import { questionProposalProjections, questions } from "../db/schema.ts";
 
 export class DrizzleQuestionProposalProjectionQueryService implements QuestionProposalProjectionQueryService {
   async list(
@@ -19,7 +19,12 @@ export class DrizzleQuestionProposalProjectionQueryService implements QuestionPr
     const statusCondition = status
       ? eq(
           questionProposalProjections.status,
-          status as "pending" | "approved" | "rejected",
+          status as
+            | "pending"
+            | "reviewed"
+            | "approved"
+            | "rejected"
+            | "withdrawn",
         )
       : undefined;
     const categoryCondition = categoryId
@@ -29,8 +34,15 @@ export class DrizzleQuestionProposalProjectionQueryService implements QuestionPr
 
     const [items, totalResult] = await Promise.all([
       tx
-        .select()
+        .select({
+          projection: questionProposalProjections,
+          isPublished: questions.isPublished,
+        })
         .from(questionProposalProjections)
+        .leftJoin(
+          questions,
+          eq(questionProposalProjections.questionId, questions.id),
+        )
         .where(conditions)
         .orderBy(desc(questionProposalProjections.createdAt))
         .limit(limit)
@@ -42,7 +54,7 @@ export class DrizzleQuestionProposalProjectionQueryService implements QuestionPr
     ]);
 
     return {
-      items: items.map(toDto),
+      items: items.map((row) => toDto(row.projection, row.isPublished)),
       total: totalResult[0]?.count ?? 0,
     };
   }
@@ -52,8 +64,15 @@ export class DrizzleQuestionProposalProjectionQueryService implements QuestionPr
   ): Promise<QuestionProposalProjectionDto | null> {
     const tx = getCurrentTransaction();
     const rows = await tx
-      .select()
+      .select({
+        projection: questionProposalProjections,
+        isPublished: questions.isPublished,
+      })
       .from(questionProposalProjections)
+      .leftJoin(
+        questions,
+        eq(questionProposalProjections.questionId, questions.id),
+      )
       .where(
         eq(questionProposalProjections.questionProposalId, questionProposalId),
       )
@@ -61,12 +80,13 @@ export class DrizzleQuestionProposalProjectionQueryService implements QuestionPr
 
     const row = rows[0];
     if (!row) return null;
-    return toDto(row);
+    return toDto(row.projection, row.isPublished);
   }
 }
 
 function toDto(
   row: typeof questionProposalProjections.$inferSelect,
+  isPublished: boolean | null,
 ): QuestionProposalProjectionDto {
   return {
     questionProposalId: row.questionProposalId,
@@ -78,7 +98,10 @@ function toDto(
     explanation: row.explanation,
     categoryId: row.categoryId,
     rejectReason: row.rejectReason,
+    userId: row.userId,
+    questionId: row.questionId,
     questionCreated: row.questionCreated,
+    isPublished: isPublished ?? false,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };

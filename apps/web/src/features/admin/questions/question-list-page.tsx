@@ -105,6 +105,7 @@ export function QuestionListPage() {
                   <TableHead className="font-bold text-primary">
                     カテゴリ
                   </TableHead>
+                  <TableHead className="font-bold text-primary">公開</TableHead>
                   <TableHead className="font-bold text-primary">
                     作成日
                   </TableHead>
@@ -114,7 +115,7 @@ export function QuestionListPage() {
                 {data?.items.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={5}
                       className="text-center text-muted-foreground"
                     >
                       問題がありません
@@ -138,6 +139,13 @@ export function QuestionListPage() {
                       <TableCell>
                         <Badge variant="outline">
                           {item.category.categoryName}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={item.isPublished ? "default" : "outline"}
+                        >
+                          {item.isPublished ? "公開" : "非公開"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">

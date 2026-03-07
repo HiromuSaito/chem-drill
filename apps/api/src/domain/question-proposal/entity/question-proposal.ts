@@ -6,10 +6,13 @@ import { Explanation } from "../../shared/value-object/explanation.ts";
 import { QuestionText } from "../../shared/value-object/question-text.ts";
 import type {
   QuestionProposalApproved,
+  QuestionProposalApprovedEdited,
   QuestionProposalCreated,
   QuestionProposalEdited,
   QuestionProposalEvent,
   QuestionProposalRejected,
+  QuestionProposalSubmitted,
+  QuestionProposalWithdrawn,
 } from "../event/events.ts";
 import { QuestionProposalStatus } from "../value-object/question-proposal-status.ts";
 import { RejectReason } from "../value-object/reject-reason.ts";
@@ -25,16 +28,28 @@ export class QuestionProposal {
     readonly explanation: Explanation,
     readonly categoryId: CategoryId,
     readonly rejectReason?: RejectReason,
+    /** 出題案の提案者（管理者による提案の場合はnullになる） */
+    readonly userId?: string | null,
   ) {}
 
-  canEdit() {
-    return !this.status.equals(QuestionProposalStatus.create("approved"));
+  canEdit(): boolean {
+    return (
+      this.status.equals(QuestionProposalStatus.create("pending")) ||
+      this.status.equals(QuestionProposalStatus.create("rejected")) ||
+      this.status.equals(QuestionProposalStatus.create("approved"))
+    );
   }
-  canApprove() {
+  canSubmit(): boolean {
     return this.status.equals(QuestionProposalStatus.create("pending"));
   }
-  canReject() {
-    return this.status.equals(QuestionProposalStatus.create("pending"));
+  canApprove(): boolean {
+    return this.status.equals(QuestionProposalStatus.create("reviewed"));
+  }
+  canReject(): boolean {
+    return this.status.equals(QuestionProposalStatus.create("reviewed"));
+  }
+  canWithdraw(): boolean {
+    return this.status.equals(QuestionProposalStatus.create("approved"));
   }
 
   static create(params: {
@@ -44,6 +59,7 @@ export class QuestionProposal {
     correctIndexes: CorrectIndexes;
     explanation: Explanation;
     categoryId: CategoryId;
+    userId?: string;
   }): {
     proposal: QuestionProposal;
     event: QuestionProposalCreated;
@@ -64,6 +80,8 @@ export class QuestionProposal {
       params.correctIndexes,
       params.explanation,
       params.categoryId,
+      undefined,
+      params.userId,
     );
 
     return { proposal, event };
@@ -80,9 +98,15 @@ export class QuestionProposal {
     proposal: QuestionProposal;
     event: QuestionProposalEdited;
   } {
-    if (!this.canEdit()) {
+    if (this.status.equals(QuestionProposalStatus.create("approved"))) {
+      throw new Error(`承認済みの出題案は管理者のみ変更できます。`);
+    }
+    if (
+      !this.status.equals(QuestionProposalStatus.create("pending")) &&
+      !this.status.equals(QuestionProposalStatus.create("rejected"))
+    ) {
       throw new Error(
-        `出題案を編集できるステータスではありません。ステータス=${this.status}`,
+        `出題案を編集できるステータスではありません。ステータス=${this.status.value}`,
       );
     }
 
@@ -104,6 +128,84 @@ export class QuestionProposal {
       params.correctIndexes,
       params.explanation,
       params.categoryId,
+      undefined,
+      this.userId,
+    );
+
+    return { proposal, event };
+  }
+
+  editApproved(params: {
+    questionText: QuestionText;
+    difficulty: Difficulty;
+    choices: readonly string[];
+    correctIndexes: CorrectIndexes;
+    explanation: Explanation;
+    categoryId: CategoryId;
+  }): {
+    proposal: QuestionProposal;
+    event: QuestionProposalApprovedEdited;
+  } {
+    if (!this.status.equals(QuestionProposalStatus.create("approved"))) {
+      throw new Error(
+        `承認済みの出題案ではありません。ステータス=${this.status.value}`,
+      );
+    }
+
+    const event: QuestionProposalApprovedEdited = {
+      type: "QuestionProposalApprovedEdited",
+      occurredAt: new Date(),
+      payload: {
+        questionProposalId: this.id,
+        ...params,
+      },
+    };
+
+    const proposal = new QuestionProposal(
+      this.id,
+      QuestionProposalStatus.create("approved"),
+      params.questionText,
+      params.difficulty,
+      params.choices,
+      params.correctIndexes,
+      params.explanation,
+      params.categoryId,
+      undefined,
+      this.userId,
+    );
+
+    return { proposal, event };
+  }
+
+  submit(): {
+    proposal: QuestionProposal;
+    event: QuestionProposalSubmitted;
+  } {
+    if (!this.canSubmit()) {
+      throw new Error(
+        `出題案を申請できるステータスではありません。ステータス=${this.status.value}`,
+      );
+    }
+
+    const event: QuestionProposalSubmitted = {
+      type: "QuestionProposalSubmitted",
+      occurredAt: new Date(),
+      payload: {
+        questionProposalId: this.id,
+      },
+    };
+
+    const proposal = new QuestionProposal(
+      this.id,
+      QuestionProposalStatus.create("reviewed"),
+      this.text,
+      this.difficulty,
+      this.choices,
+      this.correctIndexes,
+      this.explanation,
+      this.categoryId,
+      undefined,
+      this.userId,
     );
 
     return { proposal, event };
@@ -115,7 +217,7 @@ export class QuestionProposal {
   } {
     if (!this.canApprove()) {
       throw new Error(
-        `出題案を承認できるステータスではありません。ステータス=${this.status}`,
+        `出題案を承認できるステータスではありません。ステータス=${this.status.value}`,
       );
     }
 
@@ -136,6 +238,8 @@ export class QuestionProposal {
       this.correctIndexes,
       this.explanation,
       this.categoryId,
+      undefined,
+      this.userId,
     );
 
     return { proposal, event };
@@ -147,7 +251,7 @@ export class QuestionProposal {
   } {
     if (!this.canReject()) {
       throw new Error(
-        `出題案を却下できるステータスではありません。ステータス=${this.status}`,
+        `出題案を却下できるステータスではありません。ステータス=${this.status.value}`,
       );
     }
 
@@ -170,6 +274,41 @@ export class QuestionProposal {
       this.explanation,
       this.categoryId,
       rejectReason,
+      this.userId,
+    );
+
+    return { proposal, event };
+  }
+
+  withdraw(): {
+    proposal: QuestionProposal;
+    event: QuestionProposalWithdrawn;
+  } {
+    if (!this.canWithdraw()) {
+      throw new Error(
+        `出題案を取り下げできるステータスではありません。ステータス=${this.status.value}`,
+      );
+    }
+
+    const event: QuestionProposalWithdrawn = {
+      type: "QuestionProposalWithdrawn",
+      occurredAt: new Date(),
+      payload: {
+        questionProposalId: this.id,
+      },
+    };
+
+    const proposal = new QuestionProposal(
+      this.id,
+      QuestionProposalStatus.create("withdrawn"),
+      this.text,
+      this.difficulty,
+      this.choices,
+      this.correctIndexes,
+      this.explanation,
+      this.categoryId,
+      undefined,
+      this.userId,
     );
 
     return { proposal, event };
@@ -212,15 +351,31 @@ export class QuestionProposal {
   ): QuestionProposal {
     switch (event.type) {
       case "QuestionProposalEdited":
+      case "QuestionProposalApprovedEdited":
         return new QuestionProposal(
           proposal.id,
-          QuestionProposalStatus.create("pending"),
+          proposal.status,
           event.payload.questionText,
           event.payload.difficulty,
           event.payload.choices,
           event.payload.correctIndexes,
           event.payload.explanation,
           event.payload.categoryId,
+          undefined,
+          proposal.userId,
+        );
+      case "QuestionProposalSubmitted":
+        return new QuestionProposal(
+          proposal.id,
+          QuestionProposalStatus.create("reviewed"),
+          proposal.text,
+          proposal.difficulty,
+          proposal.choices,
+          proposal.correctIndexes,
+          proposal.explanation,
+          proposal.categoryId,
+          undefined,
+          proposal.userId,
         );
       case "QuestionProposalApproved":
         return new QuestionProposal(
@@ -232,6 +387,8 @@ export class QuestionProposal {
           proposal.correctIndexes,
           proposal.explanation,
           proposal.categoryId,
+          undefined,
+          proposal.userId,
         );
       case "QuestionProposalRejected":
         return new QuestionProposal(
@@ -244,6 +401,20 @@ export class QuestionProposal {
           proposal.explanation,
           proposal.categoryId,
           event.payload.rejectReason,
+          proposal.userId,
+        );
+      case "QuestionProposalWithdrawn":
+        return new QuestionProposal(
+          proposal.id,
+          QuestionProposalStatus.create("withdrawn"),
+          proposal.text,
+          proposal.difficulty,
+          proposal.choices,
+          proposal.correctIndexes,
+          proposal.explanation,
+          proposal.categoryId,
+          undefined,
+          proposal.userId,
         );
       case "QuestionProposalCreated":
         throw new Error("QuestionProposalCreated は apply で処理されません");

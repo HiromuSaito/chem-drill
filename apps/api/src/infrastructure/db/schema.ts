@@ -35,6 +35,8 @@ export const questions = pgTable("questions", {
   categoryId: uuid("category_id")
     .notNull()
     .references(() => categories.id),
+  userId: text("user_id"),
+  isPublished: boolean("is_published").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -48,8 +50,11 @@ export const questionProposalEventTypeEnum = pgEnum(
   [
     "QuestionProposalCreated",
     "QuestionProposalEdited",
+    "QuestionProposalApprovedEdited",
     "QuestionProposalApproved",
     "QuestionProposalRejected",
+    "QuestionProposalSubmitted",
+    "QuestionProposalWithdrawn",
   ],
 );
 
@@ -72,8 +77,10 @@ export const questionProposalEvents = pgTable(
 
 export const questionProposalStatusEnum = pgEnum("question_proposal_status", [
   "pending",
+  "reviewed",
   "approved",
   "rejected",
+  "withdrawn",
 ]);
 
 export const questionProposalProjections = pgTable(
@@ -90,6 +97,8 @@ export const questionProposalProjections = pgTable(
       .notNull()
       .references(() => categories.id),
     rejectReason: varchar("reject_reason", { length: 500 }),
+    userId: text("user_id"),
+    questionId: uuid("question_id"),
     questionCreated: boolean("question_created").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

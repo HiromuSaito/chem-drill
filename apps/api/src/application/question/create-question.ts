@@ -33,6 +33,7 @@ export class CreateQuestion {
         correctIndexes: CorrectIndexes.create(input.correctIndexes),
         explanation: Explanation.create(input.explanation),
         categoryId: Id.of<Category>(input.categoryId),
+        isPublished: true,
       });
 
       await this.questionRepository.save(question);

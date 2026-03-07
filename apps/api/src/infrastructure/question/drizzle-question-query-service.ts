@@ -1,4 +1,4 @@
-import { count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import { questions, categories } from "../db/schema.ts";
 import { getCurrentTransaction } from "../db/transaction-context.ts";
 import type {
@@ -25,6 +25,7 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
   private get selectWithDates() {
     return {
       ...this.baseSelect,
+      isPublished: questions.isPublished,
       createdAt: questions.createdAt,
       updatedAt: questions.updatedAt,
     };
@@ -56,12 +57,14 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
 
   private toQuestionWithDates(
     row: Parameters<typeof this.toQuestionWithCategory>[0] & {
+      isPublished: boolean;
       createdAt: Date;
       updatedAt: Date;
     },
   ): QuestionWithCategoryAndDates {
     return {
       ...this.toQuestionWithCategory(row),
+      isPublished: row.isPublished,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     };
@@ -79,9 +82,12 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
       .orderBy(sql`RANDOM()`)
       .limit(limit);
 
+    const publishedCondition = eq(questions.isPublished, true);
     const rows = categoryId
-      ? await query.where(eq(questions.categoryId, categoryId))
-      : await query;
+      ? await query.where(
+          and(publishedCondition, eq(questions.categoryId, categoryId)),
+        )
+      : await query.where(publishedCondition);
 
     return rows.map((row) => this.toQuestionWithCategory(row));
   }

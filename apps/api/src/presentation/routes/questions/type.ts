@@ -1,4 +1,3 @@
-import type { Question } from "../../../domain/question/entity/question.ts";
 import type {
   QuestionWithCategory,
   QuestionWithCategoryAndDates,
@@ -35,6 +34,7 @@ export function toQuestionWithCategoryResponse(
 
 export type QuestionWithCategoryAndDatesResponse =
   QuestionWithCategoryResponse & {
+    isPublished: boolean;
     createdAt: string;
     updatedAt: string;
   };
@@ -44,31 +44,8 @@ export function toQuestionWithCategoryAndDatesResponse(
 ): QuestionWithCategoryAndDatesResponse {
   return {
     ...toQuestionWithCategoryResponse(question),
+    isPublished: question.isPublished,
     createdAt: question.createdAt.toISOString(),
     updatedAt: question.updatedAt.toISOString(),
-  };
-}
-
-export type CreatedQuestionResponse = {
-  id: string;
-  text: string;
-  difficulty: string;
-  choices: string[];
-  correctIndexes: number[];
-  explanation: string;
-  categoryId: string;
-};
-
-export function toCreatedQuestionResponse(
-  question: Question,
-): CreatedQuestionResponse {
-  return {
-    id: question.id,
-    text: question.text.value,
-    difficulty: question.difficulty.value,
-    choices: [...question.choices],
-    correctIndexes: [...question.correctIndexes.values],
-    explanation: question.explanation.value,
-    categoryId: question.categoryId,
   };
 }

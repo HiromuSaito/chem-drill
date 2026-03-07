@@ -35,6 +35,7 @@ export class DrizzleQuestionProposalRepository implements QuestionProposalReposi
         explanation: proposal.explanation.value,
         categoryId: proposal.categoryId,
         rejectReason: proposal.rejectReason?.value,
+        userId: proposal.userId ?? null,
         questionCreated: false,
         createdAt: event.occurredAt,
         updatedAt: event.occurredAt,
@@ -50,6 +51,7 @@ export class DrizzleQuestionProposalRepository implements QuestionProposalReposi
           explanation: proposal.explanation.value,
           categoryId: proposal.categoryId,
           rejectReason: proposal.rejectReason?.value,
+          userId: proposal.userId ?? null,
           updatedAt: event.occurredAt,
         },
       });
@@ -83,11 +85,14 @@ export class DrizzleQuestionProposalRepository implements QuestionProposalReposi
     return QuestionProposal.fromEvents(events);
   }
 
-  async markQuestionCreated(questionProposalId: string): Promise<void> {
+  async markQuestionCreated(
+    questionProposalId: string,
+    questionId: string,
+  ): Promise<void> {
     const tx = getCurrentTransaction();
     await tx
       .update(questionProposalProjections)
-      .set({ questionCreated: true, updatedAt: new Date() })
+      .set({ questionCreated: true, questionId, updatedAt: new Date() })
       .where(
         eq(questionProposalProjections.questionProposalId, questionProposalId),
       );
