@@ -59,6 +59,55 @@ export class DrizzleQuestionProposalProjectionQueryService implements QuestionPr
     };
   }
 
+  async listByUserId(
+    userId: string,
+    status: string | undefined,
+    limit: number,
+    offset: number,
+  ): Promise<ListQuestionProposalsResult> {
+    const tx = getCurrentTransaction();
+
+    const userCondition = eq(questionProposalProjections.userId, userId);
+    const statusCondition = status
+      ? eq(
+          questionProposalProjections.status,
+          status as
+            | "pending"
+            | "reviewed"
+            | "approved"
+            | "rejected"
+            | "withdrawn",
+        )
+      : undefined;
+    const conditions = and(userCondition, statusCondition);
+
+    const [items, totalResult] = await Promise.all([
+      tx
+        .select({
+          projection: questionProposalProjections,
+          isPublished: questions.isPublished,
+        })
+        .from(questionProposalProjections)
+        .leftJoin(
+          questions,
+          eq(questionProposalProjections.questionId, questions.id),
+        )
+        .where(conditions)
+        .orderBy(desc(questionProposalProjections.createdAt))
+        .limit(limit)
+        .offset(offset),
+      tx
+        .select({ count: count() })
+        .from(questionProposalProjections)
+        .where(conditions),
+    ]);
+
+    return {
+      items: items.map((row) => toDto(row.projection, row.isPublished)),
+      total: totalResult[0]?.count ?? 0,
+    };
+  }
+
   async findById(
     questionProposalId: string,
   ): Promise<QuestionProposalProjectionDto | null> {
