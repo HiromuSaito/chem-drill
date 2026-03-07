@@ -34,7 +34,9 @@ export class GenerateIcon {
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       if (result.status === "fulfilled") {
-        const processed = await this.iconProcessor.process(result.value);
+        const processed = await this.iconProcessor.process(
+          result.value.buffer as ArrayBuffer,
+        );
         const candidate = await this.iconStorage.putCandidate(
           userId,
           i,

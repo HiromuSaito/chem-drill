@@ -41,10 +41,8 @@ export class GeminiIconGenerator implements IconGenerator {
       throw new Error("Gemini API からのレスポンスが空です");
     }
 
-    const imagePart = parts.find(
-      (p: { inlineData?: { data: string } }) => p.inlineData?.data,
-    );
-    if (!imagePart || !imagePart.inlineData) {
+    const imagePart = parts.find((p) => p.inlineData?.data);
+    if (!imagePart?.inlineData?.data) {
       throw new Error("Gemini API から画像データを取得できませんでした");
     }
 
