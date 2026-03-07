@@ -49,8 +49,38 @@ export type QuestionProposalRejected = DomainEvent<
   }
 >;
 
+export type QuestionProposalApprovedEdited = DomainEvent<
+  "QuestionProposalApprovedEdited",
+  {
+    questionProposalId: Id<QuestionProposal>;
+    questionText: QuestionText;
+    difficulty: Difficulty;
+    choices: readonly string[];
+    correctIndexes: CorrectIndexes;
+    explanation: Explanation;
+    categoryId: CategoryId;
+  }
+>;
+
+export type QuestionProposalSubmitted = DomainEvent<
+  "QuestionProposalSubmitted",
+  {
+    questionProposalId: Id<QuestionProposal>;
+  }
+>;
+
+export type QuestionProposalWithdrawn = DomainEvent<
+  "QuestionProposalWithdrawn",
+  {
+    questionProposalId: Id<QuestionProposal>;
+  }
+>;
+
 export type QuestionProposalEvent =
   | QuestionProposalCreated
   | QuestionProposalEdited
+  | QuestionProposalApprovedEdited
   | QuestionProposalApproved
-  | QuestionProposalRejected;
+  | QuestionProposalRejected
+  | QuestionProposalSubmitted
+  | QuestionProposalWithdrawn;

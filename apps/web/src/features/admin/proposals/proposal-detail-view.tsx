@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, X, Pencil } from "lucide-react";
+import { ArrowLeft, Check, X, Pencil, Send, ArchiveX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +21,11 @@ type ProposalDetailViewProps = {
   onEdit: () => void;
   onApprove: () => void;
   onRejectClick: () => void;
+  onSubmit: () => void;
+  onWithdraw: () => void;
   approvePending: boolean;
+  submitPending: boolean;
+  withdrawPending: boolean;
 };
 
 export function ProposalDetailView({
@@ -30,7 +34,11 @@ export function ProposalDetailView({
   onEdit,
   onApprove,
   onRejectClick,
+  onSubmit,
+  onWithdraw,
   approvePending,
+  submitPending,
+  withdrawPending,
 }: ProposalDetailViewProps) {
   const navigate = useNavigate();
 
@@ -58,7 +66,7 @@ export function ProposalDetailView({
           </Badge>
         </div>
         <div className="flex items-center gap-2">
-          {proposal.status === "pending" && (
+          {proposal.status === "reviewed" && (
             <Button variant="destructive" onClick={onRejectClick}>
               <X className="size-4" />
               却下
@@ -71,9 +79,25 @@ export function ProposalDetailView({
             </Button>
           )}
           {proposal.status === "pending" && (
+            <Button onClick={onSubmit} disabled={submitPending}>
+              <Send className="size-4" />
+              {submitPending ? "申請中..." : "申請"}
+            </Button>
+          )}
+          {proposal.status === "reviewed" && (
             <Button onClick={onApprove} disabled={approvePending}>
               <Check className="size-4" />
               {approvePending ? "承認中..." : "承認"}
+            </Button>
+          )}
+          {proposal.status === "approved" && (
+            <Button
+              variant="destructive"
+              onClick={onWithdraw}
+              disabled={withdrawPending}
+            >
+              <ArchiveX className="size-4" />
+              {withdrawPending ? "取り下げ中..." : "取り下げ"}
             </Button>
           )}
         </div>

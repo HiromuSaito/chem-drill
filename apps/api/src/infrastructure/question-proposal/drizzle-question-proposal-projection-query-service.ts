@@ -19,7 +19,12 @@ export class DrizzleQuestionProposalProjectionQueryService implements QuestionPr
     const statusCondition = status
       ? eq(
           questionProposalProjections.status,
-          status as "pending" | "approved" | "rejected",
+          status as
+            | "pending"
+            | "reviewed"
+            | "approved"
+            | "rejected"
+            | "withdrawn",
         )
       : undefined;
     const categoryCondition = categoryId
@@ -78,7 +83,10 @@ function toDto(
     explanation: row.explanation,
     categoryId: row.categoryId,
     rejectReason: row.rejectReason,
+    userId: row.userId,
+    questionId: row.questionId,
     questionCreated: row.questionCreated,
+    isPublished: row.status === "approved",
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };

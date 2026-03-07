@@ -21,6 +21,8 @@ export class DrizzleQuestionRepository implements QuestionRepository {
         correctIndexes: [...question.correctIndexes.values],
         explanation: question.explanation.value,
         categoryId: question.categoryId,
+        userId: question.userId ?? null,
+        isPublished: question.isPublished,
       })
       .onConflictDoUpdate({
         target: questions.id,
@@ -31,6 +33,8 @@ export class DrizzleQuestionRepository implements QuestionRepository {
           correctIndexes: [...question.correctIndexes.values],
           explanation: question.explanation.value,
           categoryId: question.categoryId,
+          userId: question.userId ?? null,
+          isPublished: question.isPublished,
           updatedAt: new Date(),
         },
       });
@@ -43,5 +47,13 @@ export class DrizzleQuestionRepository implements QuestionRepository {
       .where(eq(questions.id, id))
       .returning({ id: questions.id });
     return deleted.length;
+  }
+
+  async unpublish(id: QuestionId): Promise<void> {
+    const tx = getCurrentTransaction();
+    await tx
+      .update(questions)
+      .set({ isPublished: false, updatedAt: new Date() })
+      .where(eq(questions.id, id));
   }
 }

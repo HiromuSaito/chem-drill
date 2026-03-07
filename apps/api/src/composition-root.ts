@@ -7,7 +7,6 @@ import { DrizzleCategoryRepository } from "./infrastructure/category/drizzle-cat
 import { GeminiQuestionGenerationAdapter } from "./infrastructure/question-generation/gemini-question-generation-adapter.ts";
 import { GetRandomQuestions } from "./application/question/get-random-questions.ts";
 import { GetTrialQuestions } from "./application/question/get-trial-questions.ts";
-import { CreateQuestion } from "./application/question/create-question.ts";
 import { ListQuestions } from "./application/question/list-questions.ts";
 import { GetQuestion } from "./application/question/get-question.ts";
 import { ListCategories } from "./application/category/list-categories.ts";
@@ -18,6 +17,9 @@ import { CreateQuestionProposal } from "./application/question-proposal/create-q
 import { UpdateQuestionProposal } from "./application/question-proposal/update-question-proposal.ts";
 import { ApproveQuestionProposal } from "./application/question-proposal/approve-question-proposal.ts";
 import { RejectQuestionProposal } from "./application/question-proposal/reject-question-proposal.ts";
+import { SubmitQuestionProposal } from "./application/question-proposal/submit-question-proposal.ts";
+import { WithdrawQuestionProposal } from "./application/question-proposal/withdraw-question-proposal.ts";
+import { UpdateApprovedQuestionProposal } from "./application/question-proposal/update-approved-question-proposal.ts";
 import { GenerateQuestionProposals } from "./application/question-proposal/generate-question-proposals.ts";
 import { ListQuestionProposals } from "./application/question-proposal/list-question-proposals.ts";
 import { GetQuestionProposal } from "./application/question-proposal/get-question-proposal.ts";
@@ -29,7 +31,9 @@ import { ListUsers } from "./application/user/list-users.ts";
 import { GetUser } from "./application/user/get-user.ts";
 import { CategoryNameDuplicateChecker } from "./domain/category/service/category-name-duplicate-checker.ts";
 import { CategoryDeletionPolicy } from "./domain/category/service/category-deletion-policy.ts";
-import { OnQuestionProposalApproved } from "./application/question-proposal/on-question-proposal-approved.ts";
+import { OnQuestionProposalApproved } from "./application/question-proposal/event-handler/on-question-proposal-approved.ts";
+import { OnQuestionProposalApprovedEdited } from "./application/question-proposal/event-handler/on-question-proposal-approved-edited.ts";
+import { OnQuestionProposalWithdrawn } from "./application/question-proposal/event-handler/on-question-proposal-withdrawn.ts";
 import { InMemoryEventPublisher } from "./infrastructure/event/in-memory-event-publisher.ts";
 import { DrizzleDrillSessionRepository } from "./infrastructure/drill-session/drizzle-drill-session-repository.ts";
 import { DrizzleDrillStatsQueryService } from "./infrastructure/drill-session/drizzle-drill-stats-query-service.ts";
@@ -66,7 +70,19 @@ const onQuestionProposalApproved = new OnQuestionProposalApproved(
   questionRepository,
   questionProposalRepository,
 );
+const onQuestionProposalApprovedEdited = new OnQuestionProposalApprovedEdited(
+  unitOfWork,
+  questionProposalProjectionQueryService,
+  questionRepository,
+);
+const onQuestionProposalWithdrawn = new OnQuestionProposalWithdrawn(
+  unitOfWork,
+  questionProposalProjectionQueryService,
+  questionRepository,
+);
 eventPublisher.register(onQuestionProposalApproved);
+eventPublisher.register(onQuestionProposalApprovedEdited);
+eventPublisher.register(onQuestionProposalWithdrawn);
 
 // ドメインサービス
 const categoryNameDuplicateChecker = new CategoryNameDuplicateChecker(
@@ -95,7 +111,6 @@ const getTrialQuestions = new GetTrialQuestions(
   unitOfWork,
   questionQueryService,
 );
-const createQuestion = new CreateQuestion(unitOfWork, questionRepository);
 const listQuestions = new ListQuestions(unitOfWork, questionQueryService);
 const getQuestion = new GetQuestion(unitOfWork, questionQueryService);
 const createQuestionProposal = new CreateQuestionProposal(
@@ -114,6 +129,20 @@ const approveQuestionProposal = new ApproveQuestionProposal(
 const rejectQuestionProposal = new RejectQuestionProposal(
   unitOfWork,
   questionProposalRepository,
+);
+const submitQuestionProposal = new SubmitQuestionProposal(
+  unitOfWork,
+  questionProposalRepository,
+);
+const withdrawQuestionProposal = new WithdrawQuestionProposal(
+  unitOfWork,
+  questionProposalRepository,
+  eventPublisher,
+);
+const updateApprovedQuestionProposal = new UpdateApprovedQuestionProposal(
+  unitOfWork,
+  questionProposalRepository,
+  eventPublisher,
 );
 const listCategories = new ListCategories(unitOfWork, categoryQueryService);
 const createCategory = new CreateCategory(
@@ -179,13 +208,15 @@ export const dependencies = {
   deleteIcon,
   getRandomQuestions,
   getTrialQuestions,
-  createQuestion,
   listQuestions,
   getQuestion,
   createQuestionProposal,
   updateQuestionProposal,
   approveQuestionProposal,
   rejectQuestionProposal,
+  submitQuestionProposal,
+  withdrawQuestionProposal,
+  updateApprovedQuestionProposal,
   listQuestionProposals,
   getQuestionProposal,
   listCategories,

@@ -19,6 +19,8 @@ export class Question {
     readonly correctIndexes: CorrectIndexes,
     readonly explanation: Explanation,
     readonly categoryId: CategoryId,
+    readonly isPublished: boolean,
+    readonly userId?: string,
   ) {}
 
   static create(params: {
@@ -29,6 +31,8 @@ export class Question {
     correctIndexes: CorrectIndexes;
     explanation: Explanation;
     categoryId: CategoryId;
+    isPublished: boolean;
+    userId?: string;
   }): Question {
     if (params.choices.length < MIN_CHOICES) {
       throw new Error(
@@ -55,6 +59,8 @@ export class Question {
       params.correctIndexes,
       params.explanation,
       params.categoryId,
+      params.isPublished,
+      params.userId,
     );
   }
 

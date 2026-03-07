@@ -96,9 +96,11 @@ export function ProposalListPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">すべて</SelectItem>
-            <SelectItem value="pending">保留中</SelectItem>
+            <SelectItem value="pending">下書き</SelectItem>
+            <SelectItem value="reviewed">レビュー待ち</SelectItem>
             <SelectItem value="approved">承認済</SelectItem>
             <SelectItem value="rejected">却下</SelectItem>
+            <SelectItem value="withdrawn">取り下げ済み</SelectItem>
           </SelectContent>
         </Select>
         <Select

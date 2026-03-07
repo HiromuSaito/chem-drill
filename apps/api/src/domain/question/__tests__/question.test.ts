@@ -32,6 +32,7 @@ function buildQuestion(overrides?: {
       overrides?.explanation ??
       Explanation.create("GHS分類はSDSの必須記載項目です。"),
     categoryId: overrides?.categoryId ?? buildCategoryId(),
+    isPublished: true,
   });
 }
 

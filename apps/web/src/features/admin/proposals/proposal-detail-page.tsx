@@ -74,6 +74,32 @@ export function ProposalDetailPage() {
     },
   });
 
+  const submitMutation = useMutation({
+    mutationFn: async () => {
+      const res = await client.api["question-proposals"][":id"].submit.$post({
+        param: { id: id! },
+      });
+      if (!res.ok) throw new Error("Failed to submit");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["question-proposal"] });
+    },
+  });
+
+  const withdrawMutation = useMutation({
+    mutationFn: async () => {
+      const res = await client.api["question-proposals"][":id"].withdraw.$post({
+        param: { id: id! },
+      });
+      if (!res.ok) throw new Error("Failed to withdraw");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["question-proposal"] });
+    },
+  });
+
   if (isLoading) {
     return <p className="text-muted-foreground">読み込み中...</p>;
   }
@@ -82,7 +108,7 @@ export function ProposalDetailPage() {
     return <p className="text-destructive">提案が見つかりません</p>;
   }
 
-  const canEdit = proposal.status !== "approved";
+  const canEdit = ["pending", "rejected", "approved"].includes(proposal.status);
 
   if (editing) {
     return (
@@ -95,7 +121,18 @@ export function ProposalDetailPage() {
           explanation: proposal.explanation,
           categoryId: proposal.categoryId,
         }}
-        onSubmit={(data) => updateMutation.mutate(data)}
+        onSubmit={(data) => {
+          if (proposal.status === "approved") {
+            if (
+              !window.confirm(
+                "承認済みの出題案を編集すると、対応する問題も即時更新されます。よろしいですか？",
+              )
+            ) {
+              return;
+            }
+          }
+          updateMutation.mutate(data);
+        }}
         onCancel={() => setEditing(false)}
         isPending={updateMutation.isPending}
         error={updateMutation.error?.message}
@@ -111,7 +148,19 @@ export function ProposalDetailPage() {
         onEdit={() => setEditing(true)}
         onApprove={() => approveMutation.mutate()}
         onRejectClick={() => setRejectDialogOpen(true)}
+        onSubmit={() => submitMutation.mutate()}
+        onWithdraw={() => {
+          if (
+            window.confirm(
+              "取り下げると問題が非公開になります。よろしいですか？",
+            )
+          ) {
+            withdrawMutation.mutate();
+          }
+        }}
         approvePending={approveMutation.isPending}
+        submitPending={submitMutation.isPending}
+        withdrawPending={withdrawMutation.isPending}
       />
       <RejectDialog
         open={rejectDialogOpen}

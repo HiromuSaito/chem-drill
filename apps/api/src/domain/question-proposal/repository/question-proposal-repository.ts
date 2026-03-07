@@ -7,5 +7,8 @@ export interface QuestionProposalRepository {
 
   findById(questionProposalId: Id<QuestionProposal>): Promise<QuestionProposal>;
 
-  markQuestionCreated(questionProposalId: string): Promise<void>;
+  markQuestionCreated(
+    questionProposalId: string,
+    questionId: string,
+  ): Promise<void>;
 }

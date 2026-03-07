@@ -1,4 +1,10 @@
-const VALID_LEVELS = ["pending", "approved", "rejected"] as const;
+const VALID_LEVELS = [
+  "pending",
+  "reviewed",
+  "approved",
+  "rejected",
+  "withdrawn",
+] as const;
 export type QuestionProposalStatusType = (typeof VALID_LEVELS)[number];
 
 export class QuestionProposalStatus {

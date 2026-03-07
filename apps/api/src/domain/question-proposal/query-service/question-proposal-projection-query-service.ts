@@ -8,7 +8,10 @@ export type QuestionProposalProjectionDto = {
   explanation: string;
   categoryId: string;
   rejectReason: string | null;
+  userId: string | null;
+  questionId: string | null;
   questionCreated: boolean;
+  isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
 };

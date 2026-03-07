@@ -12,6 +12,7 @@ export type QuestionWithCategory = {
 };
 
 export type QuestionWithCategoryAndDates = QuestionWithCategory & {
+  isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
 };

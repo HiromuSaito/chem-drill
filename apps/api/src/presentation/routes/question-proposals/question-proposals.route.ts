@@ -80,7 +80,9 @@ const proposalListRoute = createRoute({
   summary: "出題案一覧を取得",
   request: {
     query: z.object({
-      status: z.enum(["pending", "approved", "rejected"]).optional(),
+      status: z
+        .enum(["pending", "reviewed", "approved", "rejected", "withdrawn"])
+        .optional(),
       categoryId: z.string().uuid().optional(),
       limit: z.coerce.number().int().min(1).max(100).default(20),
       offset: z.coerce.number().int().min(0).default(0),
@@ -180,6 +182,28 @@ const proposalRejectRoute = createRoute({
   responses: proposalResponse,
 });
 
+const proposalSubmitRoute = createRoute({
+  method: "post",
+  path: "/:id/submit",
+  tags: ["QuestionProposal"],
+  summary: "出題案を申請",
+  request: {
+    params: proposalIdParam,
+  },
+  responses: proposalResponse,
+});
+
+const proposalWithdrawRoute = createRoute({
+  method: "post",
+  path: "/:id/withdraw",
+  tags: ["QuestionProposal"],
+  summary: "出題案を取り下げ",
+  request: {
+    params: proposalIdParam,
+  },
+  responses: proposalResponse,
+});
+
 const proposalGenerateRoute = createRoute({
   method: "post",
   path: "/generate-from-url",
@@ -231,6 +255,15 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
     .openapi(proposalUpdateRoute, async (c) => {
       const { id } = c.req.valid("param");
       const input = c.req.valid("json");
+      // approved 状態の場合は承認済み編集（Question も即時更新）
+      const projection = await deps.getQuestionProposal.execute(id);
+      if (projection && projection.status === "approved") {
+        const proposal = await deps.updateApprovedQuestionProposal.execute({
+          questionProposalId: id,
+          ...input,
+        });
+        return c.json(toQuestionProposalResponse(proposal));
+      }
       const proposal = await deps.updateQuestionProposal.execute({
         questionProposalId: id,
         ...input,
@@ -250,6 +283,20 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
       const proposal = await deps.rejectQuestionProposal.execute({
         questionProposalId: id,
         rejectReason,
+      });
+      return c.json(toQuestionProposalResponse(proposal));
+    })
+    .openapi(proposalSubmitRoute, async (c) => {
+      const { id } = c.req.valid("param");
+      const proposal = await deps.submitQuestionProposal.execute({
+        questionProposalId: id,
+      });
+      return c.json(toQuestionProposalResponse(proposal));
+    })
+    .openapi(proposalWithdrawRoute, async (c) => {
+      const { id } = c.req.valid("param");
+      const proposal = await deps.withdrawQuestionProposal.execute({
+        questionProposalId: id,
       });
       return c.json(toQuestionProposalResponse(proposal));
     })
