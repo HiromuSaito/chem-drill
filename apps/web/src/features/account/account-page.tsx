@@ -7,6 +7,7 @@ import {
   Check,
   Camera,
   Trash2,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ import { UserIcon } from "@/components/user-icon";
 import { authClient } from "@/auth-client";
 import { client } from "@/client";
 import { ICON_ALLOWED_TYPES, ICON_MAX_SIZE } from "shared";
+import { GenerateIconDialog } from "./generate-icon-dialog";
 
 const usernamePattern = /^[a-z0-9_-]{3,20}$/;
 
@@ -33,6 +35,7 @@ function IconSection({
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,19 +127,41 @@ function IconSection({
           className="hidden"
         />
       </div>
-      {image && (
+      <div className="flex gap-2">
+        {image && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleDelete}
+            disabled={isUploading}
+            className="text-muted-foreground text-xs h-7"
+          >
+            <Trash2 className="size-3 mr-1" />
+            アイコンを削除
+          </Button>
+        )}
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          onClick={handleDelete}
+          onClick={() => setIsDialogOpen(true)}
           disabled={isUploading}
           className="text-muted-foreground text-xs h-7"
         >
-          <Trash2 className="size-3 mr-1" />
-          アイコンを削除
+          <Sparkles className="size-3 mr-1" />
+          AIで生成
         </Button>
-      )}
+      </div>
+      <GenerateIconDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onIconSet={async (imageUrl) => {
+          setImage(imageUrl);
+          setSuccess("アイコンを設定しました");
+          await authClient.updateUser({ image: imageUrl });
+        }}
+      />
       {success && (
         <p className="text-xs text-green-600 flex items-center gap-1">
           <Check className="size-3" />
