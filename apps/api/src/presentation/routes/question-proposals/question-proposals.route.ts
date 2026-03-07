@@ -193,6 +193,18 @@ const proposalSubmitRoute = createRoute({
   responses: proposalResponse,
 });
 
+const proposalEditApprovedRoute = createRoute({
+  method: "put",
+  path: "/:id/edit-approved",
+  tags: ["QuestionProposal"],
+  summary: "承認済み出題案を編集（対応する問題も即時更新）",
+  request: {
+    params: proposalIdParam,
+    body: { content: { "application/json": { schema: updateSchema } } },
+  },
+  responses: proposalResponse,
+});
+
 const proposalWithdrawRoute = createRoute({
   method: "post",
   path: "/:id/withdraw",
@@ -255,16 +267,16 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
     .openapi(proposalUpdateRoute, async (c) => {
       const { id } = c.req.valid("param");
       const input = c.req.valid("json");
-      // approved 状態の場合は承認済み編集（Question も即時更新）
-      const projection = await deps.getQuestionProposal.execute(id);
-      if (projection && projection.status === "approved") {
-        const proposal = await deps.updateApprovedQuestionProposal.execute({
-          questionProposalId: id,
-          ...input,
-        });
-        return c.json(toQuestionProposalResponse(proposal));
-      }
       const proposal = await deps.updateQuestionProposal.execute({
+        questionProposalId: id,
+        ...input,
+      });
+      return c.json(toQuestionProposalResponse(proposal));
+    })
+    .openapi(proposalEditApprovedRoute, async (c) => {
+      const { id } = c.req.valid("param");
+      const input = c.req.valid("json");
+      const proposal = await deps.updateApprovedQuestionProposal.execute({
         questionProposalId: id,
         ...input,
       });

@@ -31,6 +31,20 @@ function buildEditParams() {
   };
 }
 
+/** pending → reviewed に遷移済みの proposal を生成するヘルパー */
+function buildReviewedProposal() {
+  const { proposal } = QuestionProposal.create(buildCreateParams());
+  const { proposal: reviewed } = proposal.submit();
+  return reviewed;
+}
+
+/** pending → reviewed → approved に遷移済みの proposal を生成するヘルパー */
+function buildApprovedProposal() {
+  const reviewed = buildReviewedProposal();
+  const { proposal: approved } = reviewed.approve();
+  return approved;
+}
+
 describe("QuestionProposal", () => {
   describe("create", () => {
     it("インスタンスとイベントが生成される", () => {
@@ -47,23 +61,61 @@ describe("QuestionProposal", () => {
     });
   });
 
-  describe("approve", () => {
-    it("pending から approved に遷移できる", () => {
+  describe("submit", () => {
+    it("pending から reviewed に遷移できる", () => {
       const { proposal } = QuestionProposal.create(buildCreateParams());
 
-      const { proposal: approved, event } = proposal.approve();
+      const { proposal: submitted, event } = proposal.submit();
+
+      expect(event.type).toBe("QuestionProposalSubmitted");
+      expect(event.occurredAt).toBeInstanceOf(Date);
+      expect(submitted).not.toBe(proposal);
+      expect(submitted.status).toEqual(
+        expect.objectContaining({ value: "reviewed" }),
+      );
+    });
+
+    it("reviewed 状態で submit するとエラー", () => {
+      const reviewed = buildReviewedProposal();
+
+      expect(() => reviewed.submit()).toThrow(
+        "出題案を申請できるステータスではありません",
+      );
+    });
+
+    it("approved 状態で submit するとエラー", () => {
+      const approved = buildApprovedProposal();
+
+      expect(() => approved.submit()).toThrow(
+        "出題案を申請できるステータスではありません",
+      );
+    });
+  });
+
+  describe("approve", () => {
+    it("reviewed から approved に遷移できる", () => {
+      const reviewed = buildReviewedProposal();
+
+      const { proposal: approved, event } = reviewed.approve();
 
       expect(event.type).toBe("QuestionProposalApproved");
       expect(event.occurredAt).toBeInstanceOf(Date);
-      expect(approved).not.toBe(proposal);
+      expect(approved).not.toBe(reviewed);
       expect(approved.status).toEqual(
         expect.objectContaining({ value: "approved" }),
       );
     });
 
-    it("approved 状態で approve するとエラー", () => {
+    it("pending 状態で approve するとエラー", () => {
       const { proposal } = QuestionProposal.create(buildCreateParams());
-      const { proposal: approved } = proposal.approve();
+
+      expect(() => proposal.approve()).toThrow(
+        "出題案を承認できるステータスではありません",
+      );
+    });
+
+    it("approved 状態で approve するとエラー", () => {
+      const approved = buildApprovedProposal();
 
       expect(() => approved.approve()).toThrow(
         "出題案を承認できるステータスではありません",
@@ -71,8 +123,8 @@ describe("QuestionProposal", () => {
     });
 
     it("rejected 状態で approve するとエラー", () => {
-      const { proposal } = QuestionProposal.create(buildCreateParams());
-      const { proposal: rejected } = proposal.reject(
+      const reviewed = buildReviewedProposal();
+      const { proposal: rejected } = reviewed.reject(
         RejectReason.create("内容が不正確"),
       );
 
@@ -83,25 +135,32 @@ describe("QuestionProposal", () => {
   });
 
   describe("reject", () => {
-    it("pending から rejected に遷移できる", () => {
-      const { proposal } = QuestionProposal.create(buildCreateParams());
+    it("reviewed から rejected に遷移できる", () => {
+      const reviewed = buildReviewedProposal();
 
-      const { proposal: rejected, event } = proposal.reject(
+      const { proposal: rejected, event } = reviewed.reject(
         RejectReason.create("内容が不正確"),
       );
 
       expect(event.type).toBe("QuestionProposalRejected");
       expect(event.payload.rejectReason.value).toBe("内容が不正確");
       expect(event.occurredAt).toBeInstanceOf(Date);
-      expect(rejected).not.toBe(proposal);
+      expect(rejected).not.toBe(reviewed);
       expect(rejected.status).toEqual(
         expect.objectContaining({ value: "rejected" }),
       );
     });
 
-    it("approved 状態で reject するとエラー", () => {
+    it("pending 状態で reject するとエラー", () => {
       const { proposal } = QuestionProposal.create(buildCreateParams());
-      const { proposal: approved } = proposal.approve();
+
+      expect(() => proposal.reject(RejectReason.create("理由"))).toThrow(
+        "出題案を却下できるステータスではありません",
+      );
+    });
+
+    it("approved 状態で reject するとエラー", () => {
+      const approved = buildApprovedProposal();
 
       expect(() => approved.reject(RejectReason.create("理由"))).toThrow(
         "出題案を却下できるステータスではありません",
@@ -109,8 +168,8 @@ describe("QuestionProposal", () => {
     });
 
     it("rejected 状態で reject するとエラー", () => {
-      const { proposal } = QuestionProposal.create(buildCreateParams());
-      const { proposal: rejected } = proposal.reject(
+      const reviewed = buildReviewedProposal();
+      const { proposal: rejected } = reviewed.reject(
         RejectReason.create("内容が不正確"),
       );
 
@@ -135,24 +194,104 @@ describe("QuestionProposal", () => {
     });
 
     it("rejected 状態で編集でき、pending に戻る", () => {
-      const { proposal } = QuestionProposal.create(buildCreateParams());
-      const { proposal: rejected } = proposal.reject(
+      const reviewed = buildReviewedProposal();
+      const { proposal: rejected } = reviewed.reject(
         RejectReason.create("内容が不正確"),
       );
 
       const { proposal: edited, event } = rejected.edit(buildEditParams());
 
       expect(event.type).toBe("QuestionProposalEdited");
-      // 編集後は pending に戻るので approve できる
-      expect(() => edited.approve()).not.toThrow();
+      expect(edited.status).toEqual(
+        expect.objectContaining({ value: "pending" }),
+      );
     });
 
-    it("approved 状態で編集するとエラー", () => {
-      const { proposal } = QuestionProposal.create(buildCreateParams());
-      const { proposal: approved } = proposal.approve();
+    it("approved 状態で edit するとエラー（editApproved を使うべき）", () => {
+      const approved = buildApprovedProposal();
 
       expect(() => approved.edit(buildEditParams())).toThrow(
+        "承認済みの出題案は管理者のみ変更できます",
+      );
+    });
+
+    it("reviewed 状態で edit するとエラー", () => {
+      const reviewed = buildReviewedProposal();
+
+      expect(() => reviewed.edit(buildEditParams())).toThrow(
         "出題案を編集できるステータスではありません",
+      );
+    });
+  });
+
+  describe("editApproved", () => {
+    it("approved 状態で編集でき、approved のまま維持される", () => {
+      const approved = buildApprovedProposal();
+
+      const { proposal: edited, event } =
+        approved.editApproved(buildEditParams());
+
+      expect(event.type).toBe("QuestionProposalApprovedEdited");
+      expect(event.occurredAt).toBeInstanceOf(Date);
+      expect(edited.text.value).toBe("編集後の問題文");
+      expect(edited.status).toEqual(
+        expect.objectContaining({ value: "approved" }),
+      );
+    });
+
+    it("pending 状態で editApproved するとエラー", () => {
+      const { proposal } = QuestionProposal.create(buildCreateParams());
+
+      expect(() => proposal.editApproved(buildEditParams())).toThrow(
+        "承認済みの出題案ではありません",
+      );
+    });
+
+    it("reviewed 状態で editApproved するとエラー", () => {
+      const reviewed = buildReviewedProposal();
+
+      expect(() => reviewed.editApproved(buildEditParams())).toThrow(
+        "承認済みの出題案ではありません",
+      );
+    });
+  });
+
+  describe("withdraw", () => {
+    it("approved から withdrawn に遷移できる", () => {
+      const approved = buildApprovedProposal();
+
+      const { proposal: withdrawn, event } = approved.withdraw();
+
+      expect(event.type).toBe("QuestionProposalWithdrawn");
+      expect(event.occurredAt).toBeInstanceOf(Date);
+      expect(withdrawn).not.toBe(approved);
+      expect(withdrawn.status).toEqual(
+        expect.objectContaining({ value: "withdrawn" }),
+      );
+    });
+
+    it("pending 状態で withdraw するとエラー", () => {
+      const { proposal } = QuestionProposal.create(buildCreateParams());
+
+      expect(() => proposal.withdraw()).toThrow(
+        "出題案を取り下げできるステータスではありません",
+      );
+    });
+
+    it("reviewed 状態で withdraw するとエラー", () => {
+      const reviewed = buildReviewedProposal();
+
+      expect(() => reviewed.withdraw()).toThrow(
+        "出題案を取り下げできるステータスではありません",
+      );
+    });
+
+    it("withdrawn 状態で withdraw するとエラー", () => {
+      const approved = buildApprovedProposal();
+      const { proposal: withdrawn } = approved.withdraw();
+
+      expect(() => withdrawn.withdraw()).toThrow(
+        "出題案を取り下げできるステータスではありません",
       );
     });
   });
@@ -163,8 +302,8 @@ describe("QuestionProposal", () => {
     });
 
     it("最初のイベントが QuestionProposalCreated でないとエラー", () => {
-      const { proposal } = QuestionProposal.create(buildCreateParams());
-      const { event: approvedEvent } = proposal.approve();
+      const reviewed = buildReviewedProposal();
+      const { event: approvedEvent } = reviewed.approve();
 
       expect(() => QuestionProposal.fromEvents([approvedEvent])).toThrow(
         "最初のイベントは QuestionProposalCreated である必要があります",
@@ -177,8 +316,9 @@ describe("QuestionProposal", () => {
       const restored = QuestionProposal.fromEvents([event]);
 
       expect(restored).toBeInstanceOf(QuestionProposal);
-      // pending 状態なので approve できる
-      expect(() => restored.approve()).not.toThrow();
+      expect(restored.status).toEqual(
+        expect.objectContaining({ value: "pending" }),
+      );
     });
 
     it("複数イベントから状態を復元できる（編集）", () => {
@@ -189,45 +329,81 @@ describe("QuestionProposal", () => {
       const events: QuestionProposalEvent[] = [createdEvent, editedEvent];
       const restored = QuestionProposal.fromEvents(events);
 
-      // pending 状態なので approve できる
-      expect(() => restored.approve()).not.toThrow();
+      expect(restored.status).toEqual(
+        expect.objectContaining({ value: "pending" }),
+      );
+      expect(restored.text.value).toBe("編集後の問題文");
     });
 
-    it("複数イベントから状態を復元できる（承認）", () => {
+    it("複数イベントから状態を復元できる（申請→承認）", () => {
       const { proposal, event: createdEvent } =
         QuestionProposal.create(buildCreateParams());
-      const { event: approvedEvent } = proposal.approve();
-
-      const events: QuestionProposalEvent[] = [createdEvent, approvedEvent];
-      const restored = QuestionProposal.fromEvents(events);
-
-      // approved 状態なので approve するとエラー
-      expect(() => restored.approve()).toThrow(
-        "出題案を承認できるステータスではありません",
-      );
-    });
-
-    it("複数イベントから状態を復元できる（却下→編集→承認）", () => {
-      const { proposal, event: createdEvent } =
-        QuestionProposal.create(buildCreateParams());
-      const { event: rejectedEvent } = proposal.reject(
-        RejectReason.create("修正が必要"),
-      );
-      const { event: editedEvent } = proposal.edit(buildEditParams());
-      const { event: approvedEvent } = proposal.approve();
+      const { proposal: submitted, event: submittedEvent } = proposal.submit();
+      const { event: approvedEvent } = submitted.approve();
 
       const events: QuestionProposalEvent[] = [
         createdEvent,
-        rejectedEvent,
-        editedEvent,
+        submittedEvent,
         approvedEvent,
       ];
       const restored = QuestionProposal.fromEvents(events);
 
-      // approved 状態なので edit するとエラー
-      expect(() => restored.edit(buildEditParams())).toThrow(
-        "出題案を編集できるステータスではありません",
+      expect(restored.status).toEqual(
+        expect.objectContaining({ value: "approved" }),
       );
+    });
+
+    it("複数イベントから状態を復元できる（申請→承認→取り下げ）", () => {
+      const { proposal, event: createdEvent } =
+        QuestionProposal.create(buildCreateParams());
+      const { proposal: submitted, event: submittedEvent } = proposal.submit();
+      const { proposal: approved, event: approvedEvent } = submitted.approve();
+      const { event: withdrawnEvent } = approved.withdraw();
+
+      const events: QuestionProposalEvent[] = [
+        createdEvent,
+        submittedEvent,
+        approvedEvent,
+        withdrawnEvent,
+      ];
+      const restored = QuestionProposal.fromEvents(events);
+
+      expect(restored.status).toEqual(
+        expect.objectContaining({ value: "withdrawn" }),
+      );
+    });
+
+    it("複数イベントから状態を復元できる（申請→却下→編集→再申請→承認→承認済み編集）", () => {
+      const { proposal, event: createdEvent } =
+        QuestionProposal.create(buildCreateParams());
+      const { proposal: submitted, event: submittedEvent } = proposal.submit();
+      const { proposal: rejected, event: rejectedEvent } = submitted.reject(
+        RejectReason.create("修正が必要"),
+      );
+      const { proposal: edited, event: editedEvent } =
+        rejected.edit(buildEditParams());
+      const { proposal: resubmitted, event: resubmittedEvent } =
+        edited.submit();
+      const { proposal: approved, event: approvedEvent } =
+        resubmitted.approve();
+      const { event: approvedEditedEvent } =
+        approved.editApproved(buildEditParams());
+
+      const events: QuestionProposalEvent[] = [
+        createdEvent,
+        submittedEvent,
+        rejectedEvent,
+        editedEvent,
+        resubmittedEvent,
+        approvedEvent,
+        approvedEditedEvent,
+      ];
+      const restored = QuestionProposal.fromEvents(events);
+
+      expect(restored.status).toEqual(
+        expect.objectContaining({ value: "approved" }),
+      );
+      expect(restored.text.value).toBe("編集後の問題文");
     });
   });
 });

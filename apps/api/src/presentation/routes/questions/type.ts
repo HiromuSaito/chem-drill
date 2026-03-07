@@ -34,6 +34,7 @@ export function toQuestionWithCategoryResponse(
 
 export type QuestionWithCategoryAndDatesResponse =
   QuestionWithCategoryResponse & {
+    isPublished: boolean;
     createdAt: string;
     updatedAt: string;
   };
@@ -43,6 +44,7 @@ export function toQuestionWithCategoryAndDatesResponse(
 ): QuestionWithCategoryAndDatesResponse {
   return {
     ...toQuestionWithCategoryResponse(question),
+    isPublished: question.isPublished,
     createdAt: question.createdAt.toISOString(),
     updatedAt: question.updatedAt.toISOString(),
   };

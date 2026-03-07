@@ -36,7 +36,7 @@ export const questions = pgTable("questions", {
     .notNull()
     .references(() => categories.id),
   userId: text("user_id"),
-  isPublished: boolean("is_published").notNull().default(true),
+  isPublished: boolean("is_published").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

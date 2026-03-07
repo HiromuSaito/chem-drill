@@ -25,13 +25,10 @@ export class OnQuestionProposalApprovedEdited implements EventHandler<QuestionPr
         event.payload.questionProposalId,
       );
 
-      if (!projection) {
-        throw new Error(
-          `出題案が見つかりません: ${event.payload.questionProposalId}`,
+      if (!projection || !projection.questionId) {
+        console.warn(
+          `[OnQuestionProposalApprovedEdited] 出題案または対応する問題が見つかりません: ${event.payload.questionProposalId}`,
         );
-      }
-
-      if (!projection.questionId) {
         return;
       }
 

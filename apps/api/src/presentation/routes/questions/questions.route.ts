@@ -22,6 +22,7 @@ export const questionWithCategorySchema = z
 
 const questionWithCategoryAndDatesSchema = questionWithCategorySchema
   .extend({
+    isPublished: z.boolean(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
   })

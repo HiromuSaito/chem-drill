@@ -21,13 +21,10 @@ export class OnQuestionProposalWithdrawn implements EventHandler<QuestionProposa
         event.payload.questionProposalId,
       );
 
-      if (!projection) {
-        throw new Error(
-          `出題案が見つかりません: ${event.payload.questionProposalId}`,
+      if (!projection || !projection.questionId) {
+        console.warn(
+          `[OnQuestionProposalWithdrawn] 出題案または対応する問題が見つかりません: ${event.payload.questionProposalId}`,
         );
-      }
-
-      if (!projection.questionId) {
         return;
       }
 

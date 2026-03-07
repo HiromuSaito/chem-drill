@@ -39,17 +39,26 @@ export function ProposalDetailPage() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: EditFormData) => {
-      const res = await client.api["question-proposals"][":id"].$put({
-        param: { id: id! },
-        json: {
-          questionText: data.questionText,
-          difficulty: data.difficulty,
-          choices: data.choices.map((c) => c.value),
-          correctIndexes: data.correctIndexes,
-          explanation: data.explanation,
-          categoryId: data.categoryId,
-        },
-      });
+      const json = {
+        questionText: data.questionText,
+        difficulty: data.difficulty,
+        choices: data.choices.map((c) => c.value),
+        correctIndexes: data.correctIndexes,
+        explanation: data.explanation,
+        categoryId: data.categoryId,
+      };
+      const res =
+        proposal?.status === "approved"
+          ? await client.api["question-proposals"][":id"]["edit-approved"].$put(
+              {
+                param: { id: id! },
+                json,
+              },
+            )
+          : await client.api["question-proposals"][":id"].$put({
+              param: { id: id! },
+              json,
+            });
       if (!res.ok) throw new Error("Failed to update proposal");
       return res.json();
     },
