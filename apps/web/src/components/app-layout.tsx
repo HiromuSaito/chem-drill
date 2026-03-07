@@ -4,6 +4,7 @@ import {
   LogOut,
   Shield,
   BookOpen,
+  Lightbulb,
   BarChart3,
 } from "lucide-react";
 import { authClient } from "@/auth-client";
@@ -27,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 
 const navItems = [
   { to: "/", label: "ドリル", icon: BookOpen },
+  { to: "/proposals", label: "出題案", icon: Lightbulb },
   { to: "/stats", label: "成績", icon: BarChart3 },
 ];
 
@@ -66,7 +68,12 @@ export function AppLayout() {
                   <SidebarMenuItem key={to}>
                     <SidebarMenuButton
                       asChild
-                      isActive={location.pathname === to}
+                      isActive={
+                        to === "/"
+                          ? location.pathname === "/" ||
+                            location.pathname.startsWith("/drill")
+                          : location.pathname.startsWith(to)
+                      }
                       tooltip={label}
                     >
                       <Link to={to}>
