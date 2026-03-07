@@ -103,6 +103,75 @@ const deleteIconRoute = createRoute({
   },
 });
 
+const generateIconRoute = createRoute({
+  method: "post",
+  path: "/icon/generate",
+  tags: ["User"],
+  summary: "AIでアイコン画像を生成",
+  middleware: [requireAuth] as const,
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            color: z.string().min(1),
+            element: z.string().min(1),
+            style: z.enum(["cute", "cool", "simple", "science"]),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "生成成功",
+      content: {
+        "application/json": {
+          schema: z
+            .object({
+              candidates: z.array(
+                z.object({ url: z.string(), key: z.string() }),
+              ),
+            })
+            .openapi("GenerateIconResponse"),
+        },
+      },
+    },
+  },
+});
+
+const selectIconRoute = createRoute({
+  method: "post",
+  path: "/icon/select",
+  tags: ["User"],
+  summary: "生成されたアイコン候補から1つを選択",
+  middleware: [requireAuth] as const,
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            selectedKey: z.string().min(1),
+            rejectedKeys: z.array(z.string()),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "選択成功",
+      content: {
+        "application/json": {
+          schema: z
+            .object({ imageUrl: z.string() })
+            .openapi("SelectIconResponse"),
+        },
+      },
+    },
+  },
+});
+
 export const createUserRoute = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(checkUsernameRoute, async (c) => {
@@ -149,4 +218,34 @@ export const createUserRoute = (deps: Dependencies) =>
       await deps.deleteIcon.execute(userId);
 
       return c.json({ success: true });
+    })
+    .openapi(generateIconRoute, async (c) => {
+      const userId = c.get("user").id;
+      const body = c.req.valid("json");
+
+      try {
+        const result = await deps.generateIcon.execute(userId, body);
+        return c.json(result);
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        if (
+          message.includes("429") ||
+          message.includes("Resource exhausted") ||
+          message.includes("RESOURCE_EXHAUSTED")
+        ) {
+          throw new HTTPException(429, {
+            message:
+              "現在生成が混み合っています。しばらく待ってからお試しください",
+          });
+        }
+        throw new HTTPException(500, {
+          message: "画像生成に失敗しました",
+        });
+      }
+    })
+    .openapi(selectIconRoute, async (c) => {
+      const userId = c.get("user").id;
+      const body = c.req.valid("json");
+      const result = await deps.selectIcon.execute(userId, body);
+      return c.json(result);
     });
