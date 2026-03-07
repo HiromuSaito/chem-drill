@@ -16,6 +16,7 @@ export type ListUsersResult = {
 
 export interface UserQueryService {
   isUsernameAvailable(username: string): Promise<boolean>;
+  isEmailRegistered(email: string): Promise<boolean>;
   findById(userId: string): Promise<UserListItemDto | null>;
   listUsers(
     search: string | undefined,

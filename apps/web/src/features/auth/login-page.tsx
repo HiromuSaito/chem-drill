@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/auth-client";
+import { client } from "@/client";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -22,6 +23,22 @@ export function LoginPage() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+
+    try {
+      const res = await client.api.user["check-email"].$get({
+        query: { email },
+      });
+      const { registered } = await res.json();
+      if (!registered) {
+        setIsLoading(false);
+        setError("アカウントが見つかりません。");
+        return;
+      }
+    } catch {
+      setIsLoading(false);
+      setError("メールアドレスの確認に失敗しました。");
+      return;
+    }
 
     const { error } = await authClient.emailOtp.sendVerificationOtp({
       email,
