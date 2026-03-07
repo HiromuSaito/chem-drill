@@ -6,7 +6,6 @@ import { DrizzleCategoryQueryService } from "./infrastructure/category/drizzle-c
 import { DrizzleCategoryRepository } from "./infrastructure/category/drizzle-category-repository.ts";
 import { GeminiQuestionGenerationAdapter } from "./infrastructure/question-generation/gemini-question-generation-adapter.ts";
 import { GetRandomQuestions } from "./application/question/get-random-questions.ts";
-import { GetTrialQuestions } from "./application/question/get-trial-questions.ts";
 import { ListQuestions } from "./application/question/list-questions.ts";
 import { GetQuestion } from "./application/question/get-question.ts";
 import { ListCategories } from "./application/category/list-categories.ts";
@@ -105,10 +104,6 @@ const iconProcessor = new SharpIconProcessor();
 
 // ユースケース
 const getRandomQuestions = new GetRandomQuestions(
-  unitOfWork,
-  questionQueryService,
-);
-const getTrialQuestions = new GetTrialQuestions(
   unitOfWork,
   questionQueryService,
 );
@@ -213,7 +208,6 @@ export const dependencies = {
   uploadIcon,
   deleteIcon,
   getRandomQuestions,
-  getTrialQuestions,
   listQuestions,
   getQuestion,
   createQuestionProposal,
