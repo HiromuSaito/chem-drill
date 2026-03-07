@@ -15,6 +15,7 @@ export type CreateQuestionProposalInput = {
   correctIndexes: number[];
   explanation: string;
   categoryId: string;
+  userId?: string;
 };
 
 export class CreateQuestionProposal {
@@ -32,6 +33,7 @@ export class CreateQuestionProposal {
         correctIndexes: CorrectIndexes.create(input.correctIndexes),
         explanation: Explanation.create(input.explanation),
         categoryId: Id.of<Category>(input.categoryId),
+        userId: input.userId,
       });
 
       await this.questionProposalRepository.save(proposal, event);
