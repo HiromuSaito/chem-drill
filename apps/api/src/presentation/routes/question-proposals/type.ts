@@ -39,6 +39,7 @@ export type QuestionProposalProjectionResponse = {
   explanation: string;
   categoryId: string;
   rejectReason: string | null;
+  userName: string | null;
   questionCreated: boolean;
   createdAt: string;
   updatedAt: string;
