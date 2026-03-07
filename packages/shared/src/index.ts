@@ -1,5 +1,3 @@
-export const APP_NAME = "Chem Drill";
-
 export const ICON_ALLOWED_TYPES: readonly string[] = [
   "image/jpeg",
   "image/png",
