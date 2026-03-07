@@ -8,6 +8,7 @@ import { createUserRoute } from "./user/user.route.ts";
 import { createDrillSessionsRoute } from "./drill-sessions/drill-sessions.route.ts";
 import { createDrillStatsRoute } from "./drill-stats/drill-stats.route.ts";
 import { createAdminUsersRoute } from "./admin/users.route.ts";
+import { createUserProposalsRoute } from "./user-proposals/user-proposals.route.ts";
 import {
   requireAuth,
   requireAdmin,
@@ -36,6 +37,7 @@ export const createApiRoutes = (deps: Dependencies) =>
     .route("/user", createUserRoute(deps))
     .route("/trial", createTrialRoute(deps))
     .use("/*", requireAuth)
+    .route("/user-proposals", createUserProposalsRoute(deps))
     .use("/categories/*", async (c, next) => {
       if (c.req.method === "GET") return next();
       return requireAdmin(c, next);
