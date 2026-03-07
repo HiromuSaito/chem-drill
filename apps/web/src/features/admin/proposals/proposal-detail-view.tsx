@@ -13,6 +13,7 @@ type Proposal = {
   correctIndexes: number[];
   explanation: string;
   rejectReason: string | null;
+  userName?: string | null;
 };
 
 type ProposalDetailViewProps = {
@@ -64,6 +65,9 @@ export function ProposalDetailView({
           <Badge variant="secondary">
             {difficultyLabels[proposal.difficulty] ?? proposal.difficulty}
           </Badge>
+          {proposal.userName && (
+            <Badge variant="outline">提案者: {proposal.userName}</Badge>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {proposal.status === "reviewed" && (

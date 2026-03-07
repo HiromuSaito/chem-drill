@@ -148,6 +148,9 @@ export function ProposalListPage() {
                     ステータス
                   </TableHead>
                   <TableHead className="font-bold text-primary">
+                    提案者
+                  </TableHead>
+                  <TableHead className="font-bold text-primary">
                     作成日
                   </TableHead>
                 </TableRow>
@@ -156,7 +159,7 @@ export function ProposalListPage() {
                 {data?.items.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={6}
                       className="text-center text-muted-foreground"
                     >
                       提案がありません
@@ -191,6 +194,9 @@ export function ProposalListPage() {
                         >
                           {statusLabels[item.status] ?? item.status}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {item.userName ?? "管理者"}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {new Date(item.createdAt).toLocaleDateString("ja-JP")}
