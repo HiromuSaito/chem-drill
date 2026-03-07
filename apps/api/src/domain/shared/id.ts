@@ -21,19 +21,7 @@ export const Id = {
     return createId<T>(value);
   },
 
-  safeOf<T>(value: string): Id<T> | null {
-    try {
-      return Id.of<T>(value);
-    } catch {
-      return null;
-    }
-  },
-
   random<T>(): Id<T> {
     return createId<T>(uuidv7());
-  },
-
-  unknown<T>(): Id<T> {
-    return createId<T>("00000000-0000-0000-0000-000000000000");
   },
 } as const;

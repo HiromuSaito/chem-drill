@@ -115,12 +115,6 @@ export default $config({
     // キャッチオールルート: 全リクエストを Hono に委譲
     api.route("$default", {
       handler: "apps/api/src/lambda.handler",
-      permissions: [
-        {
-          actions: ["ses:SendEmail", "ses:SendRawEmail"],
-          resources: ["*"],
-        },
-      ],
       environment: {
         DATABASE_URL: databaseUrl.value,
         GEMINI_API_KEY: geminiApiKey.value,
@@ -134,6 +128,10 @@ export default $config({
         install: ["postgres", "sharp"],
       },
       permissions: [
+        {
+          actions: ["ses:SendEmail", "ses:SendRawEmail"],
+          resources: ["*"],
+        },
         {
           actions: ["s3:PutObject", "s3:DeleteObject"],
           resources: [$interpolate`${iconBucket.arn}/*`],
