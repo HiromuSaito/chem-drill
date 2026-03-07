@@ -47,7 +47,7 @@ const initialState = {
   step: 1,
   color: "",
   element: "",
-  style: "",
+  style: "" as "" | "cute" | "cool" | "simple" | "science",
   candidates: [] as Array<{ url: string; key: string }>,
   selectedKey: null as string | null,
   isGenerating: false,
@@ -85,23 +85,23 @@ export function GenerateIconDialog({
     setState((s) => ({ ...s, step: 4, isGenerating: true, error: "" }));
     try {
       const res = await client.api.user.icon.generate.$post({
-        json: { color, element, style },
+        json: {
+          color,
+          element,
+          style: style as "cute" | "cool" | "simple" | "science",
+        },
       });
-      if (res.status === 429) {
-        setState((s) => ({
-          ...s,
-          step: 3,
-          isGenerating: false,
-          error: "現在生成が混み合っています。しばらく待ってからお試しください",
-        }));
-        return;
-      }
       if (!res.ok) {
+        const errorText = await res.text().catch(() => "");
+        const is429 =
+          (res as Response).status === 429 || errorText.includes("429");
         setState((s) => ({
           ...s,
           step: 3,
           isGenerating: false,
-          error: "画像生成に失敗しました",
+          error: is429
+            ? "現在生成が混み合っています。しばらく待ってからお試しください"
+            : "画像生成に失敗しました",
         }));
         return;
       }
@@ -110,9 +110,7 @@ export function GenerateIconDialog({
         ...s,
         step: 5,
         isGenerating: false,
-        candidates: (
-          data as { candidates: Array<{ url: string; key: string }> }
-        ).candidates,
+        candidates: data.candidates,
       }));
     } catch {
       setState((s) => ({
