@@ -46,6 +46,10 @@ import { S3IconStorage } from "./infrastructure/storage/s3-icon-storage.ts";
 import { SharpIconProcessor } from "./infrastructure/storage/sharp-icon-processor.ts";
 import { UploadIcon } from "./application/user/upload-icon.ts";
 import { DeleteIcon } from "./application/user/delete-icon.ts";
+import { GeminiIconGenerator } from "./infrastructure/generation/gemini-icon-generator.ts";
+import { GenerateIcon } from "./application/user/generate-icon.ts";
+import { SelectIcon } from "./application/user/select-icon.ts";
+import { DrizzleUserRepository } from "./infrastructure/user/drizzle-user-repository.ts";
 import { consoleLogger } from "./lib/logger.ts";
 import { requireEnv } from "./env.ts";
 
@@ -191,6 +195,18 @@ const getUser = new GetUser(unitOfWork, userQueryService);
 const uploadIcon = new UploadIcon(iconStorage, iconProcessor);
 const deleteIcon = new DeleteIcon(iconStorage);
 
+const iconGenerator = new GeminiIconGenerator(() =>
+  requireEnv("GEMINI_API_KEY"),
+);
+const userRepository = new DrizzleUserRepository();
+
+const generateIcon = new GenerateIcon(
+  iconGenerator,
+  iconProcessor,
+  iconStorage,
+);
+const selectIcon = new SelectIcon(iconStorage, userRepository, unitOfWork);
+
 const saveDrillSession = new SaveDrillSession(
   unitOfWork,
   drillSessionRepository,
@@ -212,6 +228,8 @@ export const dependencies = {
   getUser,
   uploadIcon,
   deleteIcon,
+  generateIcon,
+  selectIcon,
   getRandomQuestions,
   getTrialQuestions,
   listQuestions,
