@@ -40,7 +40,7 @@ const projectionSchema = z
   })
   .openapi("UserQuestionProposalProjection");
 
-const createSchema = z
+const proposalInputSchema = z
   .object({
     questionText: z.string(),
     difficulty: z.string(),
@@ -49,18 +49,7 @@ const createSchema = z
     explanation: z.string(),
     categoryId: z.string().uuid(),
   })
-  .openapi("CreateUserProposalRequest");
-
-const updateSchema = z
-  .object({
-    questionText: z.string(),
-    difficulty: z.string(),
-    choices: z.array(z.string()),
-    correctIndexes: z.array(z.number().int()),
-    explanation: z.string(),
-    categoryId: z.string().uuid(),
-  })
-  .openapi("UpdateUserProposalRequest");
+  .openapi("UserProposalInput");
 
 const proposalIdParam = z.object({
   id: z.string().uuid(),
@@ -134,7 +123,7 @@ const createProposalRoute = createRoute({
   tags: ["UserProposal"],
   summary: "出題案を新規作成",
   request: {
-    body: { content: { "application/json": { schema: createSchema } } },
+    body: { content: { "application/json": { schema: proposalInputSchema } } },
   },
   responses: proposalResponse,
 });
@@ -146,7 +135,7 @@ const updateProposalRoute = createRoute({
   summary: "出題案を編集",
   request: {
     params: proposalIdParam,
-    body: { content: { "application/json": { schema: updateSchema } } },
+    body: { content: { "application/json": { schema: proposalInputSchema } } },
   },
   responses: proposalResponse,
 });
@@ -209,6 +198,11 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
       if (existing.userId !== user.id) {
         throw new HTTPException(403, { message: "Forbidden" });
       }
+      if (!["pending", "rejected"].includes(existing.status)) {
+        throw new HTTPException(400, {
+          message: "この状態の出題案は編集できません",
+        });
+      }
       const input = c.req.valid("json");
       const proposal = await deps.updateQuestionProposal.execute({
         questionProposalId: id,
@@ -225,6 +219,11 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
       }
       if (existing.userId !== user.id) {
         throw new HTTPException(403, { message: "Forbidden" });
+      }
+      if (existing.status !== "pending") {
+        throw new HTTPException(400, {
+          message: "下書き状態の出題案のみ申請できます",
+        });
       }
       const proposal = await deps.submitQuestionProposal.execute({
         questionProposalId: id,
