@@ -36,6 +36,10 @@ const questionListRoute = createRoute({
   request: {
     query: z.object({
       categoryId: z.string().uuid().optional(),
+      isPublished: z
+        .enum(["true", "false"])
+        .transform((v) => v === "true")
+        .optional(),
       limit: z.coerce.number().int().min(1).max(100).optional().default(20),
       offset: z.coerce.number().int().min(0).optional().default(0),
     }),
@@ -112,9 +116,10 @@ const randomQuestionGetRoute = createRoute({
 export const createQuestionsRoute = (deps: Dependencies) =>
   new OpenAPIHono()
     .openapi(questionListRoute, async (c) => {
-      const { categoryId, limit, offset } = c.req.valid("query");
+      const { categoryId, isPublished, limit, offset } = c.req.valid("query");
       const result = await deps.listQuestions.execute(
         categoryId,
+        isPublished,
         limit,
         offset,
       );

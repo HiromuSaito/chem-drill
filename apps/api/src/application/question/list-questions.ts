@@ -12,11 +12,17 @@ export class ListQuestions {
 
   async execute(
     categoryId: string | undefined,
+    isPublished: boolean | undefined,
     limit: number,
     offset: number,
   ): Promise<ListQuestionsResult> {
     return this.uow.run(async () => {
-      return await this.queryService.list(categoryId, limit, offset);
+      return await this.queryService.list(
+        categoryId,
+        isPublished,
+        limit,
+        offset,
+      );
     });
   }
 }
