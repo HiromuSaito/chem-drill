@@ -23,6 +23,9 @@ import { UpdateApprovedQuestionProposal } from "./application/question-proposal/
 import { GenerateQuestionProposals } from "./application/question-proposal/generate-question-proposals.ts";
 import { ListQuestionProposals } from "./application/question-proposal/list-question-proposals.ts";
 import { GetQuestionProposalByAdmin } from "./application/question-proposal/get-question-proposal-by-admin.ts";
+import { GetQuestionProposalByUser } from "./application/question-proposal/get-question-proposal-by-user.ts";
+import { UpdateQuestionProposalByUser } from "./application/question-proposal/update-question-proposal-by-user.ts";
+import { SubmitQuestionProposalByUser } from "./application/question-proposal/submit-question-proposal-by-user.ts";
 import { ListQuestionsProposalsByUserId } from "./application/question-proposal/list-question-proposals-by-user-id.ts";
 import { DrizzleQuestionProposalRepository } from "./infrastructure/question-proposal/drizzle-question-proposal-repository.ts";
 import { DrizzleQuestionProposalProjectionQueryService } from "./infrastructure/question-proposal/drizzle-question-proposal-projection-query-service.ts";
@@ -176,6 +179,18 @@ const getQuestionProposalByAdmin = new GetQuestionProposalByAdmin(
   unitOfWork,
   questionProposalProjectionQueryService,
 );
+const getQuestionProposalByUser = new GetQuestionProposalByUser(
+  unitOfWork,
+  questionProposalProjectionQueryService,
+);
+const updateQuestionProposalByUser = new UpdateQuestionProposalByUser(
+  unitOfWork,
+  questionProposalRepository,
+);
+const submitQuestionProposalByUser = new SubmitQuestionProposalByUser(
+  unitOfWork,
+  questionProposalRepository,
+);
 const listQuestionProposalsByUserId = new ListQuestionsProposalsByUserId(
   unitOfWork,
   questionProposalProjectionQueryService,
@@ -230,6 +245,9 @@ export const dependencies = {
   updateApprovedQuestionProposal,
   listQuestionProposals,
   getQuestionProposalByAdmin,
+  getQuestionProposalByUser,
+  updateQuestionProposalByUser,
+  submitQuestionProposalByUser,
   listQuestionProposalsByUserId,
   listCategories,
   createCategory,
