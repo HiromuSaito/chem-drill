@@ -37,26 +37,19 @@ export function SignupPage() {
     setIsLoading(true);
 
     try {
-      const res = await client.api.user["check-username"].$get({
-        query: { username },
-      });
-      const { available } = await res.json();
+      const [usernameRes, emailRes] = await Promise.all([
+        client.api.user["check-username"].$get({ query: { username } }),
+        client.api.user["check-email"].$get({ query: { email } }),
+      ]);
+
+      const { available } = await usernameRes.json();
       if (!available) {
         setIsLoading(false);
         setError("このユーザー名は既に使われています。");
         return;
       }
-    } catch {
-      setIsLoading(false);
-      setError("ユーザー名の確認に失敗しました。");
-      return;
-    }
 
-    try {
-      const res = await client.api.user["check-email"].$get({
-        query: { email },
-      });
-      const { registered } = await res.json();
+      const { registered } = await emailRes.json();
       if (registered) {
         setIsLoading(false);
         setError("このメールアドレスは既に登録されています。");
@@ -64,7 +57,7 @@ export function SignupPage() {
       }
     } catch {
       setIsLoading(false);
-      setError("メールアドレスの確認に失敗しました。");
+      setError("ユーザー名・メールアドレスの確認に失敗しました。");
       return;
     }
 
