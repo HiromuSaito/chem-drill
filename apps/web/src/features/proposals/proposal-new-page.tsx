@@ -30,22 +30,19 @@ export function UserProposalNewPage() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <h2 className="text-2xl font-bold tracking-tight">出題案を作成</h2>
-      <ProposalEditForm
-        defaultValues={{
-          questionText: "",
-          difficulty: "medium",
-          choices: [{ value: "" }, { value: "" }, { value: "" }, { value: "" }],
-          correctIndexes: [],
-          explanation: "",
-          categoryId: "",
-        }}
-        onSubmit={(data) => createMutation.mutate(data)}
-        onCancel={() => navigate("/proposals")}
-        isPending={createMutation.isPending}
-        error={createMutation.error?.message}
-      />
-    </div>
+    <ProposalEditForm
+      defaultValues={{
+        questionText: "",
+        difficulty: "medium",
+        choices: [{ value: "" }, { value: "" }, { value: "" }, { value: "" }],
+        correctIndexes: [],
+        explanation: "",
+        categoryId: "",
+      }}
+      onSubmit={(data) => createMutation.mutate(data)}
+      onCancel={() => navigate("/proposals")}
+      isPending={createMutation.isPending}
+      error={createMutation.error?.message}
+    />
   );
 }
