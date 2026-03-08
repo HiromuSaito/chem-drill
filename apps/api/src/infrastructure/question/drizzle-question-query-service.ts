@@ -94,10 +94,20 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
 
   async list(
     categoryId: string | undefined,
+    isPublished: boolean | undefined,
     limit: number,
     offset: number,
   ): Promise<ListQuestionsResult> {
     const tx = getCurrentTransaction();
+
+    const categoryCondition = categoryId
+      ? eq(questions.categoryId, categoryId)
+      : undefined;
+    const publishedCondition =
+      isPublished !== undefined
+        ? eq(questions.isPublished, isPublished)
+        : undefined;
+    const conditions = and(categoryCondition, publishedCondition);
 
     const baseQuery = tx
       .select(this.selectWithDates)
@@ -109,12 +119,10 @@ export class DrizzleQuestionQueryService implements QuestionQueryService {
 
     const countQuery = tx.select({ value: count() }).from(questions);
 
-    const [rows, [{ value: total }]] = categoryId
-      ? await Promise.all([
-          baseQuery.where(eq(questions.categoryId, categoryId)),
-          countQuery.where(eq(questions.categoryId, categoryId)),
-        ])
-      : await Promise.all([baseQuery, countQuery]);
+    const [rows, [{ value: total }]] = await Promise.all([
+      conditions ? baseQuery.where(conditions) : baseQuery,
+      conditions ? countQuery.where(conditions) : countQuery,
+    ]);
 
     return {
       items: rows.map((row) => this.toQuestionWithDates(row)),

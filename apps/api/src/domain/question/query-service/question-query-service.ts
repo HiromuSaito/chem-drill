@@ -29,6 +29,7 @@ export interface QuestionQueryService {
   ): Promise<QuestionWithCategory[]>;
   list(
     categoryId: string | undefined,
+    isPublished: boolean | undefined,
     limit: number,
     offset: number,
   ): Promise<ListQuestionsResult>;
