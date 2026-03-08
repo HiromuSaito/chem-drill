@@ -65,7 +65,7 @@ export function ProposalListPage() {
   const currentPage = Math.floor(offset / PAGE_SIZE) + 1;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-2">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">出題案</h2>
         <div className="flex items-center gap-2">

@@ -75,6 +75,10 @@ type ProposalEditFormProps = {
   onCancel: () => void;
   isPending: boolean;
   error?: string;
+  title?: string;
+  cancelLabel?: string;
+  submitLabel?: string;
+  showFooterCancel?: boolean;
 };
 
 export function ProposalEditForm({
@@ -83,6 +87,10 @@ export function ProposalEditForm({
   onCancel,
   isPending,
   error,
+  title = "提案を編集",
+  cancelLabel = "編集をキャンセル",
+  submitLabel = "保存",
+  showFooterCancel = true,
 }: ProposalEditFormProps) {
   const form = useForm<EditFormData>({
     resolver: zodResolver(editSchema),
@@ -128,15 +136,15 @@ export function ProposalEditForm({
   const correctIndexes = form.watch("correctIndexes");
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="space-y-6 px-2">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" onClick={onCancel}>
           <ArrowLeft className="size-4" />
-          編集をキャンセル
+          {cancelLabel}
         </Button>
       </div>
 
-      <h2 className="text-2xl font-bold tracking-tight">提案を編集</h2>
+      <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -324,11 +332,13 @@ export function ProposalEditForm({
           </Card>
 
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              キャンセル
-            </Button>
+            {showFooterCancel && (
+              <Button type="button" variant="outline" onClick={onCancel}>
+                キャンセル
+              </Button>
+            )}
             <Button type="submit" disabled={isPending}>
-              {isPending ? "保存中..." : "保存"}
+              {isPending ? `${submitLabel}中...` : submitLabel}
             </Button>
           </div>
 

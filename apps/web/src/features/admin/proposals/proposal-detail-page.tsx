@@ -153,11 +153,13 @@ export function ProposalDetailPage() {
     <>
       <ProposalDetailView
         proposal={proposal}
+        backTo="/admin/proposals"
         canEdit={canEdit}
         onEdit={() => setEditing(true)}
+        onSubmit={() => submitMutation.mutate()}
+        submitPending={submitMutation.isPending}
         onApprove={() => approveMutation.mutate()}
         onRejectClick={() => setRejectDialogOpen(true)}
-        onSubmit={() => submitMutation.mutate()}
         onWithdraw={() => {
           if (
             window.confirm(
@@ -168,7 +170,6 @@ export function ProposalDetailPage() {
           }
         }}
         approvePending={approveMutation.isPending}
-        submitPending={submitMutation.isPending}
         withdrawPending={withdrawMutation.isPending}
       />
       <RejectDialog

@@ -2,8 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, X, Pencil, Send, ArchiveX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { statusLabels, statusVariants, difficultyLabels } from "./constants";
+import { ProposalContentCards } from "./proposal-content-cards";
 
 type Proposal = {
   status: string;
@@ -18,39 +18,37 @@ type Proposal = {
 
 type ProposalDetailViewProps = {
   proposal: Proposal;
+  backTo: string;
   canEdit: boolean;
   onEdit: () => void;
-  onApprove: () => void;
-  onRejectClick: () => void;
   onSubmit: () => void;
-  onWithdraw: () => void;
-  approvePending: boolean;
   submitPending: boolean;
-  withdrawPending: boolean;
+  onApprove?: () => void;
+  onRejectClick?: () => void;
+  onWithdraw?: () => void;
+  approvePending?: boolean;
+  withdrawPending?: boolean;
 };
 
 export function ProposalDetailView({
   proposal,
+  backTo,
   canEdit,
   onEdit,
+  onSubmit,
+  submitPending,
   onApprove,
   onRejectClick,
-  onSubmit,
   onWithdraw,
   approvePending,
-  submitPending,
   withdrawPending,
 }: ProposalDetailViewProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="space-y-6 px-2">
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/admin/proposals")}
-        >
+        <Button variant="ghost" size="sm" onClick={() => navigate(backTo)}>
           <ArrowLeft className="size-4" />
           一覧へ戻る
         </Button>
@@ -58,7 +56,7 @@ export function ProposalDetailView({
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-bold tracking-tight">提案詳細</h2>
+          <h2 className="text-2xl font-bold tracking-tight">出題案詳細</h2>
           <Badge variant={statusVariants[proposal.status] ?? "outline"}>
             {statusLabels[proposal.status] ?? proposal.status}
           </Badge>
@@ -70,7 +68,7 @@ export function ProposalDetailView({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {proposal.status === "reviewed" && (
+          {proposal.status === "reviewed" && onRejectClick && (
             <Button variant="destructive" onClick={onRejectClick}>
               <X className="size-4" />
               却下
@@ -85,16 +83,16 @@ export function ProposalDetailView({
           {proposal.status === "pending" && (
             <Button onClick={onSubmit} disabled={submitPending}>
               <Send className="size-4" />
-              {submitPending ? "申請中..." : "申請"}
+              {submitPending ? "申請中..." : "申請する"}
             </Button>
           )}
-          {proposal.status === "reviewed" && (
+          {proposal.status === "reviewed" && onApprove && (
             <Button onClick={onApprove} disabled={approvePending}>
               <Check className="size-4" />
               {approvePending ? "承認中..." : "承認"}
             </Button>
           )}
-          {proposal.status === "approved" && (
+          {proposal.status === "approved" && onWithdraw && (
             <Button
               variant="destructive"
               onClick={onWithdraw}
@@ -107,67 +105,13 @@ export function ProposalDetailView({
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">問題文</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="whitespace-pre-wrap">{proposal.text}</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">選択肢</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {proposal.choices.map((choice, i) => {
-              const isCorrect = proposal.correctIndexes.includes(i);
-              return (
-                <li
-                  key={i}
-                  className={`rounded-md border px-4 py-2 text-sm ${
-                    isCorrect
-                      ? "border-green-500 bg-green-50 dark:bg-green-950"
-                      : ""
-                  }`}
-                >
-                  <span className="mr-2 font-mono text-muted-foreground">
-                    {String.fromCharCode(65 + i)}.
-                  </span>
-                  {choice}
-                  {isCorrect && (
-                    <Check className="ml-2 inline size-4 text-green-600" />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">解説</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="whitespace-pre-wrap">{proposal.explanation}</p>
-        </CardContent>
-      </Card>
-
-      {proposal.rejectReason && (
-        <Card className="border-destructive">
-          <CardHeader>
-            <CardTitle className="text-base text-destructive">
-              却下理由
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="whitespace-pre-wrap">{proposal.rejectReason}</p>
-          </CardContent>
-        </Card>
-      )}
+      <ProposalContentCards
+        text={proposal.text}
+        choices={proposal.choices}
+        correctIndexes={proposal.correctIndexes}
+        explanation={proposal.explanation}
+        rejectReason={proposal.rejectReason}
+      />
     </div>
   );
 }
