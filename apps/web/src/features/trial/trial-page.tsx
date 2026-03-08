@@ -1,46 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { FlaskConical, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { client } from "@/client";
 import { SessionContainer } from "@/features/question/session-container";
+import { TRIAL_QUESTIONS } from "./trial-questions";
 
 export function TrialPage() {
   const navigate = useNavigate();
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["questions", "trial"],
-    queryFn: async () => {
-      const res = await client.api.trial.questions.$get();
-      if (!res.ok) throw new Error("Failed to fetch questions");
-      return res.json();
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-svh items-center justify-center">
-        <p className="text-muted-foreground">読み込み中...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-h-svh items-center justify-center">
-        <p className="text-destructive">エラー: {error.message}</p>
-      </div>
-    );
-  }
-
-  if (!data?.length) {
-    return (
-      <div className="flex min-h-svh items-center justify-center">
-        <p className="text-muted-foreground">問題がありません</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-svh flex-col bg-muted/40">
@@ -53,8 +18,9 @@ export function TrialPage() {
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
         <SessionContainer
-          questions={data}
+          questions={TRIAL_QUESTIONS}
           showRetry={false}
+          saveResult={false}
           resultActions={
             <>
               <hr className="border-border" />

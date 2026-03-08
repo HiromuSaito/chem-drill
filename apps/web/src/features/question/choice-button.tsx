@@ -1,5 +1,5 @@
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -50,12 +50,17 @@ export function ChoiceButton({
       disabled={isAnswered}
     >
       {isMultiple && (
-        <Checkbox
-          checked={isSelected}
-          className="mr-3"
-          tabIndex={-1}
+        <div
           aria-hidden
-        />
+          className={cn(
+            "mr-3 flex size-4 shrink-0 items-center justify-center rounded-sm border",
+            isSelected
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-input",
+          )}
+        >
+          {isSelected && <Check className="size-3" />}
+        </div>
       )}
       <span className="mr-3 font-mono text-muted-foreground">
         {choiceLabel(index)}
