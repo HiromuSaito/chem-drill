@@ -14,16 +14,16 @@ import { CreateCategory } from "./application/category/create-category.ts";
 import { UpdateCategory } from "./application/category/update-category.ts";
 import { DeleteCategory } from "./application/category/delete-category.ts";
 import { CreateQuestionProposal } from "./application/question-proposal/create-question-proposal.ts";
-import { UpdateQuestionProposal } from "./application/question-proposal/update-question-proposal.ts";
+import { UpdateQuestionProposalByAdmin } from "./application/question-proposal/update-question-proposal-by-admin.ts";
 import { ApproveQuestionProposal } from "./application/question-proposal/approve-question-proposal.ts";
 import { RejectQuestionProposal } from "./application/question-proposal/reject-question-proposal.ts";
-import { SubmitQuestionProposal } from "./application/question-proposal/submit-question-proposal.ts";
+import { SubmitQuestionProposalByAdmin } from "./application/question-proposal/submit-question-proposal-by-admin.ts";
 import { WithdrawQuestionProposal } from "./application/question-proposal/withdraw-question-proposal.ts";
 import { UpdateApprovedQuestionProposal } from "./application/question-proposal/update-approved-question-proposal.ts";
 import { GenerateQuestionProposals } from "./application/question-proposal/generate-question-proposals.ts";
 import { ListQuestionProposals } from "./application/question-proposal/list-question-proposals.ts";
-import { GetQuestionProposal } from "./application/question-proposal/get-question-proposal.ts";
-import { ListUserProposals } from "./application/question-proposal/list-user-proposals.ts";
+import { GetQuestionProposalByAdmin } from "./application/question-proposal/get-question-proposal-by-admin.ts";
+import { ListQuestionsProposalsByUserId } from "./application/question-proposal/list-question-proposals-by-user-id.ts";
 import { DrizzleQuestionProposalRepository } from "./infrastructure/question-proposal/drizzle-question-proposal-repository.ts";
 import { DrizzleQuestionProposalProjectionQueryService } from "./infrastructure/question-proposal/drizzle-question-proposal-projection-query-service.ts";
 import { DrizzleUserQueryService } from "./infrastructure/user/drizzle-user-query-service.ts";
@@ -119,7 +119,7 @@ const createQuestionProposal = new CreateQuestionProposal(
   unitOfWork,
   questionProposalRepository,
 );
-const updateQuestionProposal = new UpdateQuestionProposal(
+const updateQuestionProposalByAdmin = new UpdateQuestionProposalByAdmin(
   unitOfWork,
   questionProposalRepository,
 );
@@ -132,7 +132,7 @@ const rejectQuestionProposal = new RejectQuestionProposal(
   unitOfWork,
   questionProposalRepository,
 );
-const submitQuestionProposal = new SubmitQuestionProposal(
+const submitQuestionProposalByAdmin = new SubmitQuestionProposalByAdmin(
   unitOfWork,
   questionProposalRepository,
 );
@@ -172,11 +172,11 @@ const listQuestionProposals = new ListQuestionProposals(
   unitOfWork,
   questionProposalProjectionQueryService,
 );
-const getQuestionProposal = new GetQuestionProposal(
+const getQuestionProposalByAdmin = new GetQuestionProposalByAdmin(
   unitOfWork,
   questionProposalProjectionQueryService,
 );
-const listUserProposals = new ListUserProposals(
+const listQuestionProposalsByUserId = new ListQuestionsProposalsByUserId(
   unitOfWork,
   questionProposalProjectionQueryService,
 );
@@ -222,15 +222,15 @@ export const dependencies = {
   listQuestions,
   getQuestion,
   createQuestionProposal,
-  updateQuestionProposal,
+  updateQuestionProposalByAdmin,
   approveQuestionProposal,
   rejectQuestionProposal,
-  submitQuestionProposal,
+  submitQuestionProposalByAdmin,
   withdrawQuestionProposal,
   updateApprovedQuestionProposal,
   listQuestionProposals,
-  getQuestionProposal,
-  listUserProposals,
+  getQuestionProposalByAdmin,
+  listQuestionProposalsByUserId,
   listCategories,
   createCategory,
   updateCategory,

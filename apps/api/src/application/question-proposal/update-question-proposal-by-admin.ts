@@ -18,7 +18,7 @@ export type UpdateQuestionProposalInput = {
   categoryId: string;
 };
 
-export class UpdateQuestionProposal {
+export class UpdateQuestionProposalByAdmin {
   constructor(
     private uow: UnitOfWork,
     private questionProposalRepository: QuestionProposalRepository,

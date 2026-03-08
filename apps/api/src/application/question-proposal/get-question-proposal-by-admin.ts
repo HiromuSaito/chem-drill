@@ -4,7 +4,7 @@ import type {
 } from "../../domain/question-proposal/query-service/question-proposal-projection-query-service.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
-export class GetQuestionProposal {
+export class GetQuestionProposalByAdmin {
   constructor(
     private uow: UnitOfWork,
     private queryService: QuestionProposalProjectionQueryService,

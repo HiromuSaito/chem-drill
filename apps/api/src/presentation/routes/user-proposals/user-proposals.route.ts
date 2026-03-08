@@ -156,7 +156,7 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
     .openapi(listRoute, async (c) => {
       const user = c.get("user");
       const { status, limit, offset } = c.req.valid("query");
-      const result = await deps.listUserProposals.execute(
+      const result = await deps.listQuestionProposalsByUserId.execute(
         user.id,
         status,
         limit,
@@ -170,7 +170,7 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
     .openapi(getRoute, async (c) => {
       const user = c.get("user");
       const { id } = c.req.valid("param");
-      const proposal = await deps.getQuestionProposal.execute(id);
+      const proposal = await deps.getQuestionProposalByAdmin.execute(id);
       if (!proposal) {
         return c.json({ error: "Not found" }, 404);
       }
@@ -191,7 +191,7 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
     .openapi(updateProposalRoute, async (c) => {
       const user = c.get("user");
       const { id } = c.req.valid("param");
-      const existing = await deps.getQuestionProposal.execute(id);
+      const existing = await deps.getQuestionProposalByAdmin.execute(id);
       if (!existing) {
         throw new HTTPException(404, { message: "Not found" });
       }
@@ -204,7 +204,7 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
         });
       }
       const input = c.req.valid("json");
-      const proposal = await deps.updateQuestionProposal.execute({
+      const proposal = await deps.updateQuestionProposalByAdmin.execute({
         questionProposalId: id,
         ...input,
       });
@@ -213,7 +213,7 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
     .openapi(submitRoute, async (c) => {
       const user = c.get("user");
       const { id } = c.req.valid("param");
-      const existing = await deps.getQuestionProposal.execute(id);
+      const existing = await deps.getQuestionProposalByAdmin.execute(id);
       if (!existing) {
         throw new HTTPException(404, { message: "Not found" });
       }
@@ -225,7 +225,7 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
           message: "下書き状態の出題案のみ申請できます",
         });
       }
-      const proposal = await deps.submitQuestionProposal.execute({
+      const proposal = await deps.submitQuestionProposalByAdmin.execute({
         questionProposalId: id,
       });
       return c.json(toQuestionProposalResponse(proposal));

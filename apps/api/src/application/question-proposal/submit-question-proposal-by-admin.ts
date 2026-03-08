@@ -7,7 +7,7 @@ export type SubmitQuestionProposalInput = {
   questionProposalId: string;
 };
 
-export class SubmitQuestionProposal {
+export class SubmitQuestionProposalByAdmin {
   constructor(
     private uow: UnitOfWork,
     private questionProposalRepository: QuestionProposalRepository,
