@@ -1,5 +1,4 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import { HTTPException } from "hono/http-exception";
 import type { AuthEnv } from "../../../infrastructure/auth/auth-middleware.ts";
 import type { Dependencies } from "../../../composition-root.ts";
 import { errorSchema } from "../shared/schema.ts";
@@ -156,7 +155,7 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
     .openapi(listRoute, async (c) => {
       const user = c.get("user");
       const { status, limit, offset } = c.req.valid("query");
-      const result = await deps.listUserProposals.execute(
+      const result = await deps.listQuestionProposalsByUserId.execute(
         user.id,
         status,
         limit,
@@ -170,13 +169,10 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
     .openapi(getRoute, async (c) => {
       const user = c.get("user");
       const { id } = c.req.valid("param");
-      const proposal = await deps.getQuestionProposal.execute(id);
-      if (!proposal) {
-        return c.json({ error: "Not found" }, 404);
-      }
-      if (proposal.userId !== user.id) {
-        return c.json({ error: "Forbidden" }, 403);
-      }
+      const proposal = await deps.getQuestionProposalByUser.execute(
+        id,
+        user.id,
+      );
       return c.json(toProjectionResponse(proposal), 200);
     })
     .openapi(createProposalRoute, async (c) => {
@@ -191,42 +187,20 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
     .openapi(updateProposalRoute, async (c) => {
       const user = c.get("user");
       const { id } = c.req.valid("param");
-      const existing = await deps.getQuestionProposal.execute(id);
-      if (!existing) {
-        throw new HTTPException(404, { message: "Not found" });
-      }
-      if (existing.userId !== user.id) {
-        throw new HTTPException(403, { message: "Forbidden" });
-      }
-      if (!["pending", "rejected"].includes(existing.status)) {
-        throw new HTTPException(400, {
-          message: "この状態の出題案は編集できません",
-        });
-      }
       const input = c.req.valid("json");
-      const proposal = await deps.updateQuestionProposal.execute({
+      const proposal = await deps.updateQuestionProposalByUser.execute({
         questionProposalId: id,
         ...input,
+        callerId: user.id,
       });
       return c.json(toQuestionProposalResponse(proposal));
     })
     .openapi(submitRoute, async (c) => {
       const user = c.get("user");
       const { id } = c.req.valid("param");
-      const existing = await deps.getQuestionProposal.execute(id);
-      if (!existing) {
-        throw new HTTPException(404, { message: "Not found" });
-      }
-      if (existing.userId !== user.id) {
-        throw new HTTPException(403, { message: "Forbidden" });
-      }
-      if (existing.status !== "pending") {
-        throw new HTTPException(400, {
-          message: "下書き状態の出題案のみ申請できます",
-        });
-      }
-      const proposal = await deps.submitQuestionProposal.execute({
+      const proposal = await deps.submitQuestionProposalByUser.execute({
         questionProposalId: id,
+        callerId: user.id,
       });
       return c.json(toQuestionProposalResponse(proposal));
     });

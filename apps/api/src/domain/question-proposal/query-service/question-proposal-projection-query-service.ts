@@ -29,12 +29,14 @@ export interface QuestionProposalProjectionQueryService {
     limit: number,
     offset: number,
   ): Promise<ListQuestionProposalsResult>;
+
   listByUserId(
     userId: string,
     status: string | undefined,
     limit: number,
     offset: number,
   ): Promise<ListQuestionProposalsResult>;
+
   findById(
     questionProposalId: string,
   ): Promise<QuestionProposalProjectionDto | null>;

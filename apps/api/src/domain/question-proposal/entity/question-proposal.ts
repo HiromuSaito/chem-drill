@@ -1,4 +1,5 @@
 import type { CategoryId } from "../../category/entity/category.ts";
+import { ForbiddenError } from "../../shared/errors.ts";
 import { Id } from "../../shared/id.ts";
 import { CorrectIndexes } from "../../shared/value-object/correct-indexes.ts";
 import { Difficulty } from "../../shared/value-object/difficulty.ts";
@@ -31,6 +32,12 @@ export class QuestionProposal {
     /** 出題案の提案者（管理者による提案の場合はnullになる） */
     readonly userId?: string | null,
   ) {}
+
+  ensureOwnedBy(userId: string): void {
+    if (this.userId !== userId) {
+      throw new ForbiddenError("この出題案へのアクセス権がありません");
+    }
+  }
 
   canEdit(): boolean {
     return (

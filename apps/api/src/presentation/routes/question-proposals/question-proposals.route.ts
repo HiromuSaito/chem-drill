@@ -254,7 +254,7 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
     })
     .openapi(proposalGetRoute, async (c) => {
       const { id } = c.req.valid("param");
-      const proposal = await deps.getQuestionProposal.execute(id);
+      const proposal = await deps.getQuestionProposalByAdmin.execute(id);
       if (!proposal) {
         return c.json({ error: "Not found" }, 404);
       }
@@ -268,7 +268,7 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
     .openapi(proposalUpdateRoute, async (c) => {
       const { id } = c.req.valid("param");
       const input = c.req.valid("json");
-      const proposal = await deps.updateQuestionProposal.execute({
+      const proposal = await deps.updateQuestionProposalByAdmin.execute({
         questionProposalId: id,
         ...input,
       });
@@ -301,7 +301,7 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
     })
     .openapi(proposalSubmitRoute, async (c) => {
       const { id } = c.req.valid("param");
-      const proposal = await deps.submitQuestionProposal.execute({
+      const proposal = await deps.submitQuestionProposalByAdmin.execute({
         questionProposalId: id,
       });
       return c.json(toQuestionProposalResponse(proposal));
