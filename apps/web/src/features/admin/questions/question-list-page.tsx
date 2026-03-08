@@ -26,6 +26,7 @@ const PAGE_SIZE = 20;
 export function QuestionListPage() {
   const navigate = useNavigate();
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [publishedFilter, setPublishedFilter] = useState<string>("all");
   const [offset, setOffset] = useState(0);
 
   const { data: categoriesData } = useQuery({
@@ -38,7 +39,7 @@ export function QuestionListPage() {
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["questions", categoryFilter, offset],
+    queryKey: ["questions", categoryFilter, publishedFilter, offset],
     placeholderData: keepPreviousData,
     queryFn: async () => {
       const query: Record<string, string> = {
@@ -47,6 +48,9 @@ export function QuestionListPage() {
       };
       if (categoryFilter !== "all") {
         query.categoryId = categoryFilter;
+      }
+      if (publishedFilter !== "all") {
+        query.isPublished = publishedFilter;
       }
       const res = await client.api.questions.$get({ query });
       if (!res.ok) throw new Error("Failed to fetch questions");
@@ -81,6 +85,22 @@ export function QuestionListPage() {
                 {cat.name}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+        <Select
+          value={publishedFilter}
+          onValueChange={(v) => {
+            setPublishedFilter(v);
+            setOffset(0);
+          }}
+        >
+          <SelectTrigger className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">すべてのステータス</SelectItem>
+            <SelectItem value="true">公開済み</SelectItem>
+            <SelectItem value="false">非公開</SelectItem>
           </SelectContent>
         </Select>
         {data && (
