@@ -1,10 +1,10 @@
 import type {
   QuestionProposalProjectionQueryService,
-  ListQuestionProposalsResult,
+  ListQuestionProposalsByUserIdResult,
 } from "../../domain/question-proposal/query-service/question-proposal-projection-query-service.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
-export class ListUserProposals {
+export class ListQuestionsProposalsByUserId {
   constructor(
     private uow: UnitOfWork,
     private queryService: QuestionProposalProjectionQueryService,
@@ -15,7 +15,7 @@ export class ListUserProposals {
     status: string | undefined,
     limit: number,
     offset: number,
-  ): Promise<ListQuestionProposalsResult> {
+  ): Promise<ListQuestionProposalsByUserIdResult> {
     return this.uow.run(async () => {
       return await this.queryService.listByUserId(
         userId,

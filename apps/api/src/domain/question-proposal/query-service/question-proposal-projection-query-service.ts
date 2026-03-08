@@ -17,7 +17,7 @@ export type QuestionProposalProjectionDto = {
   updatedAt: Date;
 };
 
-export type ListQuestionProposalsResult = {
+export type ListQuestionProposalsByUserIdResult = {
   items: QuestionProposalProjectionDto[];
   total: number;
 };
@@ -28,13 +28,15 @@ export interface QuestionProposalProjectionQueryService {
     categoryId: string | undefined,
     limit: number,
     offset: number,
-  ): Promise<ListQuestionProposalsResult>;
+  ): Promise<ListQuestionProposalsByUserIdResult>;
+
   listByUserId(
     userId: string,
     status: string | undefined,
     limit: number,
     offset: number,
-  ): Promise<ListQuestionProposalsResult>;
+  ): Promise<ListQuestionProposalsByUserIdResult>;
+
   findById(
     questionProposalId: string,
   ): Promise<QuestionProposalProjectionDto | null>;
