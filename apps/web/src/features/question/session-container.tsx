@@ -24,6 +24,7 @@ type Props = {
   categoryId?: string;
   resultActions?: React.ReactNode;
   showRetry?: boolean;
+  saveResult?: boolean;
   onAbort?: () => void;
 };
 
@@ -32,6 +33,7 @@ export function SessionContainer({
   categoryId,
   resultActions,
   showRetry = true,
+  saveResult = true,
   onAbort,
 }: Props) {
   const { state, selectSingle, toggleMulti, submit, next, reset } =
@@ -59,7 +61,7 @@ export function SessionContainer({
   });
 
   useEffect(() => {
-    if (state.phase === "completed" && !hasSavedRef.current) {
+    if (state.phase === "completed" && !hasSavedRef.current && saveResult) {
       hasSavedRef.current = true;
       saveMutation.mutate();
     }

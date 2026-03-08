@@ -20,6 +20,7 @@ export function TrialPage() {
         <SessionContainer
           questions={TRIAL_QUESTIONS}
           showRetry={false}
+          saveResult={false}
           resultActions={
             <>
               <hr className="border-border" />
