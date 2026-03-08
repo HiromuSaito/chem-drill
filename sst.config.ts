@@ -133,7 +133,12 @@ export default $config({
           resources: ["*"],
         },
         {
-          actions: ["s3:PutObject", "s3:DeleteObject"],
+          actions: [
+            "s3:PutObject",
+            "s3:DeleteObject",
+            "s3:GetObject",
+            "s3:CopyObject",
+          ],
           resources: [$interpolate`${iconBucket.arn}/*`],
         },
       ],
