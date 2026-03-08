@@ -46,6 +46,28 @@ function buildApprovedProposal() {
 }
 
 describe("QuestionProposal", () => {
+  describe("ensureOwnedBy", () => {
+    it("所有者が一致する場合はエラーにならない", () => {
+      const { proposal } = QuestionProposal.create({
+        ...buildCreateParams(),
+        userId: "user-123",
+      });
+
+      expect(() => proposal.ensureOwnedBy("user-123")).not.toThrow();
+    });
+
+    it("所有者が不一致の場合はエラーをスローする", () => {
+      const { proposal } = QuestionProposal.create({
+        ...buildCreateParams(),
+        userId: "user-123",
+      });
+
+      expect(() => proposal.ensureOwnedBy("other-user")).toThrow(
+        "この出題案へのアクセス権がありません",
+      );
+    });
+  });
+
   describe("create", () => {
     it("インスタンスとイベントが生成される", () => {
       const { proposal, event } = QuestionProposal.create(buildCreateParams());

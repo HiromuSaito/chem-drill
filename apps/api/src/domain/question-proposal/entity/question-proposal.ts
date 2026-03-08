@@ -32,6 +32,12 @@ export class QuestionProposal {
     readonly userId?: string | null,
   ) {}
 
+  ensureOwnedBy(userId: string): void {
+    if (this.userId !== userId) {
+      throw new Error("この出題案へのアクセス権がありません");
+    }
+  }
+
   canEdit(): boolean {
     return (
       this.status.equals(QuestionProposalStatus.create("pending")) ||
