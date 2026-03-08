@@ -173,9 +173,6 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
         id,
         user.id,
       );
-      if (!proposal) {
-        return c.json({ error: "Not found" }, 404);
-      }
       return c.json(toProjectionResponse(proposal), 200);
     })
     .openapi(createProposalRoute, async (c) => {

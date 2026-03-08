@@ -17,7 +17,7 @@ export class GetQuestionProposalByUser {
   async execute(
     id: string,
     callerId: string,
-  ): Promise<QuestionProposalProjectionDto | null> {
+  ): Promise<QuestionProposalProjectionDto> {
     return this.uow.run(async () => {
       const proposal = await this.queryService.findById(id);
       if (!proposal) {

@@ -26,7 +26,7 @@ import { GetQuestionProposalByAdmin } from "./application/question-proposal/get-
 import { GetQuestionProposalByUser } from "./application/question-proposal/get-question-proposal-by-user.ts";
 import { UpdateQuestionProposalByUser } from "./application/question-proposal/update-question-proposal-by-user.ts";
 import { SubmitQuestionProposalByUser } from "./application/question-proposal/submit-question-proposal-by-user.ts";
-import { ListQuestionsProposalsByUserId } from "./application/question-proposal/list-question-proposals-by-user-id.ts";
+import { ListQuestionProposalsByUserId } from "./application/question-proposal/list-question-proposals-by-user-id.ts";
 import { DrizzleQuestionProposalRepository } from "./infrastructure/question-proposal/drizzle-question-proposal-repository.ts";
 import { DrizzleQuestionProposalProjectionQueryService } from "./infrastructure/question-proposal/drizzle-question-proposal-projection-query-service.ts";
 import { DrizzleUserQueryService } from "./infrastructure/user/drizzle-user-query-service.ts";
@@ -191,7 +191,7 @@ const submitQuestionProposalByUser = new SubmitQuestionProposalByUser(
   unitOfWork,
   questionProposalRepository,
 );
-const listQuestionProposalsByUserId = new ListQuestionsProposalsByUserId(
+const listQuestionProposalsByUserId = new ListQuestionProposalsByUserId(
   unitOfWork,
   questionProposalProjectionQueryService,
 );

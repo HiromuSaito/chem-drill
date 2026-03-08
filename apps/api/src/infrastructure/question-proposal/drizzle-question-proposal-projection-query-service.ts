@@ -1,7 +1,7 @@
 import { eq, and, desc, count } from "drizzle-orm";
 import type {
   QuestionProposalProjectionQueryService,
-  ListQuestionProposalsByUserIdResult,
+  ListQuestionProposalsResult,
   QuestionProposalProjectionDto,
 } from "../../domain/question-proposal/query-service/question-proposal-projection-query-service.ts";
 import { getCurrentTransaction } from "../db/transaction-context.ts";
@@ -13,7 +13,7 @@ export class DrizzleQuestionProposalProjectionQueryService implements QuestionPr
     categoryId: string | undefined,
     limit: number,
     offset: number,
-  ): Promise<ListQuestionProposalsByUserIdResult> {
+  ): Promise<ListQuestionProposalsResult> {
     const tx = getCurrentTransaction();
 
     const statusCondition = status
@@ -68,7 +68,7 @@ export class DrizzleQuestionProposalProjectionQueryService implements QuestionPr
     status: string | undefined,
     limit: number,
     offset: number,
-  ): Promise<ListQuestionProposalsByUserIdResult> {
+  ): Promise<ListQuestionProposalsResult> {
     const tx = getCurrentTransaction();
 
     const userCondition = eq(questionProposalProjections.userId, userId);
