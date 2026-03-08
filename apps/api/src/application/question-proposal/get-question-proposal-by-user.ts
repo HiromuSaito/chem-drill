@@ -2,6 +2,7 @@ import type {
   QuestionProposalProjectionQueryService,
   QuestionProposalProjectionDto,
 } from "../../domain/question-proposal/query-service/question-proposal-projection-query-service.ts";
+import { ForbiddenError } from "../../domain/shared/errors.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
 
 export class GetQuestionProposalByUser {
@@ -18,7 +19,7 @@ export class GetQuestionProposalByUser {
       const proposal = await this.queryService.findById(id);
       if (!proposal) return null;
       if (proposal.userId !== callerId) {
-        throw new Error("この出題案へのアクセス権がありません");
+        throw new ForbiddenError("この出題案へのアクセス権がありません");
       }
       return proposal;
     });

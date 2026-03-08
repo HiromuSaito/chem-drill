@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Category } from "../../category/entity/category.ts";
+import { ForbiddenError } from "../../shared/errors.ts";
 import { Id } from "../../shared/id.ts";
 import { CorrectIndexes } from "../../shared/value-object/correct-indexes.ts";
 import { Difficulty } from "../../shared/value-object/difficulty.ts";
@@ -62,8 +63,8 @@ describe("QuestionProposal", () => {
         userId: "user-123",
       });
 
-      expect(() => proposal.ensureOwnedBy("other-user")).toThrow(
-        "この出題案へのアクセス権がありません",
+      expect(() => proposal.ensureOwnedBy("other-user")).toThrowError(
+        ForbiddenError,
       );
     });
   });
