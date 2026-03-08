@@ -23,6 +23,7 @@ import { UpdateApprovedQuestionProposal } from "./application/question-proposal/
 import { GenerateQuestionProposals } from "./application/question-proposal/generate-question-proposals.ts";
 import { ListQuestionProposals } from "./application/question-proposal/list-question-proposals.ts";
 import { GetQuestionProposal } from "./application/question-proposal/get-question-proposal.ts";
+import { ListUserProposals } from "./application/question-proposal/list-user-proposals.ts";
 import { DrizzleQuestionProposalRepository } from "./infrastructure/question-proposal/drizzle-question-proposal-repository.ts";
 import { DrizzleQuestionProposalProjectionQueryService } from "./infrastructure/question-proposal/drizzle-question-proposal-projection-query-service.ts";
 import { DrizzleUserQueryService } from "./infrastructure/user/drizzle-user-query-service.ts";
@@ -175,6 +176,10 @@ const getQuestionProposal = new GetQuestionProposal(
   unitOfWork,
   questionProposalProjectionQueryService,
 );
+const listUserProposals = new ListUserProposals(
+  unitOfWork,
+  questionProposalProjectionQueryService,
+);
 
 const checkUsernameAvailability = new CheckUsernameAvailability(
   unitOfWork,
@@ -225,6 +230,7 @@ export const dependencies = {
   updateApprovedQuestionProposal,
   listQuestionProposals,
   getQuestionProposal,
+  listUserProposals,
   listCategories,
   createCategory,
   updateCategory,

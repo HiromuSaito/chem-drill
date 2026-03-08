@@ -63,6 +63,7 @@ const questionProposalWithDatesSchema = z
     explanation: z.string(),
     categoryId: z.string().uuid(),
     rejectReason: z.string().nullable(),
+    userName: z.string().nullable(),
     questionCreated: z.boolean(),
     createdAt: z.string(),
     updatedAt: z.string(),

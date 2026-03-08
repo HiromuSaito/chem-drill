@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,27 +20,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { client } from "@/client";
-import { statusLabels, statusVariants, difficultyLabels } from "./constants";
+import {
+  statusLabels,
+  statusVariants,
+  difficultyLabels,
+} from "../admin/proposals/constants";
 
 const PAGE_SIZE = 20;
 
-export function ProposalListPage() {
+export function UserProposalListPage() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [offset, setOffset] = useState(0);
 
-  const { data: categoriesData } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const res = await client.api.categories.$get();
-      if (!res.ok) throw new Error("Failed to fetch categories");
-      return res.json();
-    },
-  });
-
   const { data, isLoading } = useQuery({
-    queryKey: ["question-proposals", statusFilter, categoryFilter, offset],
+    queryKey: ["user-proposals", statusFilter, offset],
     placeholderData: keepPreviousData,
     queryFn: async () => {
       const query: Record<string, string> = {
@@ -50,10 +44,7 @@ export function ProposalListPage() {
       if (statusFilter !== "all") {
         query.status = statusFilter;
       }
-      if (categoryFilter !== "all") {
-        query.categoryId = categoryFilter;
-      }
-      const res = await client.api["question-proposals"].$get({
+      const res = await client.api["user-proposals"].$get({
         query,
       });
       if (!res.ok) throw new Error("Failed to fetch proposals");
@@ -68,19 +59,10 @@ export function ProposalListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold tracking-tight">出題案</h2>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => navigate("/admin/proposals/new")}>
-            <Plus className="size-4" />
-            新規作成
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/admin/proposals/generate")}
-          >
-            <Sparkles className="size-4" />
-            AI 生成
-          </Button>
-        </div>
+        <Button onClick={() => navigate("/proposals/new")}>
+          <Plus className="size-4" />
+          新規作成
+        </Button>
       </div>
 
       <div className="flex items-center gap-4">
@@ -100,26 +82,6 @@ export function ProposalListPage() {
             <SelectItem value="reviewed">レビュー待ち</SelectItem>
             <SelectItem value="approved">承認済</SelectItem>
             <SelectItem value="rejected">却下</SelectItem>
-            <SelectItem value="withdrawn">取り下げ済み</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          value={categoryFilter}
-          onValueChange={(v) => {
-            setCategoryFilter(v);
-            setOffset(0);
-          }}
-        >
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">すべてのカテゴリ</SelectItem>
-            {categoriesData?.map((cat) => (
-              <SelectItem key={cat.id} value={cat.id}>
-                {cat.name}
-              </SelectItem>
-            ))}
           </SelectContent>
         </Select>
         {data && (
@@ -142,13 +104,7 @@ export function ProposalListPage() {
                     難易度
                   </TableHead>
                   <TableHead className="font-bold text-primary">
-                    カテゴリ
-                  </TableHead>
-                  <TableHead className="font-bold text-primary">
                     ステータス
-                  </TableHead>
-                  <TableHead className="font-bold text-primary">
-                    提案者
                   </TableHead>
                   <TableHead className="font-bold text-primary">
                     作成日
@@ -159,7 +115,7 @@ export function ProposalListPage() {
                 {data?.items.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={4}
                       className="text-center text-muted-foreground"
                     >
                       提案がありません
@@ -171,7 +127,7 @@ export function ProposalListPage() {
                       key={item.questionProposalId}
                       className="cursor-pointer"
                       onClick={() =>
-                        navigate(`/admin/proposals/${item.questionProposalId}`)
+                        navigate(`/proposals/${item.questionProposalId}`)
                       }
                     >
                       <TableCell className="max-w-0 truncate font-medium">
@@ -183,20 +139,11 @@ export function ProposalListPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">
-                          {categoriesData?.find((c) => c.id === item.categoryId)
-                            ?.name ?? "—"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
                         <Badge
                           variant={statusVariants[item.status] ?? "outline"}
                         >
                           {statusLabels[item.status] ?? item.status}
                         </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {item.userName ?? "管理者"}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {new Date(item.createdAt).toLocaleDateString("ja-JP")}

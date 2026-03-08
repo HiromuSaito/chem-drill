@@ -9,6 +9,7 @@ export type QuestionProposalProjectionDto = {
   categoryId: string;
   rejectReason: string | null;
   userId: string | null;
+  userName: string | null;
   questionId: string | null;
   questionCreated: boolean;
   isPublished: boolean;
@@ -25,6 +26,12 @@ export interface QuestionProposalProjectionQueryService {
   list(
     status: string | undefined,
     categoryId: string | undefined,
+    limit: number,
+    offset: number,
+  ): Promise<ListQuestionProposalsResult>;
+  listByUserId(
+    userId: string,
+    status: string | undefined,
     limit: number,
     offset: number,
   ): Promise<ListQuestionProposalsResult>;
