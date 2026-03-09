@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -132,28 +132,6 @@ export function ProposalGeneratePage() {
     );
   }, [candidates]);
 
-  // ページ離脱防止: beforeunload
-  useEffect(() => {
-    if (candidates.length === 0) return;
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [candidates.length]);
-
-  const confirmNavigation = useCallback(
-    (to: string) => {
-      if (
-        candidates.length === 0 ||
-        window.confirm("生成された候補が未登録です。ページを離れますか？")
-      ) {
-        navigate(to);
-      }
-    },
-    [candidates.length, navigate],
-  );
-
   const detailCandidate = detailIndex !== null ? candidates[detailIndex] : null;
 
   return (
@@ -162,7 +140,7 @@ export function ProposalGeneratePage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => confirmNavigation("/admin/proposals")}
+          onClick={() => navigate("/admin/proposals")}
         >
           <ArrowLeft className="size-4" />
           一覧へ戻る
