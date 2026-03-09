@@ -115,6 +115,8 @@ export default $config({
     // キャッチオールルート: 全リクエストを Hono に委譲
     api.route("$default", {
       handler: "apps/api/src/lambda.handler",
+      memory: "512 MB",
+      timeout: "30 seconds",
       environment: {
         DATABASE_URL: databaseUrl.value,
         GEMINI_API_KEY: geminiApiKey.value,
@@ -130,7 +132,9 @@ export default $config({
       permissions: [
         {
           actions: ["ses:SendEmail", "ses:SendRawEmail"],
-          resources: ["*"],
+          resources: [
+            $interpolate`arn:aws:ses:ap-northeast-1:*:identity/${domain}`,
+          ],
         },
         {
           actions: ["s3:PutObject", "s3:DeleteObject"],
