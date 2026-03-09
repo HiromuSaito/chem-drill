@@ -32,7 +32,7 @@ AI による出題案生成時、生成結果を即座に DB 保存せず、候�
 
 Gemini で候補を生成し、DB に保存せず返す。
 
-- リクエスト: `{ url: string, categoryId: string }`
+- リクエスト: `{ url: string }`
 - レスポンス: `{ candidates: GeneratedQuestion[] }`
 
 #### `POST /api/question-proposals/bulk-create`

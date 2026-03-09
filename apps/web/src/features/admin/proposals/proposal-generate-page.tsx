@@ -65,6 +65,7 @@ export function ProposalGeneratePage() {
     new Set(),
   );
   const [detailIndex, setDetailIndex] = useState<number | null>(null);
+  const [isNavigatingAfterSave, setIsNavigatingAfterSave] = useState(false);
 
   const form = useForm<GenerateForm>({
     resolver: zodResolver(generateSchema),
@@ -92,9 +93,7 @@ export function ProposalGeneratePage() {
     },
     onSuccess: (data) => {
       setCandidates(data.candidates);
-      setSelectedIndexes(
-        new Set(data.candidates.map((_: Candidate, i: number) => i)),
-      );
+      setSelectedIndexes(new Set(data.candidates.map((_, i) => i)));
     },
   });
 
@@ -113,6 +112,7 @@ export function ProposalGeneratePage() {
       return res.json();
     },
     onSuccess: () => {
+      setIsNavigatingAfterSave(true);
       setCandidates([]);
       navigate("/admin/proposals");
     },
@@ -146,7 +146,7 @@ export function ProposalGeneratePage() {
   }, [candidates.length]);
 
   // ページ離脱防止: React Router
-  const blocker = useBlocker(candidates.length > 0);
+  const blocker = useBlocker(candidates.length > 0 && !isNavigatingAfterSave);
 
   useEffect(() => {
     if (blocker.state === "blocked") {

@@ -20,10 +20,11 @@ export class BulkCreateQuestionProposals {
     questions: GeneratedQuestion[];
   }): Promise<QuestionProposal[]> {
     const categoryId = Id.of<Category>(input.categoryId);
-    const proposals: QuestionProposal[] = [];
 
-    for (const q of input.questions) {
-      const proposal = await this.uow.run(async () => {
+    return await this.uow.run(async () => {
+      const proposals: QuestionProposal[] = [];
+
+      for (const q of input.questions) {
         const { proposal, event } = QuestionProposal.create({
           questionText: QuestionText.create(q.questionText),
           difficulty: Difficulty.create(q.difficulty),
@@ -34,12 +35,10 @@ export class BulkCreateQuestionProposals {
         });
 
         await this.questionProposalRepository.save(proposal, event);
-        return proposal;
-      });
+        proposals.push(proposal);
+      }
 
-      proposals.push(proposal);
-    }
-
-    return proposals;
+      return proposals;
+    });
   }
 }
