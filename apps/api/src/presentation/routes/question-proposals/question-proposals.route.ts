@@ -48,7 +48,6 @@ const rejectSchema = z
 const generateCandidatesSchema = z
   .object({
     url: z.string().url(),
-    categoryId: z.string().uuid(),
   })
   .openapi("GenerateCandidatesRequest");
 
