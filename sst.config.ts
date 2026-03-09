@@ -132,9 +132,9 @@ export default $config({
       permissions: [
         {
           actions: ["ses:SendEmail", "ses:SendRawEmail"],
-          resources: [
-            $interpolate`arn:aws:ses:ap-northeast-1:*:identity/${domain}`,
-          ],
+          // NOTE: SES サンドボックスモードでは送信先 identity への権限も必要なため "*" を指定
+          // サンドボックス解除後は `arn:aws:ses:ap-northeast-1:<account>:identity/${domain}` に制限すること
+          resources: ["*"],
         },
         {
           actions: ["s3:PutObject", "s3:DeleteObject"],
