@@ -39,16 +39,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { InferResponseType } from "hono/client";
 import { client } from "@/client";
 import { difficultyLabels } from "./constants";
 
-type Candidate = {
-  questionText: string;
-  difficulty: "easy" | "medium" | "hard";
-  choices: string[];
-  correctIndexes: number[];
-  explanation: string;
-};
+type GenerateCandidatesResponse = InferResponseType<
+  (typeof client.api)["question-proposals"]["generate-candidates"]["$post"]
+>;
+type Candidate = GenerateCandidatesResponse["candidates"][number];
 
 const generateSchema = z.object({
   url: z.string().trim().url("有効な URL を入力してください"),

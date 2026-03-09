@@ -55,8 +55,8 @@ const generatedQuestionSchema = z
   .object({
     questionText: z.string(),
     difficulty: z.enum(["easy", "medium", "hard"]),
-    choices: z.array(z.string()),
-    correctIndexes: z.array(z.number().int()),
+    choices: z.array(z.string()).min(2).max(10),
+    correctIndexes: z.array(z.number().int().min(0)).min(1).max(10),
     explanation: z.string(),
   })
   .openapi("GeneratedQuestion");
@@ -64,7 +64,7 @@ const generatedQuestionSchema = z
 const bulkCreateSchema = z
   .object({
     categoryId: z.string().uuid(),
-    questions: z.array(generatedQuestionSchema).min(1),
+    questions: z.array(generatedQuestionSchema).min(1).max(50),
   })
   .openapi("BulkCreateQuestionProposalsRequest");
 
