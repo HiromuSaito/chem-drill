@@ -45,12 +45,29 @@ const rejectSchema = z
   })
   .openapi("RejectQuestionProposalRequest");
 
-const generateFromUrlSchema = z
+const generateCandidatesSchema = z
   .object({
     url: z.string().url(),
     categoryId: z.string().uuid(),
   })
-  .openapi("GenerateFromUrlRequest");
+  .openapi("GenerateCandidatesRequest");
+
+const generatedQuestionSchema = z
+  .object({
+    questionText: z.string(),
+    difficulty: z.enum(["easy", "medium", "hard"]),
+    choices: z.array(z.string()),
+    correctIndexes: z.array(z.number().int()),
+    explanation: z.string(),
+  })
+  .openapi("GeneratedQuestion");
+
+const bulkCreateSchema = z
+  .object({
+    categoryId: z.string().uuid(),
+    questions: z.array(generatedQuestionSchema).min(1),
+  })
+  .openapi("BulkCreateQuestionProposalsRequest");
 
 const questionProposalWithDatesSchema = z
   .object({
@@ -217,21 +234,47 @@ const proposalWithdrawRoute = createRoute({
   responses: proposalResponse,
 });
 
-const proposalGenerateRoute = createRoute({
+const generateCandidatesRoute = createRoute({
   method: "post",
-  path: "/generate-from-url",
+  path: "/generate-candidates",
   tags: ["QuestionProposal"],
-  summary: "URLから出題案を自動生成",
+  summary: "URLからAI出題候補を生成（DB保存なし）",
   request: {
     body: {
-      content: { "application/json": { schema: generateFromUrlSchema } },
+      content: { "application/json": { schema: generateCandidatesSchema } },
     },
   },
   responses: {
     200: {
-      description: "生成された出題案一覧",
+      description: "生成された候補一覧",
       content: {
-        "application/json": { schema: z.array(questionProposalSchema) },
+        "application/json": {
+          schema: z.object({
+            candidates: z.array(generatedQuestionSchema),
+          }),
+        },
+      },
+    },
+  },
+});
+
+const bulkCreateRoute = createRoute({
+  method: "post",
+  path: "/bulk-create",
+  tags: ["QuestionProposal"],
+  summary: "選択した出題候補を一括登録",
+  request: {
+    body: {
+      content: { "application/json": { schema: bulkCreateSchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "作成された出題案一覧",
+      content: {
+        "application/json": {
+          schema: z.array(questionProposalSchema),
+        },
       },
     },
   },
@@ -313,8 +356,13 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
       });
       return c.json(toQuestionProposalResponse(proposal));
     })
-    .openapi(proposalGenerateRoute, async (c) => {
+    .openapi(generateCandidatesRoute, async (c) => {
+      const { url } = c.req.valid("json");
+      const candidates = await deps.generateCandidates.execute({ url });
+      return c.json({ candidates });
+    })
+    .openapi(bulkCreateRoute, async (c) => {
       const input = c.req.valid("json");
-      const proposals = await deps.generateQuestionProposals.execute(input);
+      const proposals = await deps.bulkCreateQuestionProposals.execute(input);
       return c.json(proposals.map(toQuestionProposalResponse));
     });

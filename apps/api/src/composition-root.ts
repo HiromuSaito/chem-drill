@@ -19,7 +19,8 @@ import { RejectQuestionProposal } from "./application/question-proposal/reject-q
 import { SubmitQuestionProposalByAdmin } from "./application/question-proposal/submit-question-proposal-by-admin.ts";
 import { WithdrawQuestionProposal } from "./application/question-proposal/withdraw-question-proposal.ts";
 import { UpdateApprovedQuestionProposal } from "./application/question-proposal/update-approved-question-proposal.ts";
-import { GenerateQuestionProposals } from "./application/question-proposal/generate-question-proposals.ts";
+import { GenerateCandidates } from "./application/question-proposal/generate-candidates.ts";
+import { BulkCreateQuestionProposals } from "./application/question-proposal/bulk-create-question-proposals.ts";
 import { ListQuestionProposals } from "./application/question-proposal/list-question-proposals.ts";
 import { GetQuestionProposalByAdmin } from "./application/question-proposal/get-question-proposal-by-admin.ts";
 import { GetQuestionProposalByUser } from "./application/question-proposal/get-question-proposal-by-user.ts";
@@ -160,9 +161,9 @@ const deleteCategory = new DeleteCategory(
   categoryRepository,
   categoryDeletionPolicy,
 );
-const generateQuestionProposals = new GenerateQuestionProposals(
+const generateCandidates = new GenerateCandidates(questionGenerationAdapter);
+const bulkCreateQuestionProposals = new BulkCreateQuestionProposals(
   unitOfWork,
-  questionGenerationAdapter,
   questionProposalRepository,
 );
 
@@ -247,7 +248,8 @@ export const dependencies = {
   createCategory,
   updateCategory,
   deleteCategory,
-  generateQuestionProposals,
+  generateCandidates,
+  bulkCreateQuestionProposals,
   saveDrillSession,
   getDrillStats,
   getRecentSessions,
