@@ -18,6 +18,7 @@ export type QuestionProposalCreated = DomainEvent<
     correctIndexes: CorrectIndexes;
     explanation: Explanation;
     categoryId: CategoryId;
+    userId?: string;
   }
 >;
 

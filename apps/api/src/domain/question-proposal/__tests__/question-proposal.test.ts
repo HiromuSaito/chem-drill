@@ -344,6 +344,20 @@ describe("QuestionProposal", () => {
       );
     });
 
+    it("userId がイベントから正しく復元される", () => {
+      const { event } = QuestionProposal.create({
+        ...buildCreateParams(),
+        userId: "user-123",
+      });
+
+      const restored = QuestionProposal.fromEvents([event]);
+
+      expect(() => restored.ensureOwnedBy("user-123")).not.toThrow();
+      expect(() => restored.ensureOwnedBy("other-user")).toThrowError(
+        ForbiddenError,
+      );
+    });
+
     it("複数イベントから状態を復元できる（編集）", () => {
       const { proposal, event: createdEvent } =
         QuestionProposal.create(buildCreateParams());

@@ -342,6 +342,8 @@ export class QuestionProposal {
       first.payload.correctIndexes,
       first.payload.explanation,
       first.payload.categoryId,
+      undefined,
+      first.payload.userId,
     );
 
     // 残りのイベントを適用
