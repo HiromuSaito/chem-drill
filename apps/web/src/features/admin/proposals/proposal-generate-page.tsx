@@ -346,7 +346,7 @@ export function ProposalGeneratePage() {
           if (!open) setDetailIndex(null);
         }}
       >
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-h-[80vh] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle>問題詳細</DialogTitle>
           </DialogHeader>
