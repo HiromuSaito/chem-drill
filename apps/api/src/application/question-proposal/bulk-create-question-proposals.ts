@@ -7,34 +7,24 @@ import { QuestionText } from "../../domain/shared/value-object/question-text.ts"
 import { QuestionProposal } from "../../domain/question-proposal/entity/question-proposal.ts";
 import type { QuestionProposalRepository } from "../../domain/question-proposal/repository/question-proposal-repository.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
-import type { QuestionGenerationService } from "./question-generation-service.ts";
+import type { GeneratedQuestion } from "./question-generation-service.ts";
 
-const QUESTION_COUNT = 10;
-
-export class GenerateQuestionProposals {
+export class BulkCreateQuestionProposals {
   constructor(
     private uow: UnitOfWork,
-    private questionGenerationService: QuestionGenerationService,
     private questionProposalRepository: QuestionProposalRepository,
   ) {}
 
   async execute(input: {
-    url: string;
     categoryId: string;
+    questions: GeneratedQuestion[];
   }): Promise<QuestionProposal[]> {
     const categoryId = Id.of<Category>(input.categoryId);
 
-    // Gemini API 呼出
-    const questions = await this.questionGenerationService.generate(
-      input.url,
-      QUESTION_COUNT,
-    );
+    return await this.uow.run(async () => {
+      const proposals: QuestionProposal[] = [];
 
-    // 各問題で QuestionProposal を作成して保存
-    const proposals: QuestionProposal[] = [];
-
-    for (const q of questions) {
-      const proposal = await this.uow.run(async () => {
+      for (const q of input.questions) {
         const { proposal, event } = QuestionProposal.create({
           questionText: QuestionText.create(q.questionText),
           difficulty: Difficulty.create(q.difficulty),
@@ -45,12 +35,10 @@ export class GenerateQuestionProposals {
         });
 
         await this.questionProposalRepository.save(proposal, event);
-        return proposal;
-      });
+        proposals.push(proposal);
+      }
 
-      proposals.push(proposal);
-    }
-
-    return proposals;
+      return proposals;
+    });
   }
 }

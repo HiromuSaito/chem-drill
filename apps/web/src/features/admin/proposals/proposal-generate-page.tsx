@@ -1,13 +1,22 @@
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles, CheckSquare, Square, Eye } from "lucide-react";
+import { ProposalContentCards } from "./proposal-content-cards";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -31,8 +40,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { InferResponseType } from "hono/client";
 import { client } from "@/client";
 import { difficultyLabels } from "./constants";
+
+type GenerateCandidatesResponse = InferResponseType<
+  (typeof client.api)["question-proposals"]["generate-candidates"]["$post"]
+>;
+type Candidate = GenerateCandidatesResponse["candidates"][number];
 
 const generateSchema = z.object({
   url: z.string().trim().url("有効な URL を入力してください"),
@@ -43,6 +58,12 @@ type GenerateForm = z.infer<typeof generateSchema>;
 
 export function ProposalGeneratePage() {
   const navigate = useNavigate();
+
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [selectedIndexes, setSelectedIndexes] = useState<Set<number>>(
+    new Set(),
+  );
+  const [detailIndex, setDetailIndex] = useState<number | null>(null);
 
   const form = useForm<GenerateForm>({
     resolver: zodResolver(generateSchema),
@@ -61,14 +82,57 @@ export function ProposalGeneratePage() {
   const generateMutation = useMutation({
     mutationFn: async (data: GenerateForm) => {
       const res = await client.api["question-proposals"][
-        "generate-from-url"
+        "generate-candidates"
       ].$post({
-        json: data,
+        json: { url: data.url },
       });
-      if (!res.ok) throw new Error("Failed to generate proposals");
+      if (!res.ok) throw new Error("Failed to generate candidates");
       return res.json();
     },
+    onSuccess: (data) => {
+      setCandidates(data.candidates);
+      setSelectedIndexes(new Set(data.candidates.map((_, i) => i)));
+    },
   });
+
+  const bulkCreateMutation = useMutation({
+    mutationFn: async () => {
+      const selectedQuestions = candidates.filter((_, i) =>
+        selectedIndexes.has(i),
+      );
+      const res = await client.api["question-proposals"]["bulk-create"].$post({
+        json: {
+          categoryId: form.getValues("categoryId"),
+          questions: selectedQuestions,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to create proposals");
+      return res.json();
+    },
+    onSuccess: () => {
+      setCandidates([]);
+      navigate("/admin/proposals");
+    },
+  });
+
+  const toggleSelect = useCallback((index: number) => {
+    setSelectedIndexes((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }, []);
+
+  const toggleAll = useCallback(() => {
+    setSelectedIndexes((prev) =>
+      prev.size === candidates.length
+        ? new Set()
+        : new Set(candidates.map((_, i) => i)),
+    );
+  }, [candidates]);
+
+  const detailCandidate = detailIndex !== null ? candidates[detailIndex] : null;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -157,19 +221,49 @@ export function ProposalGeneratePage() {
         </p>
       )}
 
-      {generateMutation.data && (
+      {bulkCreateMutation.isError && (
+        <p className="text-sm text-destructive">
+          登録エラー: {bulkCreateMutation.error.message}
+        </p>
+      )}
+
+      {candidates.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              生成結果（{generateMutation.data.length} 件）
+              生成候補（{candidates.length} 件中 {selectedIndexes.size} 件選択）
             </CardTitle>
+            <div className="flex items-center gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={toggleAll}>
+                {selectedIndexes.size === candidates.length ? (
+                  <Square className="size-4" />
+                ) : (
+                  <CheckSquare className="size-4" />
+                )}
+                {selectedIndexes.size === candidates.length
+                  ? "全解除"
+                  : "全選択"}
+              </Button>
+              <Button
+                size="sm"
+                disabled={
+                  selectedIndexes.size === 0 || bulkCreateMutation.isPending
+                }
+                onClick={() => bulkCreateMutation.mutate()}
+              >
+                {bulkCreateMutation.isPending
+                  ? "登録中..."
+                  : `選択した ${selectedIndexes.size} 件を登録`}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border">
               <Table>
                 <TableHeader className="bg-primary/10">
                   <TableRow className="border-b-2 border-primary/30">
-                    <TableHead className="w-[60%] font-bold text-primary">
+                    <TableHead className="w-10" />
+                    <TableHead className="w-[55%] font-bold text-primary">
                       問題文
                     </TableHead>
                     <TableHead className="font-bold text-primary">
@@ -181,24 +275,30 @@ export function ProposalGeneratePage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {generateMutation.data.map((item) => (
-                    <TableRow key={item.id}>
+                  {candidates.map((candidate, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedIndexes.has(index)}
+                          onCheckedChange={() => toggleSelect(index)}
+                        />
+                      </TableCell>
                       <TableCell className="max-w-0 truncate">
-                        {item.text}
+                        {candidate.questionText}
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {difficultyLabels[item.difficulty] ?? item.difficulty}
+                          {difficultyLabels[candidate.difficulty] ??
+                            candidate.difficulty}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() =>
-                            navigate(`/admin/proposals/${item.id}`)
-                          }
+                          onClick={() => setDetailIndex(index)}
                         >
+                          <Eye className="size-4" />
                           詳細
                         </Button>
                       </TableCell>
@@ -210,6 +310,35 @@ export function ProposalGeneratePage() {
           </CardContent>
         </Card>
       )}
+
+      <Dialog
+        open={detailIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setDetailIndex(null);
+        }}
+      >
+        <DialogContent className="flex max-h-[80vh] max-w-2xl flex-col overflow-hidden sm:max-w-2xl">
+          <DialogHeader className="shrink-0 border-b pb-4">
+            <DialogTitle>問題詳細</DialogTitle>
+          </DialogHeader>
+          {detailCandidate && (
+            <div className="space-y-4 overflow-y-auto pr-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">
+                  {difficultyLabels[detailCandidate.difficulty] ??
+                    detailCandidate.difficulty}
+                </Badge>
+              </div>
+              <ProposalContentCards
+                text={detailCandidate.questionText}
+                choices={detailCandidate.choices}
+                correctIndexes={detailCandidate.correctIndexes}
+                explanation={detailCandidate.explanation}
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
