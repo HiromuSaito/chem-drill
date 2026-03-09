@@ -82,6 +82,23 @@ domain ← infrastructure（リポジトリ実装）
 | `dev`        | 開発・検証 | `remove`（即削除）   | なし |
 | `production` | 本番       | `retain`（保持）     | あり |
 
+### シークレット管理
+
+SST のシークレットを `.env.<stage>` ファイルで一括管理できます。
+
+```bash
+# SST から現在のシークレットをローカルに取得
+make secrets-pull STAGE=dev
+
+# ローカルの .env.dev を SST に一括反映（差分表示 + 確認付き）
+make secrets-push STAGE=dev
+
+# SST のキー一覧からテンプレートを生成
+make secrets-init STAGE=dev
+```
+
+`.env.dev.example` にキー一覧があります。初回セットアップ時は `make secrets-init` でテンプレートを生成し、値を埋めてから `make secrets-push` してください。
+
 ### デプロイ
 
 ```bash
