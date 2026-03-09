@@ -1,4 +1,4 @@
-.PHONY: secrets-push secrets-pull secrets-init
+.PHONY: secrets-push secrets-pull secrets-init help
 
 secrets-push: ## ローカルの .env.<STAGE> を SST に一括反映
 	STAGE=$(STAGE) ./scripts/secrets.sh push

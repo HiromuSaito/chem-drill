@@ -26,7 +26,7 @@ cmd_pull() {
 
   echo "Pulling secrets from SST (stage: ${STAGE})..."
   local output
-  output=$(npx sst secret list --stage "$STAGE" 2>/dev/null)
+  output=$(npx sst secret list --stage "$STAGE")
 
   # ヘッダー行（# で始まる行）と空行を除去
   local secrets
@@ -54,7 +54,7 @@ cmd_push() {
 
   # SST から現在の値を取得
   local remote
-  remote=$(npx sst secret list --stage "$STAGE" 2>/dev/null | grep -v '^#' | grep -v '^$' || true)
+  remote=$(npx sst secret list --stage "$STAGE" | grep -v '^#' | grep -v '^$' || true)
 
   # 差分を表示
   local diff_output
@@ -105,7 +105,7 @@ cmd_init() {
 
   echo "Fetching secret keys from SST (stage: ${STAGE})..."
   local output
-  output=$(npx sst secret list --stage "$STAGE" 2>/dev/null)
+  output=$(npx sst secret list --stage "$STAGE")
 
   local template
   template=$(echo "$output" | grep -v '^#' | grep -v '^$' | sed 's/=.*/=/' || true)
