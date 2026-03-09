@@ -91,11 +91,39 @@ cmd_push() {
   echo "Done. ${count} secrets pushed to SST (stage: ${STAGE})."
 }
 
+cmd_init() {
+  require_stage "init"
+  local env_file=".env.${STAGE}"
+
+  if [[ -f "$env_file" ]]; then
+    read -r -p "${env_file} already exists. Overwrite? [y/N] " confirm
+    if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+      echo "Aborted."
+      exit 0
+    fi
+  fi
+
+  echo "Fetching secret keys from SST (stage: ${STAGE})..."
+  local output
+  output=$(npx sst secret list --stage "$STAGE" 2>/dev/null)
+
+  local template
+  template=$(echo "$output" | grep -v '^#' | grep -v '^$' | sed 's/=.*/=/' || true)
+
+  if [[ -z "$template" ]]; then
+    echo "No secrets found for stage: ${STAGE}"
+    exit 1
+  fi
+
+  echo "$template" > "$env_file"
+  echo "Generated ${env_file} template ($(echo "$template" | wc -l) keys)"
+}
+
 # --- main ---
 COMMAND="${1:-}"
 case "$COMMAND" in
   pull) cmd_pull ;;
   push) cmd_push ;;
-  # init) cmd_init ;;  # Task 5 で追加
+  init) cmd_init ;;
   *) usage ;;
 esac
