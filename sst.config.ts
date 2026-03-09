@@ -115,6 +115,8 @@ export default $config({
     // キャッチオールルート: 全リクエストを Hono に委譲
     api.route("$default", {
       handler: "apps/api/src/lambda.handler",
+      memory: "512 MB",
+      timeout: "30 seconds",
       environment: {
         DATABASE_URL: databaseUrl.value,
         GEMINI_API_KEY: geminiApiKey.value,
@@ -130,6 +132,8 @@ export default $config({
       permissions: [
         {
           actions: ["ses:SendEmail", "ses:SendRawEmail"],
+          // NOTE: SES サンドボックスモードでは送信先 identity への権限も必要なため "*" を指定
+          // サンドボックス解除後は `arn:aws:ses:ap-northeast-1:<account>:identity/${domain}` に制限すること
           resources: ["*"],
         },
         {
