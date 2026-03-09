@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate, useBlocker } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, Sparkles, CheckSquare, Square, Eye } from "lucide-react";
+import { ProposalContentCards } from "./proposal-content-cards";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +64,6 @@ export function ProposalGeneratePage() {
     new Set(),
   );
   const [detailIndex, setDetailIndex] = useState<number | null>(null);
-  const [isNavigatingAfterSave, setIsNavigatingAfterSave] = useState(false);
 
   const form = useForm<GenerateForm>({
     resolver: zodResolver(generateSchema),
@@ -110,7 +110,6 @@ export function ProposalGeneratePage() {
       return res.json();
     },
     onSuccess: () => {
-      setIsNavigatingAfterSave(true);
       setCandidates([]);
       navigate("/admin/proposals");
     },
@@ -143,21 +142,17 @@ export function ProposalGeneratePage() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [candidates.length]);
 
-  // ページ離脱防止: React Router
-  const blocker = useBlocker(candidates.length > 0 && !isNavigatingAfterSave);
-
-  useEffect(() => {
-    if (blocker.state === "blocked") {
-      const confirmed = window.confirm(
-        "生成された候補が未登録です。ページを離れますか？",
-      );
-      if (confirmed) {
-        blocker.proceed();
-      } else {
-        blocker.reset();
+  const confirmNavigation = useCallback(
+    (to: string) => {
+      if (
+        candidates.length === 0 ||
+        window.confirm("生成された候補が未登録です。ページを離れますか？")
+      ) {
+        navigate(to);
       }
-    }
-  }, [blocker]);
+    },
+    [candidates.length, navigate],
+  );
 
   const detailCandidate = detailIndex !== null ? candidates[detailIndex] : null;
 
@@ -167,7 +162,7 @@ export function ProposalGeneratePage() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate("/admin/proposals")}
+          onClick={() => confirmNavigation("/admin/proposals")}
         >
           <ArrowLeft className="size-4" />
           一覧へ戻る
@@ -344,55 +339,24 @@ export function ProposalGeneratePage() {
           if (!open) setDetailIndex(null);
         }}
       >
-        <DialogContent className="max-h-[80vh] max-w-lg overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="flex max-h-[80vh] max-w-2xl flex-col overflow-hidden sm:max-w-2xl">
+          <DialogHeader className="shrink-0 border-b pb-4">
             <DialogTitle>問題詳細</DialogTitle>
           </DialogHeader>
           {detailCandidate && (
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  問題文
-                </p>
-                <p className="mt-1">{detailCandidate.questionText}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  難易度
-                </p>
-                <Badge variant="secondary" className="mt-1">
+            <div className="space-y-4 overflow-y-auto pr-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">
                   {difficultyLabels[detailCandidate.difficulty] ??
                     detailCandidate.difficulty}
                 </Badge>
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  選択肢
-                </p>
-                <ul className="mt-1 space-y-1">
-                  {detailCandidate.choices.map((choice, i) => (
-                    <li
-                      key={i}
-                      className={
-                        detailCandidate.correctIndexes.includes(i)
-                          ? "font-medium text-green-600"
-                          : ""
-                      }
-                    >
-                      {detailCandidate.correctIndexes.includes(i) ? "✓ " : ""}
-                      {choice}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  解説
-                </p>
-                <p className="mt-1 whitespace-pre-wrap">
-                  {detailCandidate.explanation}
-                </p>
-              </div>
+              <ProposalContentCards
+                text={detailCandidate.questionText}
+                choices={detailCandidate.choices}
+                correctIndexes={detailCandidate.correctIndexes}
+                explanation={detailCandidate.explanation}
+              />
             </div>
           )}
         </DialogContent>
