@@ -25,6 +25,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { LegalFooter } from "@/components/legal-footer";
 
 const navItems = [
   { to: "/", label: "ドリル", icon: BookOpen },
@@ -123,6 +124,7 @@ export function AppLayout() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
+          <LegalFooter className="mt-2 pb-1" />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="max-h-svh overflow-hidden">

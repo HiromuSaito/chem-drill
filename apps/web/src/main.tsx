@@ -26,6 +26,8 @@ import { AccountPage } from "./features/account/account-page";
 import { UserProposalListPage } from "./features/proposals/proposal-list-page";
 import { UserProposalNewPage } from "./features/proposals/proposal-new-page";
 import { UserProposalDetailPage } from "./features/proposals/proposal-detail-page";
+import { PrivacyPage } from "./features/legal/privacy-page";
+import { TermsPage } from "./features/legal/terms-page";
 import "./index.css";
 
 function Root() {
@@ -39,6 +41,8 @@ function Root() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify-otp" element={<VerifyOtpPage />} />
           <Route path="/trial" element={<TrialPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/" element={<CategorySelectPage />} />
