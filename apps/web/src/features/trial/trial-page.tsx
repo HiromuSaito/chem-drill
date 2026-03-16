@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { FlaskConical, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SessionContainer } from "@/features/question/session-container";
+import { LegalFooter } from "@/components/legal-footer";
 import { TRIAL_QUESTIONS } from "./trial-questions";
 
 export function TrialPage() {
@@ -37,6 +38,10 @@ export function TrialPage() {
           }
         />
       </main>
+
+      <footer className="border-t bg-background px-6 py-4">
+        <LegalFooter />
+      </footer>
     </div>
   );
 }

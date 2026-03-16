@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/auth-client";
 import { client } from "@/client";
+import { LegalFooter } from "@/components/legal-footer";
 
 export function SignupPage() {
   const navigate = useNavigate();
@@ -77,7 +78,7 @@ export function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-muted/40 px-4">
+    <div className="flex min-h-svh flex-col items-center justify-center bg-muted/40 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="mx-auto flex items-center gap-2">
@@ -168,6 +169,7 @@ export function SignupPage() {
           </p>
         </CardContent>
       </Card>
+      <LegalFooter className="mt-4" />
     </div>
   );
 }

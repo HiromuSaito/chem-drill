@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/auth-client";
+import { LegalFooter } from "@/components/legal-footer";
 
 export function VerifyOtpPage() {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ export function VerifyOtpPage() {
   };
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-muted/40 px-4">
+    <div className="flex min-h-svh flex-col items-center justify-center bg-muted/40 px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="mx-auto flex items-center gap-2">
@@ -125,6 +126,7 @@ export function VerifyOtpPage() {
           </form>
         </CardContent>
       </Card>
+      <LegalFooter className="mt-4" />
     </div>
   );
 }
