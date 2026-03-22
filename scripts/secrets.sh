@@ -80,12 +80,14 @@ cmd_push() {
 
   # .env ファイルの各行を SST に反映
   local count=0
-  while IFS='=' read -r key value; do
+  while IFS= read -r line || [[ -n "$line" ]]; do
     # 空行とコメント行をスキップ
-    [[ -z "$key" || "$key" =~ ^# ]] && continue
+    [[ -z "$line" || "$line" =~ ^# ]] && continue
+    local key="${line%%=*}"
+    local value="${line#*=}"
     echo "Setting ${key}..."
     npx sst secret set "$key" "$value" --stage "$STAGE"
-    ((count++))
+    count=$((count + 1))
   done < "$env_file"
 
   echo "Done. ${count} secrets pushed to SST (stage: ${STAGE})."
