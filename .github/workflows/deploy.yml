@@ -35,7 +35,10 @@ jobs:
           aws-region: ap-northeast-1
 
       - name: Set DATABASE_URL
-        run: echo "DATABASE_URL=$(npx sst secret get DatabaseUrl --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }})" >> $GITHUB_ENV
+        run: |
+          DB_URL=$(npx sst secret get DatabaseUrl --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }})
+          echo "::add-mask::$DB_URL"
+          echo "DATABASE_URL=$DB_URL" >> $GITHUB_ENV
 
       - name: DB Migrate
         run: pnpm --filter api db:migrate
