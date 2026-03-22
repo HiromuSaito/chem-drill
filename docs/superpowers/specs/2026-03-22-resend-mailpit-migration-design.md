@@ -22,13 +22,13 @@ GitHub Issue: #88
 現在の SES SDK 呼び出しを以下のロジックに書き換える：
 
 - `USE_RESEND=true` の場合 → `resend` パッケージの SDK でメール送信
-- それ以外（未設定・false）→ `nodemailer` で Mailpit の SMTP（`localhost:1025`）経由で送信
+- それ以外（未設定・false）→ `nodemailer` で Mailpit の SMTP（`localhost:1025` にハードコード）経由で送信
 
 送信元アドレスは環境変数 `EMAIL_FROM`（旧 `SES_FROM_EMAIL`）から取得する。
 
 ### 2. SST インフラ定義 (`sst.config.ts`)
 
-- `shared` ステージの SES Identity / DKIM / DMARC リソース定義をすべて削除
+- `shared` ステージを丸ごと削除（SES 以外に管理するリソースがないため）
 - シークレット変更:
   - `SesFromEmail` → `EmailFrom` にリネーム
   - `ResendApiKey` を新規追加
