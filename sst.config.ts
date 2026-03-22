@@ -3,11 +3,8 @@ export default $config({
   app(input) {
     return {
       name: "chem-drill",
-      removal:
-        input?.stage === "production" || input?.stage === "shared"
-          ? "retain"
-          : "remove",
-      protect: ["production", "shared"].includes(input?.stage ?? ""),
+      removal: input?.stage === "production" ? "retain" : "remove",
+      protect: input?.stage === "production",
       home: "aws",
       providers: {
         aws: { region: "ap-northeast-1" },
@@ -16,42 +13,6 @@ export default $config({
   },
   async run() {
     const domain = "chem-drill.com";
-    const isShared = $app.stage === "shared";
-
-    // --- shared ステージ: SES リソースのみ作成 ---
-    if (isShared) {
-      const sesIdentity = new aws.sesv2.EmailIdentity("SesIdentity", {
-        emailIdentity: domain,
-        dkimSigningAttributes: {
-          nextSigningKeyLength: "RSA_2048_BIT",
-        },
-      });
-
-      const zoneId = aws.route53
-        .getZone({ name: domain })
-        .then((z) => z.zoneId);
-      const tokens = sesIdentity.dkimSigningAttributes.tokens;
-      for (let i = 0; i < 3; i++) {
-        const token = tokens.apply((t) => t[i]);
-        new aws.route53.Record(`SesDkim${i}`, {
-          zoneId,
-          name: token.apply((t) => `${t}._domainkey.${domain}`),
-          type: "CNAME",
-          ttl: 300,
-          records: [token.apply((t) => `${t}.dkim.amazonses.com`)],
-        });
-      }
-
-      new aws.route53.Record("SesDmarc", {
-        zoneId,
-        name: `_dmarc.${domain}`,
-        type: "TXT",
-        ttl: 300,
-        records: ["v=DMARC1; p=none;"],
-      });
-
-      return {};
-    }
 
     // --- dev / production ステージ ---
     const { createBasicAuthEdge } = await import("./infra/basic-auth");
@@ -60,7 +21,8 @@ export default $config({
     const databaseUrl = new sst.Secret("DatabaseUrl");
     const geminiApiKey = new sst.Secret("GeminiApiKey");
     const betterAuthSecret = new sst.Secret("BetterAuthSecret");
-    const sesFromEmail = new sst.Secret("SesFromEmail");
+    const emailFrom = new sst.Secret("EmailFrom");
+    const resendApiKey = new sst.Secret("ResendApiKey");
     const basicAuthUser = new sst.Secret("BasicAuthUser");
     const basicAuthPassword = new sst.Secret("BasicAuthPassword");
 
@@ -123,19 +85,15 @@ export default $config({
         BETTER_AUTH_SECRET: betterAuthSecret.value,
         BETTER_AUTH_URL: `https://${apiDomain}`,
         CORS_ORIGIN: `https://${siteDomain}`,
-        SES_FROM_EMAIL: sesFromEmail.value,
+        EMAIL_FROM: emailFrom.value,
+        RESEND_API_KEY: resendApiKey.value,
+        USE_RESEND: "true",
         ICON_BUCKET_NAME: iconBucket.name,
       },
       nodejs: {
         install: ["postgres", "sharp"],
       },
       permissions: [
-        {
-          actions: ["ses:SendEmail", "ses:SendRawEmail"],
-          // NOTE: SES サンドボックスモードでは送信先 identity への権限も必要なため "*" を指定
-          // サンドボックス解除後は `arn:aws:ses:ap-northeast-1:<account>:identity/${domain}` に制限すること
-          resources: ["*"],
-        },
         {
           actions: ["s3:PutObject", "s3:DeleteObject"],
           resources: [$interpolate`${iconBucket.arn}/*`],

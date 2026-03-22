@@ -10,11 +10,12 @@ services:
       POSTGRES_DB: chem_drill
     volumes:
       - pgdata:/var/lib/postgresql/data
-  ses-local:
-    image: dasprid/aws-ses-v2-local
-    container_name: chem-drill-ses
+  mailpit:
+    image: axllent/mailpit
+    container_name: chem-drill-mailpit
     ports:
-      - "8005:8005"
+      - "1025:1025"
+      - "8025:8025"
   localstack:
     image: localstack/localstack
     container_name: chem-drill-localstack
