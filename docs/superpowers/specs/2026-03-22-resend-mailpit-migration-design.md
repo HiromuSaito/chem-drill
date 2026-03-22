@@ -74,3 +74,7 @@ GitHub Issue: #88
 ## メール送信元
 
 全環境共通: `noreply@chem-drill.com`（`EMAIL_FROM` 環境変数で管理）
+
+## 実装ブランチ
+
+main ブランチから作業ブランチを切って実装する（worktree は使用しない）。
