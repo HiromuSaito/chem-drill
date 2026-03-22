@@ -21,7 +21,7 @@ GitHub Actions を使って、chem-drill プロジェクトの CI/CD パイプ�
 | ブランチ戦略        | main → dev 環境、production → prod 環境  |
 | AWS 認証            | OIDC（IAM アクセスキー不使用）           |
 | 手動承認            | なし                                     |
-| DB マイグレーション | CI/CD に含めない（手動実行）             |
+| DB マイグレーション | デプロイ前に自動実行                     |
 | SST シークレット    | 事前設定済み前提（CI/CD で管理しない）   |
 
 ## ワークフロー設計
@@ -111,6 +111,12 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-northeast-1
 
+      - name: Set DATABASE_URL
+        run: echo "DATABASE_URL=$(npx sst secret get DatabaseUrl --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }})" >> $GITHUB_ENV
+
+      - name: DB Migrate
+        run: pnpm --filter api db:migrate
+
       - name: Deploy
         run: pnpm sst:deploy --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }}
 ```
@@ -121,6 +127,7 @@ jobs:
 - `permissions.id-token: write` で OIDC トークンの発行を許可
 - ブランチ名で SST ステージを決定: `main` → `dev`、`production` → `production`
 - SST シークレットは各ステージに事前設定済みのため、追加の環境変数注入は不要
+- DB マイグレーションはデプロイ前に実行。`DATABASE_URL` は SST シークレットから取得し環境変数に設定
 
 ## AWS OIDC 事前準備
 
@@ -181,7 +188,6 @@ aws iam create-open-id-connect-provider \
 
 ## スコープ外
 
-- DB マイグレーションの自動実行（手動運用）
 - 手動承認ステップ（本番稼働後に必要なら追加）
 - Dependabot / Renovate による依存更新自動化（別 Issue で検討）
 - コードカバレッジの計測・レポート
