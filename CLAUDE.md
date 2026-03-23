@@ -35,7 +35,7 @@ pnpm workspace によるモノレポ構成の化学物質管理クイズアプ�
 
 - Better Auth の emailOTP プラグインによるパスワードレス認証
 - 認証エンドポイントは `/api/auth/**` に Better Auth ハンドラーをマウント（`app.on()` で AppType に影響しない）
-- `requireAuth` ミドルウェアで API ルートを保護（`/health` と `/random-question` は除外）
+- `requireAuth` ミドルウェアで API ルートを保護（`/health` は除外）
 - セッションは Cookie ベース（DB 管理）。CORS `credentials: true` + hc クライアント `credentials: "include"` が必須
 - フロントは `better-auth/react` の `authClient` で OTP 送信・検証・セッション取得を行う
 
@@ -73,12 +73,19 @@ pnpm --filter api dev
 # ビルド
 pnpm build
 
-# リント
+# リント・フォーマット・型チェック
 pnpm lint
+pnpm format
+pnpm format:check
+pnpm type-check
+
+# テスト
+pnpm test
 
 # Drizzle マイグレーション
 pnpm --filter api db:generate
 pnpm --filter api db:push
+pnpm --filter api db:migrate
 
 # SST デプロイ
 pnpm sst:deploy --stage dev
