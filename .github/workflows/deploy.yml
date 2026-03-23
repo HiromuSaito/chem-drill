@@ -1,0 +1,55 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, production]
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+      - run: pnpm build
+
+      - run: pnpm test
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Set DATABASE_URL
+        run: |
+          DB_URL=$(npx sst secret get DatabaseUrl --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }})
+          if [ -z "$DB_URL" ]; then
+            echo "::error::Failed to get DATABASE_URL"
+            exit 1
+          fi
+          echo "::add-mask::$DB_URL"
+          echo "DATABASE_URL=$DB_URL" >> $GITHUB_ENV
+
+      - name: DB Migrate
+        run: pnpm --filter api db:migrate
+
+      - name: Deploy
+        run: pnpm sst:deploy --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }}
