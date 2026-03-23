@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   Select,
   SelectContent,
@@ -99,7 +100,7 @@ export function UserDetailPage() {
       : 0;
 
   if (isUserLoading) {
-    return <p className="text-muted-foreground">読み込み中...</p>;
+    return <LoadingSpinner />;
   }
 
   if (isUserError || !user) {
@@ -177,7 +178,7 @@ export function UserDetailPage() {
       </div>
 
       {isStatsLoading ? (
-        <p className="text-sm text-muted-foreground">読み込み中...</p>
+        <LoadingSpinner className="size-5" />
       ) : stats && stats.totalAnswered > 0 ? (
         <div className="space-y-6">
           <StatsRadialChart

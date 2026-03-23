@@ -46,7 +46,7 @@ export function AppLayout() {
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader>
+        <SidebarHeader className="p-0">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
@@ -60,7 +60,7 @@ export function AppLayout() {
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-        <SidebarSeparator />
+        <SidebarSeparator className="mx-0" />
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>

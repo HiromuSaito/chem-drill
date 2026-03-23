@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { authClient } from "@/auth-client";
 
 export function AdminRoute() {
@@ -7,7 +8,7 @@ export function AdminRoute() {
   if (isPending) {
     return (
       <div className="flex min-h-svh items-center justify-center">
-        <p className="text-muted-foreground">読み込み中...</p>
+        <LoadingSpinner />
       </div>
     );
   }

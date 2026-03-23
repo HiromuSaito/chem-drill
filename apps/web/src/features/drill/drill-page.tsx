@@ -1,6 +1,7 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Button } from "@/components/ui/button";
 import { client } from "@/client";
 import { SessionContainer } from "@/features/question/session-container";
@@ -30,7 +31,7 @@ export function DrillPage() {
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-muted-foreground">読み込み中...</p>
+        <LoadingSpinner />
       </div>
     );
   }

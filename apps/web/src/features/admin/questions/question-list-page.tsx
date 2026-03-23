@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -109,7 +110,7 @@ export function QuestionListPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground">読み込み中...</p>
+        <LoadingSpinner />
       ) : (
         <>
           <div className="rounded-md border bg-background">

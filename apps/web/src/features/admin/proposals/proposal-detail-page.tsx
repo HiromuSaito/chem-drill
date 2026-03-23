@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { client } from "@/client";
 import { ProposalDetailView } from "./proposal-detail-view";
 import { ProposalEditForm, type EditFormData } from "./proposal-edit-form";
@@ -110,7 +111,7 @@ export function ProposalDetailPage() {
   });
 
   if (isLoading) {
-    return <p className="text-muted-foreground">読み込み中...</p>;
+    return <LoadingSpinner />;
   }
 
   if (!proposal || "error" in proposal) {
