@@ -21,6 +21,7 @@
     "@hono/node-server": "^1.13.0",
     "@hono/zod-openapi": "^1.2.1",
     "@hono/zod-validator": "^0.7.6",
+    "@neondatabase/serverless": "^1.0.2",
     "@scalar/hono-api-reference": "^0.9.40",
     "better-auth": "^1.4.18",
     "drizzle-orm": "^0.39.0",
@@ -31,12 +32,14 @@
     "shared": "workspace:*",
     "sharp": "^0.34.5",
     "uuid": "^13.0.0",
+    "ws": "^8.20.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^25.2.0",
     "@types/nodemailer": "^7.0.11",
     "@types/uuid": "^11.0.0",
+    "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.30.0",
     "esbuild": "^0.27.3",
     "tsx": "^4.19.0",
