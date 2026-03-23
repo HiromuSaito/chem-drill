@@ -4,25 +4,36 @@
 
 ## 技術スタック
 
-| レイヤー         | 技術                                        |
-| ---------------- | ------------------------------------------- |
-| フロント         | Vite + React + shadcn/ui + TanStack Query   |
-| バックエンド     | Hono (OpenAPIHono) on AWS Lambda            |
-| API ドキュメント | OpenAPI + Scalar                            |
-| ORM              | Drizzle                                     |
-| DB               | PostgreSQL（本番: Neon / ローカル: Docker） |
-| 認証             | Better Auth（Email OTP パスワードレス認証） |
-| AI               | Gemini API（gemini-2.5-flash）              |
+| レイヤー         | 技術                                           |
+| ---------------- | ---------------------------------------------- |
+| フロント         | Vite + React + shadcn/ui + TanStack Query      |
+| バックエンド     | Hono (OpenAPIHono) on AWS Lambda               |
+| API ドキュメント | OpenAPI + Scalar                               |
+| ORM              | Drizzle                                        |
+| DB               | PostgreSQL（本番: Neon / ローカル: Docker）    |
+| 認証             | Better Auth（Email OTP パスワードレス認証）    |
+| AI               | Gemini API（gemini-2.5-flash）                 |
+| メール           | Resend（本番）/ Mailpit（ローカル）            |
+| ストレージ       | S3（ユーザーアイコン）/ LocalStack（ローカル） |
+| IaC              | SST v4（Pulumi ベース）                        |
+| ビルド           | Turborepo + pnpm workspaces                    |
+| CI/CD            | GitHub Actions（OIDC 認証による AWS デプロイ） |
 
 ## プロジェクト構成
 
 ```
 chem-drill/
 ├── apps/
-│   ├── web/          # フロントエンド（SPA）
-│   └── api/          # API
-└── packages/
-    └── shared/       # 共通ユーティリティ
+│   ├── web/            # フロントエンド（SPA）
+│   └── api/            # API
+├── packages/
+│   └── shared/         # 共通ユーティリティ
+├── infra/              # インフラ設定
+├── localstack/         # LocalStack 初期化スクリプト（ローカル S3）
+├── docs/               # ドキュメント
+├── .github/workflows/  # CI/CD パイプライン
+├── sst.config.ts       # SST インフラ定義
+└── docker-compose.yml  # ローカル開発用サービス
 ```
 
 ### API アーキテクチャ（クリーンアーキテクチャ + CQRS）
@@ -68,7 +79,11 @@ domain ← infrastructure（リポジトリ実装）
 ```
 ユーザー → CloudFront → S3 (SPA)
               ↓ API呼び出し
-         API Gateway (HTTP API) → Lambda → Hono アプリ → Neon (PostgreSQL)
+         API Gateway (HTTP API) → Lambda → Hono アプリ
+                                    ├── Neon (PostgreSQL)
+                                    ├── S3 (アイコンストレージ)
+                                    ├── Resend (メール送信)
+                                    └── Gemini API (問題生成)
 ```
 
 - **IaC**: SST（Pulumi ベース）
