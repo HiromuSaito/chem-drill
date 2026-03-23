@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { client } from "@/client";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { StatsRadialChart } from "./stats-radial-chart";
 import { CategoryStatsList } from "./category-stats-list";
 import { RecentSessions } from "./recent-sessions";
@@ -73,7 +73,7 @@ export function StatsPage() {
       </div>
 
       {isLoading ? (
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <LoadingSpinner />
       ) : stats && stats.totalAnswered > 0 ? (
         <div className="space-y-6">
           <StatsRadialChart

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Button } from "@/components/ui/button";
 import { client } from "@/client";
 
@@ -58,9 +58,7 @@ export function RecentSessions({
         <CardTitle className="text-base">最近のセッション</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading && (
-          <Loader2 className="size-5 animate-spin text-muted-foreground" />
-        )}
+        {isLoading && <LoadingSpinner className="size-5" />}
         {!isLoading && sessions.length === 0 && (
           <p className="text-sm text-muted-foreground">
             セッション履歴がありません

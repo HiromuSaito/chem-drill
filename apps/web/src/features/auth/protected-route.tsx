@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { authClient } from "@/auth-client";
 
 export function ProtectedRoute() {
@@ -8,7 +8,7 @@ export function ProtectedRoute() {
   if (isPending) {
     return (
       <div className="flex min-h-svh items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <LoadingSpinner />
       </div>
     );
   }

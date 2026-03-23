@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Eye, Gamepad2, Loader2 } from "lucide-react";
+import { ArrowLeft, Eye, Gamepad2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,7 +30,7 @@ export function QuestionDetailPage() {
   });
 
   if (isLoading) {
-    return <Loader2 className="size-6 animate-spin text-muted-foreground" />;
+    return <LoadingSpinner />;
   }
 
   if (!question || "error" in question) {

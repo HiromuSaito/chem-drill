@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Search, Loader2 } from "lucide-react";
+import { Search } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,7 +85,7 @@ export function UserListPage() {
       </div>
 
       {isLoading ? (
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <LoadingSpinner />
       ) : (
         <>
           <div className="rounded-md border bg-background">

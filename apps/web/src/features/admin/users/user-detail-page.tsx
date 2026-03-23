@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   Select,
   SelectContent,
@@ -99,7 +100,7 @@ export function UserDetailPage() {
       : 0;
 
   if (isUserLoading) {
-    return <Loader2 className="size-6 animate-spin text-muted-foreground" />;
+    return <LoadingSpinner />;
   }
 
   if (isUserError || !user) {
@@ -177,7 +178,7 @@ export function UserDetailPage() {
       </div>
 
       {isStatsLoading ? (
-        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        <LoadingSpinner className="size-5" />
       ) : stats && stats.totalAnswered > 0 ? (
         <div className="space-y-6">
           <StatsRadialChart

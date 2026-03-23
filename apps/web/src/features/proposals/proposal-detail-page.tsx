@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { client } from "@/client";
 import {
   ProposalEditForm,
@@ -62,7 +62,7 @@ export function UserProposalDetailPage() {
   });
 
   if (isLoading) {
-    return <Loader2 className="size-6 animate-spin text-muted-foreground" />;
+    return <LoadingSpinner />;
   }
 
   if (!proposal || "error" in proposal) {
