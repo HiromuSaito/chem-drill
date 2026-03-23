@@ -38,18 +38,8 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-northeast-1
 
-      - name: Set DATABASE_URL
-        run: |
-          DB_URL=$(npx sst secret get DatabaseUrl --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }})
-          if [ -z "$DB_URL" ]; then
-            echo "::error::Failed to get DATABASE_URL"
-            exit 1
-          fi
-          echo "::add-mask::$DB_URL"
-          echo "DATABASE_URL=$DB_URL" >> $GITHUB_ENV
-
       - name: DB Migrate
-        run: pnpm --filter api db:migrate
+        run: npx sst shell --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }} -- pnpm --filter api db:migrate
 
       - name: Deploy
         run: pnpm sst:deploy --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }}
