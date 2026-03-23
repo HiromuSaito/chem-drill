@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Loader2 } from "lucide-react";
 import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -210,7 +211,7 @@ export function CategoryListPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground">読み込み中...</p>
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       ) : (
         <div className="rounded-md border bg-background">
           <Table>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { client } from "@/client";
 import {
   ProposalEditForm,
@@ -61,7 +62,7 @@ export function UserProposalDetailPage() {
   });
 
   if (isLoading) {
-    return <p className="text-muted-foreground">読み込み中...</p>;
+    return <Loader2 className="size-6 animate-spin text-muted-foreground" />;
   }
 
   if (!proposal || "error" in proposal) {

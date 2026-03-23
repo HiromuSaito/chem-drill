@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { client } from "@/client";
 
@@ -58,7 +59,7 @@ export function RecentSessions({
       </CardHeader>
       <CardContent>
         {isLoading && (
-          <p className="text-sm text-muted-foreground">読み込み中...</p>
+          <Loader2 className="size-5 animate-spin text-muted-foreground" />
         )}
         {!isLoading && sessions.length === 0 && (
           <p className="text-sm text-muted-foreground">

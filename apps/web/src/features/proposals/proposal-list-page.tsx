@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -90,7 +90,7 @@ export function UserProposalListPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground">読み込み中...</p>
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
       ) : (
         <>
           <div className="rounded-md border bg-background">
