@@ -79,6 +79,10 @@ const generateCandidatesSchema = z
         ),
       mimeType: z.enum(["image/jpeg", "image/png"]),
     }),
+    z.object({
+      type: z.literal("freeInput"),
+      input: z.string().min(1).max(2000),
+    }),
   ])
   .openapi("GenerateCandidatesRequest");
 
@@ -268,7 +272,7 @@ const generateCandidatesRoute = createRoute({
   method: "post",
   path: "/generate-candidates",
   tags: ["QuestionProposal"],
-  summary: "URL・PDF・画像からAI出題候補を生成（DB保存なし）",
+  summary: "URL・PDF・画像・キーワードからAI出題候補を生成（DB保存なし）",
   request: {
     body: {
       content: { "application/json": { schema: generateCandidatesSchema } },
