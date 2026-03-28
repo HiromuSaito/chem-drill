@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { HandHeart, Plus } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,6 +64,21 @@ export function UserProposalListPage() {
           <Plus className="size-4" />
           新規作成
         </Button>
+      </div>
+
+      <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-green-50 px-5 py-4">
+        <HandHeart
+          className="size-7 shrink-0 text-blue-600"
+          strokeWidth={1.5}
+        />
+        <div>
+          <p className="text-sm font-semibold text-blue-800">
+            あなたの知識を共有しませんか？
+          </p>
+          <p className="mt-0.5 text-xs text-slate-600">
+            出題案を作成して、化学物質管理を学ぶ仲間の力になりましょう
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
