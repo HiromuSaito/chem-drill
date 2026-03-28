@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, Sparkles, CheckSquare, Square, Eye } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ProposalContentCards } from "./proposal-content-cards";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,21 +41,75 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { InferResponseType } from "hono/client";
+import type { InferRequestType, InferResponseType } from "hono/client";
 import { client } from "@/client";
 import { difficultyLabels } from "./constants";
 
-type GenerateCandidatesResponse = InferResponseType<
-  (typeof client.api)["question-proposals"]["generate-candidates"]["$post"]
->;
+type GenerateCandidatesEndpoint =
+  (typeof client.api)["question-proposals"]["generate-candidates"]["$post"];
+type GenerateCandidatesResponse = InferResponseType<GenerateCandidatesEndpoint>;
+type GenerateCandidatesBody =
+  InferRequestType<GenerateCandidatesEndpoint>["json"];
 type Candidate = GenerateCandidatesResponse["candidates"][number];
 
-const generateSchema = z.object({
+const MAX_PDF_SIZE = 4 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
+
+const urlSchema = z.object({
+  sourceType: z.literal("url"),
   url: z.string().trim().url("有効な URL を入力してください"),
   categoryId: z.string().uuid("カテゴリを選択してください"),
 });
 
+const pdfSchema = z.object({
+  sourceType: z.literal("pdf"),
+  file: z
+    .instanceof(File)
+    .refine(
+      (f) => f.size <= MAX_PDF_SIZE,
+      "PDF ファイルは 4MB 以下にしてください",
+    )
+    .refine(
+      (f) => f.type === "application/pdf",
+      "PDF ファイルを選択してください",
+    ),
+  categoryId: z.string().uuid("カテゴリを選択してください"),
+});
+
+const imageSchema = z.object({
+  sourceType: z.literal("image"),
+  file: z
+    .instanceof(File)
+    .refine(
+      (f) => f.size <= MAX_IMAGE_SIZE,
+      "画像ファイルは 2MB 以下にしてください",
+    )
+    .refine(
+      (f) => ["image/jpeg", "image/png"].includes(f.type),
+      "JPG または PNG ファイルを選択してください",
+    ),
+  categoryId: z.string().uuid("カテゴリを選択してください"),
+});
+
+const generateSchema = z.discriminatedUnion("sourceType", [
+  urlSchema,
+  pdfSchema,
+  imageSchema,
+]);
+
 type GenerateForm = z.infer<typeof generateSchema>;
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(",")[1]);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 export function ProposalGeneratePage() {
   const navigate = useNavigate();
@@ -67,8 +122,14 @@ export function ProposalGeneratePage() {
 
   const form = useForm<GenerateForm>({
     resolver: zodResolver(generateSchema),
-    defaultValues: { url: "", categoryId: "" },
+    defaultValues: {
+      sourceType: "url",
+      url: "",
+      categoryId: "",
+    } as GenerateForm,
   });
+
+  const sourceType = form.watch("sourceType");
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -81,11 +142,25 @@ export function ProposalGeneratePage() {
 
   const generateMutation = useMutation({
     mutationFn: async (data: GenerateForm) => {
+      let json: GenerateCandidatesBody;
+
+      if (data.sourceType === "url") {
+        json = { type: "url", url: data.url };
+      } else if (data.sourceType === "pdf") {
+        const base64 = await fileToBase64(data.file);
+        json = { type: "pdf", data: base64 };
+      } else {
+        const base64 = await fileToBase64(data.file);
+        json = {
+          type: "image",
+          data: base64,
+          mimeType: data.file.type as "image/jpeg" | "image/png",
+        };
+      }
+
       const res = await client.api["question-proposals"][
         "generate-candidates"
-      ].$post({
-        json: { url: data.url },
-      });
+      ].$post({ json });
       if (!res.ok) throw new Error("Failed to generate candidates");
       return res.json();
     },
@@ -163,21 +238,100 @@ export function ProposalGeneratePage() {
             >
               <FormField
                 control={form.control}
-                name="url"
+                name="sourceType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>参照 URL</FormLabel>
+                    <FormLabel>ソースの種類</FormLabel>
                     <FormControl>
-                      <Input
-                        type="url"
-                        placeholder="https://example.com/article"
-                        {...field}
-                      />
+                      <RadioGroup
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.resetField("url" as never);
+                          form.setValue("file" as never, undefined as never);
+                        }}
+                        className="flex gap-4"
+                      >
+                        {(
+                          [
+                            ["url", "URL"],
+                            ["pdf", "PDF"],
+                            ["image", "画像"],
+                          ] as const
+                        ).map(([value, label]) => (
+                          <label
+                            key={value}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <RadioGroupItem value={value} />
+                            {label}
+                          </label>
+                        ))}
+                      </RadioGroup>
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {sourceType === "url" && (
+                <FormField
+                  control={form.control}
+                  name="url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>参照 URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="url"
+                          placeholder="https://example.com/article"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {sourceType === "pdf" && (
+                <FormField
+                  control={form.control}
+                  name="file"
+                  render={({ field: { onChange } }) => (
+                    <FormItem>
+                      <FormLabel>PDF ファイル</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept=".pdf"
+                          onChange={(e) => onChange(e.target.files?.[0])}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {sourceType === "image" && (
+                <FormField
+                  control={form.control}
+                  name="file"
+                  render={({ field: { onChange } }) => (
+                    <FormItem>
+                      <FormLabel>画像ファイル（JPG / PNG）</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept=".jpg,.jpeg,.png"
+                          onChange={(e) => onChange(e.target.files?.[0])}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}

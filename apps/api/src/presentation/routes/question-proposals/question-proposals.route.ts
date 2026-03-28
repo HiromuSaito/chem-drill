@@ -45,10 +45,41 @@ const rejectSchema = z
   })
   .openapi("RejectQuestionProposalRequest");
 
+// Lambda 同期呼び出しのペイロード上限が 6MB のため、Base64 膨張を考慮して制限
+const MAX_PDF_SIZE_BYTES = 4 * 1024 * 1024; // 4MB（Base64 で約 5.3MB）
+const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
+
+const base64ByteLength = (base64: string): number => {
+  const padding = (base64.match(/=+$/) || [""])[0].length;
+  return Math.ceil((base64.length * 3) / 4) - padding;
+};
+
 const generateCandidatesSchema = z
-  .object({
-    url: z.string().url(),
-  })
+  .discriminatedUnion("type", [
+    z.object({
+      type: z.literal("url"),
+      url: z.string().url(),
+    }),
+    z.object({
+      type: z.literal("pdf"),
+      data: z
+        .string()
+        .refine(
+          (s) => base64ByteLength(s) <= MAX_PDF_SIZE_BYTES,
+          "PDF ファイルは 4MB 以下にしてください",
+        ),
+    }),
+    z.object({
+      type: z.literal("image"),
+      data: z
+        .string()
+        .refine(
+          (s) => base64ByteLength(s) <= MAX_IMAGE_SIZE_BYTES,
+          "画像ファイルは 2MB 以下にしてください",
+        ),
+      mimeType: z.enum(["image/jpeg", "image/png"]),
+    }),
+  ])
   .openapi("GenerateCandidatesRequest");
 
 const generatedQuestionSchema = z
@@ -237,7 +268,7 @@ const generateCandidatesRoute = createRoute({
   method: "post",
   path: "/generate-candidates",
   tags: ["QuestionProposal"],
-  summary: "URLからAI出題候補を生成（DB保存なし）",
+  summary: "URL・PDF・画像からAI出題候補を生成（DB保存なし）",
   request: {
     body: {
       content: { "application/json": { schema: generateCandidatesSchema } },
@@ -356,8 +387,8 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
       return c.json(toQuestionProposalResponse(proposal));
     })
     .openapi(generateCandidatesRoute, async (c) => {
-      const { url } = c.req.valid("json");
-      const candidates = await deps.generateCandidates.execute({ url });
+      const source = c.req.valid("json");
+      const candidates = await deps.generateCandidates.execute(source);
       return c.json({ candidates });
     })
     .openapi(bulkCreateRoute, async (c) => {

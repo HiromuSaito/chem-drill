@@ -6,6 +6,14 @@ export type GeneratedQuestion = {
   explanation: string;
 };
 
+export type GenerationSource =
+  | { type: "url"; url: string }
+  | { type: "pdf"; data: string }
+  | { type: "image"; data: string; mimeType: "image/jpeg" | "image/png" };
+
 export interface QuestionGenerationService {
-  generate(url: string, questionCount: number): Promise<GeneratedQuestion[]>;
+  generate(
+    source: GenerationSource,
+    questionCount: number,
+  ): Promise<GeneratedQuestion[]>;
 }

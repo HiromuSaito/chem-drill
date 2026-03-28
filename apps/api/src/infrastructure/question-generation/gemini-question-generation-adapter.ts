@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import type {
   QuestionGenerationService,
   GeneratedQuestion,
+  GenerationSource,
 } from "../../application/question-proposal/question-generation-service.ts";
 import { questionGenerationResultSchema } from "./schema.ts";
 
@@ -20,18 +21,41 @@ export class GeminiQuestionGenerationAdapter implements QuestionGenerationServic
   }
 
   async generate(
-    url: string,
+    source: GenerationSource,
     questionCount: number,
   ): Promise<GeneratedQuestion[]> {
-    const prompt = this.buildPrompt(url, questionCount);
+    const promptText = this.buildPrompt(source, questionCount);
 
-    const response = await this.getClient().models.generateContent({
-      model: MODEL,
-      contents: [prompt],
-      config: {
-        tools: [{ urlContext: {} }],
-      },
-    });
+    const requestParams =
+      source.type === "url"
+        ? {
+            model: MODEL,
+            contents: [promptText],
+            config: { tools: [{ urlContext: {} }] },
+          }
+        : {
+            model: MODEL,
+            contents: [
+              {
+                role: "user" as const,
+                parts: [
+                  {
+                    inlineData: {
+                      mimeType:
+                        source.type === "pdf"
+                          ? "application/pdf"
+                          : source.mimeType,
+                      data: source.data,
+                    },
+                  },
+                  { text: promptText },
+                ],
+              },
+            ],
+          };
+
+    const response =
+      await this.getClient().models.generateContent(requestParams);
 
     const text = response.text;
     if (!text) {
@@ -50,20 +74,25 @@ export class GeminiQuestionGenerationAdapter implements QuestionGenerationServic
   }
 
   private extractJson(text: string): string {
-    // ```json ... ``` ブロックを抽出
     const match = text.match(/```json\s*([\s\S]*?)\s*```/);
     if (match) {
       return match[1];
     }
-    // フォールバック: そのまま返す
     return text;
   }
 
-  private buildPrompt(url: string, questionCount: number): string {
-    return `以下のURLの内容を読み取り、化学物質管理に関するクイズを${questionCount}問生成してください。
+  private buildPrompt(source: GenerationSource, questionCount: number): string {
+    const sourceDescription =
+      source.type === "url"
+        ? `以下のURLの内容を読み取り、`
+        : source.type === "pdf"
+          ? `以下のPDFの内容を読み取り、`
+          : `以下の画像の内容を読み取り、`;
 
-URL: ${url}
+    const urlLine = source.type === "url" ? `\nURL: ${source.url}\n` : "";
 
+    return `${sourceDescription}化学物質管理に関するクイズを${questionCount}問生成してください。
+${urlLine}
 ## ルール
 1. 各問題は4〜8個の選択肢を持ってください。
 2. 正解は1つ以上設定できます。複数正解の問題も含めてください。
