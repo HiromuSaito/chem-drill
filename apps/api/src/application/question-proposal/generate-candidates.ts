@@ -4,12 +4,17 @@ import type {
   QuestionGenerationService,
 } from "./question-generation-service.ts";
 
-const QUESTION_COUNT = 10;
+const DEFAULT_QUESTION_COUNT = 10;
+const FREE_INPUT_QUESTION_COUNT = 3;
 
 export class GenerateCandidates {
   constructor(private questionGenerationService: QuestionGenerationService) {}
 
   async execute(input: GenerationSource): Promise<GeneratedQuestion[]> {
-    return this.questionGenerationService.generate(input, QUESTION_COUNT);
+    const questionCount =
+      input.type === "freeInput"
+        ? FREE_INPUT_QUESTION_COUNT
+        : DEFAULT_QUESTION_COUNT;
+    return this.questionGenerationService.generate(input, questionCount);
   }
 }
