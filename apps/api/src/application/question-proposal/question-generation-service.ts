@@ -9,7 +9,8 @@ export type GeneratedQuestion = {
 export type GenerationSource =
   | { type: "url"; url: string }
   | { type: "pdf"; data: string }
-  | { type: "image"; data: string; mimeType: "image/jpeg" | "image/png" };
+  | { type: "image"; data: string; mimeType: "image/jpeg" | "image/png" }
+  | { type: "freeInput"; input: string };
 
 export interface QuestionGenerationService {
   generate(
