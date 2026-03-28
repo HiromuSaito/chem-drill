@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, Sparkles, CheckSquare, Square, Eye } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ProposalContentCards } from "./proposal-content-cards";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,16 +41,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { InferResponseType } from "hono/client";
+import type { InferRequestType, InferResponseType } from "hono/client";
 import { client } from "@/client";
 import { difficultyLabels } from "./constants";
 
-type GenerateCandidatesResponse = InferResponseType<
-  (typeof client.api)["question-proposals"]["generate-candidates"]["$post"]
->;
+type GenerateCandidatesEndpoint =
+  (typeof client.api)["question-proposals"]["generate-candidates"]["$post"];
+type GenerateCandidatesResponse = InferResponseType<GenerateCandidatesEndpoint>;
+type GenerateCandidatesBody =
+  InferRequestType<GenerateCandidatesEndpoint>["json"];
 type Candidate = GenerateCandidatesResponse["candidates"][number];
 
-const MAX_PDF_SIZE = 5 * 1024 * 1024;
+const MAX_PDF_SIZE = 4 * 1024 * 1024;
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 
 const urlSchema = z.object({
@@ -64,7 +67,7 @@ const pdfSchema = z.object({
     .instanceof(File)
     .refine(
       (f) => f.size <= MAX_PDF_SIZE,
-      "PDF ファイルは 5MB 以下にしてください",
+      "PDF ファイルは 4MB 以下にしてください",
     )
     .refine(
       (f) => f.type === "application/pdf",
@@ -139,30 +142,25 @@ export function ProposalGeneratePage() {
 
   const generateMutation = useMutation({
     mutationFn: async (data: GenerateForm) => {
-      let json: Record<string, unknown>;
+      let json: GenerateCandidatesBody;
 
       if (data.sourceType === "url") {
-        json = { sourceType: "url", url: data.url };
+        json = { type: "url", url: data.url };
       } else if (data.sourceType === "pdf") {
         const base64 = await fileToBase64(data.file);
-        json = {
-          sourceType: "pdf",
-          fileData: base64,
-          fileName: data.file.name,
-        };
+        json = { type: "pdf", data: base64 };
       } else {
         const base64 = await fileToBase64(data.file);
         json = {
-          sourceType: "image",
-          fileData: base64,
-          fileName: data.file.name,
-          mimeType: data.file.type,
+          type: "image",
+          data: base64,
+          mimeType: data.file.type as "image/jpeg" | "image/png",
         };
       }
 
       const res = await client.api["question-proposals"][
         "generate-candidates"
-      ].$post({ json: json as never });
+      ].$post({ json });
       if (!res.ok) throw new Error("Failed to generate candidates");
       return res.json();
     },
@@ -245,7 +243,15 @@ export function ProposalGeneratePage() {
                   <FormItem>
                     <FormLabel>ソースの種類</FormLabel>
                     <FormControl>
-                      <div className="flex gap-4">
+                      <RadioGroup
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.resetField("url" as never);
+                          form.setValue("file" as never, undefined as never);
+                        }}
+                        className="flex gap-4"
+                      >
                         {(
                           [
                             ["url", "URL"],
@@ -257,19 +263,11 @@ export function ProposalGeneratePage() {
                             key={value}
                             className="flex items-center gap-2 cursor-pointer"
                           >
-                            <input
-                              type="radio"
-                              value={value}
-                              checked={field.value === value}
-                              onChange={() => {
-                                field.onChange(value);
-                              }}
-                              className="accent-primary"
-                            />
+                            <RadioGroupItem value={value} />
                             {label}
                           </label>
                         ))}
-                      </div>
+                      </RadioGroup>
                     </FormControl>
                   </FormItem>
                 )}

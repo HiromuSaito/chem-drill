@@ -45,37 +45,38 @@ const rejectSchema = z
   })
   .openapi("RejectQuestionProposalRequest");
 
-const MAX_PDF_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+// Lambda 同期呼び出しのペイロード上限が 6MB のため、Base64 膨張を考慮して制限
+const MAX_PDF_SIZE_BYTES = 4 * 1024 * 1024; // 4MB（Base64 で約 5.3MB）
 const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
 
-const base64ByteLength = (base64: string): number =>
-  Math.ceil((base64.length * 3) / 4);
+const base64ByteLength = (base64: string): number => {
+  const padding = (base64.match(/=+$/) || [""])[0].length;
+  return Math.ceil((base64.length * 3) / 4) - padding;
+};
 
 const generateCandidatesSchema = z
-  .discriminatedUnion("sourceType", [
+  .discriminatedUnion("type", [
     z.object({
-      sourceType: z.literal("url"),
+      type: z.literal("url"),
       url: z.string().url(),
     }),
     z.object({
-      sourceType: z.literal("pdf"),
-      fileData: z
+      type: z.literal("pdf"),
+      data: z
         .string()
         .refine(
           (s) => base64ByteLength(s) <= MAX_PDF_SIZE_BYTES,
-          "PDF ファイルは 5MB 以下にしてください",
+          "PDF ファイルは 4MB 以下にしてください",
         ),
-      fileName: z.string(),
     }),
     z.object({
-      sourceType: z.literal("image"),
-      fileData: z
+      type: z.literal("image"),
+      data: z
         .string()
         .refine(
           (s) => base64ByteLength(s) <= MAX_IMAGE_SIZE_BYTES,
           "画像ファイルは 2MB 以下にしてください",
         ),
-      fileName: z.string(),
       mimeType: z.enum(["image/jpeg", "image/png"]),
     }),
   ])
@@ -386,17 +387,7 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
       return c.json(toQuestionProposalResponse(proposal));
     })
     .openapi(generateCandidatesRoute, async (c) => {
-      const body = c.req.valid("json");
-      const source =
-        body.sourceType === "url"
-          ? { type: "url" as const, url: body.url }
-          : body.sourceType === "pdf"
-            ? { type: "pdf" as const, data: body.fileData }
-            : {
-                type: "image" as const,
-                data: body.fileData,
-                mimeType: body.mimeType,
-              };
+      const source = c.req.valid("json");
       const candidates = await deps.generateCandidates.execute(source);
       return c.json({ candidates });
     })
