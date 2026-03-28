@@ -102,6 +102,36 @@ describe("GeminiQuestionGenerationAdapter", () => {
     });
   });
 
+  describe("freeInput source", () => {
+    it("テキストのみをプロンプトに含め、urlContext や inlineData を使わない", async () => {
+      mockGenerateContent.mockResolvedValue({ text: VALID_RESPONSE });
+
+      await adapter.generate({ type: "freeInput", input: "GHSとは" }, 3);
+
+      expect(mockGenerateContent).toHaveBeenCalledOnce();
+      const args = mockGenerateContent.mock.calls[0][0];
+
+      // urlContext が含まれていないこと
+      expect(args.config?.tools).toBeUndefined();
+
+      // contents がテキストのみ（inlineData なし）
+      expect(args.contents).toEqual(
+        expect.arrayContaining([expect.stringContaining("GHSとは")]),
+      );
+    });
+
+    it("正解ベース生成用のプロンプトが使用される", async () => {
+      mockGenerateContent.mockResolvedValue({ text: VALID_RESPONSE });
+
+      await adapter.generate({ type: "freeInput", input: "SDSの記載項目" }, 3);
+
+      const args = mockGenerateContent.mock.calls[0][0];
+      const prompt = args.contents[0];
+      expect(prompt).toContain("正解の根拠として");
+      expect(prompt).toContain("SDSの記載項目");
+    });
+  });
+
   describe("空レスポンス", () => {
     it("Gemini API からのレスポンスが空の場合エラーを投げる", async () => {
       mockGenerateContent.mockResolvedValue({ text: "" });
