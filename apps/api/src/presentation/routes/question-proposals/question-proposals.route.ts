@@ -45,10 +45,40 @@ const rejectSchema = z
   })
   .openapi("RejectQuestionProposalRequest");
 
+const MAX_PDF_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
+
+const base64ByteLength = (base64: string): number =>
+  Math.ceil((base64.length * 3) / 4);
+
 const generateCandidatesSchema = z
-  .object({
-    url: z.string().url(),
-  })
+  .discriminatedUnion("sourceType", [
+    z.object({
+      sourceType: z.literal("url"),
+      url: z.string().url(),
+    }),
+    z.object({
+      sourceType: z.literal("pdf"),
+      fileData: z
+        .string()
+        .refine(
+          (s) => base64ByteLength(s) <= MAX_PDF_SIZE_BYTES,
+          "PDF ファイルは 5MB 以下にしてください",
+        ),
+      fileName: z.string(),
+    }),
+    z.object({
+      sourceType: z.literal("image"),
+      fileData: z
+        .string()
+        .refine(
+          (s) => base64ByteLength(s) <= MAX_IMAGE_SIZE_BYTES,
+          "画像ファイルは 2MB 以下にしてください",
+        ),
+      fileName: z.string(),
+      mimeType: z.enum(["image/jpeg", "image/png"]),
+    }),
+  ])
   .openapi("GenerateCandidatesRequest");
 
 const generatedQuestionSchema = z
@@ -237,7 +267,7 @@ const generateCandidatesRoute = createRoute({
   method: "post",
   path: "/generate-candidates",
   tags: ["QuestionProposal"],
-  summary: "URLからAI出題候補を生成（DB保存なし）",
+  summary: "URL・PDF・画像からAI出題候補を生成（DB保存なし）",
   request: {
     body: {
       content: { "application/json": { schema: generateCandidatesSchema } },
@@ -356,8 +386,18 @@ export const createQuestionProposalsRoute = (deps: Dependencies) =>
       return c.json(toQuestionProposalResponse(proposal));
     })
     .openapi(generateCandidatesRoute, async (c) => {
-      const { url } = c.req.valid("json");
-      const candidates = await deps.generateCandidates.execute({ url });
+      const body = c.req.valid("json");
+      const source =
+        body.sourceType === "url"
+          ? { type: "url" as const, url: body.url }
+          : body.sourceType === "pdf"
+            ? { type: "pdf" as const, data: body.fileData }
+            : {
+                type: "image" as const,
+                data: body.fileData,
+                mimeType: body.mimeType,
+              };
+      const candidates = await deps.generateCandidates.execute(source);
       return c.json({ candidates });
     })
     .openapi(bulkCreateRoute, async (c) => {
