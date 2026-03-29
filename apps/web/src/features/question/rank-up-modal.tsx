@@ -88,6 +88,10 @@ export function RankUpModal({ rankUps, onClose }: Props) {
           </p>
         </div>
 
+        <p className="text-xs text-muted-foreground">
+          取扱レベルは成績画面で確認できます
+        </p>
+
         <Button onClick={handleNext} className="w-full">
           {isLast ? "閉じる" : "次へ"}
         </Button>
