@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { client } from "@/client";
 import { RANK_DEFINITIONS } from "./rank-constants";
 import "./rank-up-modal.css";
@@ -89,7 +90,11 @@ export function RankUpModal({ rankUps, onClose }: Props) {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          取扱レベルは成績画面で確認できます
+          取扱レベルは
+          <Link to="/stats" className="underline hover:text-foreground">
+            成績画面
+          </Link>
+          で確認できます
         </p>
 
         <Button onClick={handleNext} className="w-full">
