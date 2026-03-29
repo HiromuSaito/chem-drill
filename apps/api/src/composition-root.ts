@@ -46,6 +46,12 @@ import { SaveDrillSession } from "./application/drill-session/save-drill-session
 import { GetDrillStats } from "./application/drill-session/get-drill-stats.ts";
 import { GetRecentSessions } from "./application/drill-session/get-recent-sessions.ts";
 import { GetCategoryScores } from "./application/drill-session/get-category-scores.ts";
+import { DrizzleUserExperienceRepository } from "./infrastructure/user-experience/drizzle-user-experience-repository.ts";
+import { DrizzleUserExperienceQueryService } from "./infrastructure/user-experience/drizzle-user-experience-query-service.ts";
+import { AddExperience } from "./application/user-experience/add-experience.ts";
+import { GetUserRankInfo } from "./application/user-experience/get-user-rank-info.ts";
+import { GetPendingRankUps } from "./application/user-experience/get-pending-rank-ups.ts";
+import { MarkRankUpDisplayed } from "./application/user-experience/mark-rank-up-displayed.ts";
 import { S3IconStorage } from "./infrastructure/storage/s3-icon-storage.ts";
 import { SharpIconProcessor } from "./infrastructure/storage/sharp-icon-processor.ts";
 import { UploadIcon } from "./application/user/upload-icon.ts";
@@ -67,6 +73,8 @@ const questionProposalProjectionQueryService =
 const userQueryService = new DrizzleUserQueryService();
 const drillSessionRepository = new DrizzleDrillSessionRepository();
 const drillStatsQueryService = new DrizzleDrillStatsQueryService();
+const userExperienceRepository = new DrizzleUserExperienceRepository();
+const userExperienceQueryService = new DrizzleUserExperienceQueryService();
 // イベントパブリッシャー & ハンドラ
 const eventPublisher = new InMemoryEventPublisher(consoleLogger);
 const onQuestionProposalApproved = new OnQuestionProposalApproved(
@@ -108,6 +116,8 @@ const iconStorage = new S3IconStorage(
 const iconProcessor = new SharpIconProcessor();
 
 // ユースケース
+const addExperience = new AddExperience(unitOfWork, userExperienceRepository);
+
 const getRandomQuestions = new GetRandomQuestions(
   unitOfWork,
   questionQueryService,
@@ -126,6 +136,7 @@ const approveQuestionProposal = new ApproveQuestionProposal(
   unitOfWork,
   questionProposalRepository,
   eventPublisher,
+  addExperience,
 );
 const rejectQuestionProposal = new RejectQuestionProposal(
   unitOfWork,
@@ -134,6 +145,7 @@ const rejectQuestionProposal = new RejectQuestionProposal(
 const submitQuestionProposalByAdmin = new SubmitQuestionProposalByAdmin(
   unitOfWork,
   questionProposalRepository,
+  addExperience,
 );
 const withdrawQuestionProposal = new WithdrawQuestionProposal(
   unitOfWork,
@@ -186,6 +198,7 @@ const updateQuestionProposalByUser = new UpdateQuestionProposalByUser(
 const submitQuestionProposalByUser = new SubmitQuestionProposalByUser(
   unitOfWork,
   questionProposalRepository,
+  addExperience,
 );
 const listQuestionProposalsByUserId = new ListQuestionProposalsByUserId(
   unitOfWork,
@@ -207,9 +220,23 @@ const getUser = new GetUser(unitOfWork, userQueryService);
 const uploadIcon = new UploadIcon(iconStorage, iconProcessor);
 const deleteIcon = new DeleteIcon(iconStorage);
 
+const getUserRankInfo = new GetUserRankInfo(
+  unitOfWork,
+  userExperienceRepository,
+);
+const getPendingRankUps = new GetPendingRankUps(
+  unitOfWork,
+  userExperienceQueryService,
+);
+const markRankUpDisplayed = new MarkRankUpDisplayed(
+  unitOfWork,
+  userExperienceQueryService,
+);
+
 const saveDrillSession = new SaveDrillSession(
   unitOfWork,
   drillSessionRepository,
+  addExperience,
 );
 const getDrillStats = new GetDrillStats(unitOfWork, drillStatsQueryService);
 const getRecentSessions = new GetRecentSessions(
@@ -254,6 +281,9 @@ export const dependencies = {
   getDrillStats,
   getRecentSessions,
   getCategoryScores,
+  getUserRankInfo,
+  getPendingRankUps,
+  markRankUpDisplayed,
 };
 
 export type Dependencies = typeof dependencies;
