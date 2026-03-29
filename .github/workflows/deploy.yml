@@ -38,20 +38,19 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-northeast-1
 
-      # TODO: Drizzle マイグレーションファイル生成後に有効化する (see #99)
-      # - name: Set DATABASE_URL
-      #   run: |
-      #     STAGE=${{ github.ref_name == 'main' && 'dev' || 'production' }}
-      #     DB_URL=$(npx sst secret list --stage "$STAGE" | grep '^DatabaseUrl=' | cut -d= -f2-)
-      #     if [ -z "$DB_URL" ]; then
-      #       echo "::error::Failed to get DATABASE_URL from SST secrets"
-      #       exit 1
-      #     fi
-      #     echo "::add-mask::$DB_URL"
-      #     echo "DATABASE_URL=$DB_URL" >> $GITHUB_ENV
-      #
-      # - name: DB Migrate
-      #   run: pnpm --filter api db:migrate
+      - name: Set DATABASE_URL
+        run: |
+          STAGE=${{ github.ref_name == 'main' && 'dev' || 'production' }}
+          DB_URL=$(npx sst secret list --stage "$STAGE" | grep '^DatabaseUrl=' | cut -d= -f2-)
+          if [ -z "$DB_URL" ]; then
+            echo "::error::Failed to get DATABASE_URL from SST secrets"
+            exit 1
+          fi
+          echo "::add-mask::$DB_URL"
+          echo "DATABASE_URL=$DB_URL" >> $GITHUB_ENV
+
+      - name: DB Migrate
+        run: pnpm --filter api db:migrate
 
       - name: Deploy
         run: pnpm sst:deploy --stage ${{ github.ref_name == 'main' && 'dev' || 'production' }}
