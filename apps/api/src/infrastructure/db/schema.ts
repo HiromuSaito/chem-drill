@@ -9,6 +9,7 @@ import {
   timestamp,
   index,
   boolean,
+  unique,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
 
@@ -155,6 +156,72 @@ export const drillAnswers = pgTable(
   (table) => [
     index("idx_drill_answers_session_id").on(table.sessionId),
     index("idx_drill_answers_question_id").on(table.questionId),
+  ],
+);
+
+// ── 経験値 & ランク ──────────────────────────────────────────
+
+export const experienceActionEnum = pgEnum("experience_action", [
+  "drill_complete",
+  "proposal_submit",
+  "proposal_approved",
+]);
+
+export const userExperience = pgTable("user_experience", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id),
+  totalExp: integer("total_exp").notNull().default(0),
+  currentRank: integer("current_rank").notNull().default(1),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const experienceLogs = pgTable(
+  "experience_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id),
+    action: experienceActionEnum("action").notNull(),
+    amount: integer("amount").notNull(),
+    referenceId: uuid("reference_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("idx_experience_logs_user_id").on(table.userId),
+    index("idx_experience_logs_user_action").on(table.userId, table.action),
+    unique("uq_experience_logs_user_action_ref").on(
+      table.userId,
+      table.action,
+      table.referenceId,
+    ),
+  ],
+);
+
+export const rankUpEvents = pgTable(
+  "rank_up_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id),
+    newRank: integer("new_rank").notNull(),
+    previousRank: integer("previous_rank").notNull(),
+    displayedAt: timestamp("displayed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("idx_rank_up_events_user_displayed").on(
+      table.userId,
+      table.displayedAt,
+    ),
   ],
 );
 
