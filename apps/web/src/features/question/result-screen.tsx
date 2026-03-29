@@ -15,6 +15,28 @@ type Props = {
   checkRankUp?: boolean;
 };
 
+/** セッション保存完了後にランクアップをチェックし、モーダルを表示する */
+function RankUpChecker() {
+  const [showModal, setShowModal] = useState(true);
+
+  const { data: pendingRankUps } = useQuery({
+    queryKey: ["rank", "pending-rank-ups"],
+    queryFn: async () => {
+      const res = await client.api.rank["pending-rank-ups"].$get();
+      if (!res.ok) throw new Error("Failed to fetch pending rank ups");
+      return res.json();
+    },
+  });
+
+  if (!showModal || !pendingRankUps || pendingRankUps.length === 0) {
+    return null;
+  }
+
+  return (
+    <RankUpModal rankUps={pendingRankUps} onClose={() => setShowModal(false)} />
+  );
+}
+
 export function ResultScreen({
   results,
   onRetry,
@@ -24,18 +46,6 @@ export function ResultScreen({
   const total = results.length;
   const correct = results.filter((r) => r.isCorrect).length;
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
-
-  const [showRankUpModal, setShowRankUpModal] = useState(true);
-
-  const { data: pendingRankUps } = useQuery({
-    queryKey: ["rank", "pending-rank-ups"],
-    queryFn: async () => {
-      const res = await client.api.rank["pending-rank-ups"].$get();
-      if (!res.ok) throw new Error("Failed to fetch pending rank ups");
-      return res.json();
-    },
-    enabled: checkRankUp,
-  });
 
   return (
     <>
@@ -78,12 +88,7 @@ export function ResultScreen({
         </CardContent>
       </Card>
 
-      {showRankUpModal && pendingRankUps && pendingRankUps.length > 0 && (
-        <RankUpModal
-          rankUps={pendingRankUps}
-          onClose={() => setShowRankUpModal(false)}
-        />
-      )}
+      {checkRankUp && <RankUpChecker />}
     </>
   );
 }
