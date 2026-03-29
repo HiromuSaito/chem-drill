@@ -3,6 +3,7 @@ import type { EventPublisher } from "../../domain/shared/event-publisher.ts";
 import { QuestionProposal } from "../../domain/question-proposal/entity/question-proposal.ts";
 import type { QuestionProposalRepository } from "../../domain/question-proposal/repository/question-proposal-repository.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
+import type { AddExperience } from "../user-experience/add-experience.ts";
 
 export type ApproveQuestionProposalInput = {
   questionProposalId: string;
@@ -13,6 +14,7 @@ export class ApproveQuestionProposal {
     private uow: UnitOfWork,
     private questionProposalRepository: QuestionProposalRepository,
     private eventPublisher: EventPublisher,
+    private addExperience: AddExperience,
   ) {}
 
   async execute(
@@ -26,6 +28,15 @@ export class ApproveQuestionProposal {
       const { proposal: newProposal, event } = proposal.approve();
 
       await this.questionProposalRepository.save(newProposal, event);
+
+      if (newProposal.userId) {
+        await this.addExperience.run({
+          userId: newProposal.userId,
+          action: "proposal_approved",
+          referenceId: input.questionProposalId,
+          amount: 50,
+        });
+      }
 
       return { newProposal, event };
     });

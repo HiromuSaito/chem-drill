@@ -2,11 +2,13 @@ import type { QuestionProposal } from "../../domain/question-proposal/entity/que
 import { Id } from "../../domain/shared/id.ts";
 import type { QuestionProposalRepository } from "../../domain/question-proposal/repository/question-proposal-repository.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
+import type { AddExperience } from "../user-experience/add-experience.ts";
 
 export class SubmitQuestionProposalByUser {
   constructor(
     private uow: UnitOfWork,
     private questionProposalRepository: QuestionProposalRepository,
+    private addExperience: AddExperience,
   ) {}
 
   async execute(input: {
@@ -23,6 +25,13 @@ export class SubmitQuestionProposalByUser {
       const { proposal: newProposal, event } = proposal.submit();
 
       await this.questionProposalRepository.save(newProposal, event);
+
+      await this.addExperience.run({
+        userId: input.callerId,
+        action: "proposal_submit",
+        referenceId: input.questionProposalId,
+        amount: 30,
+      });
 
       return newProposal;
     });

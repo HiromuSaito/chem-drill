@@ -42,6 +42,9 @@ export function SessionContainer({
   const startedAtRef = useRef(new Date().toISOString());
   const hasSavedRef = useRef(false);
 
+  const [sessionSaved, setSessionSaved] = useState(false);
+  const [earnedExp, setEarnedExp] = useState<number | null>(null);
+
   const saveMutation = useMutation({
     mutationFn: async () => {
       const res = await client.api["drill-sessions"].$post({
@@ -58,6 +61,10 @@ export function SessionContainer({
       if (!res.ok) throw new Error("Failed to save session");
       return res.json();
     },
+    onSuccess: (data) => {
+      setSessionSaved(true);
+      setEarnedExp(data.earnedExp);
+    },
   });
 
   useEffect(() => {
@@ -72,6 +79,8 @@ export function SessionContainer({
       <ResultScreen
         results={state.results}
         onRetry={showRetry ? reset : undefined}
+        earnedExp={earnedExp}
+        checkRankUp={saveResult && sessionSaved}
       >
         {resultActions}
       </ResultScreen>

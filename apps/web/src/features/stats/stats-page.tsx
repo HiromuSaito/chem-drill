@@ -12,6 +12,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { StatsRadialChart } from "./stats-radial-chart";
 import { CategoryStatsList } from "./category-stats-list";
 import { RecentSessions } from "./recent-sessions";
+import { RankCard } from "./rank-card";
 
 const ALL_CATEGORIES = "__all__";
 
@@ -52,6 +53,7 @@ export function StatsPage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 px-4 py-8">
+      <RankCard />
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">成績</h2>
         <Select

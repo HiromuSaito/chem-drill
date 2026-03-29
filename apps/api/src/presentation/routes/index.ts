@@ -6,6 +6,7 @@ import { createQuestionProposalsRoute } from "./question-proposals/question-prop
 import { createUserRoute } from "./user/user.route.ts";
 import { createDrillSessionsRoute } from "./drill-sessions/drill-sessions.route.ts";
 import { createDrillStatsRoute } from "./drill-stats/drill-stats.route.ts";
+import { createRankRoute } from "./rank/rank.route.ts";
 import { createAdminUsersRoute } from "./admin/users.route.ts";
 import { createUserProposalsRoute } from "./user-proposals/user-proposals.route.ts";
 import {
@@ -51,4 +52,5 @@ export const createApiRoutes = (deps: Dependencies) =>
     .route("/question-proposals", createQuestionProposalsRoute(deps))
     .route("/admin/users", createAdminUsersRoute(deps))
     .route("/drill-sessions", createDrillSessionsRoute(deps))
-    .route("/drill-stats", createDrillStatsRoute(deps));
+    .route("/drill-stats", createDrillStatsRoute(deps))
+    .route("/rank", createRankRoute(deps));

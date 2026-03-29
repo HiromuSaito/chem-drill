@@ -6,11 +6,13 @@ import {
 } from "../../domain/drill-session/entity/drill-session.ts";
 import type { DrillSessionRepository } from "../../domain/drill-session/repository/drill-session-repository.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
+import type { AddExperience } from "../user-experience/add-experience.ts";
 
 export class SaveDrillSession {
   constructor(
     private uow: UnitOfWork,
     private drillSessionRepository: DrillSessionRepository,
+    private addExperience: AddExperience,
   ) {}
 
   async execute(params: {
@@ -18,7 +20,7 @@ export class SaveDrillSession {
     categoryId: string | null;
     answers: DrillAnswer[];
     startedAt: string;
-  }): Promise<{ sessionId: string }> {
+  }): Promise<{ sessionId: string; earnedExp: number }> {
     return this.uow.run(async () => {
       const sessionId = Id.random<DrillSession>() as DrillSessionId;
       const session = DrillSession.create({
@@ -30,7 +32,16 @@ export class SaveDrillSession {
         completedAt: new Date(),
       });
       await this.drillSessionRepository.save(session);
-      return { sessionId: session.id };
+
+      const expAmount = 10 + session.correctCount * 2;
+      await this.addExperience.run({
+        userId: params.userId,
+        action: "drill_complete",
+        referenceId: session.id,
+        amount: expAmount,
+      });
+
+      return { sessionId: session.id, earnedExp: expAmount };
     });
   }
 }
