@@ -55,19 +55,23 @@ export function RankUpModal({ rankUps, onClose }: Props) {
     CATEGORY_STYLES[currentRankUp.category] ?? CATEGORY_STYLES["日常物質"];
   const isLast = currentIndex === rankUps.length - 1;
 
+  const handleClose = () => {
+    markMutation.mutate(
+      rankUps.map((r) => r.id),
+      { onSettled: onClose },
+    );
+  };
+
   const handleNext = () => {
     if (isLast) {
-      markMutation.mutate(
-        rankUps.map((r) => r.id),
-        { onSettled: onClose },
-      );
+      handleClose();
     } else {
       setCurrentIndex((i) => i + 1);
     }
   };
 
   return (
-    <Dialog open onOpenChange={() => handleNext()}>
+    <Dialog open onOpenChange={handleClose}>
       <DialogContent
         className="rank-up-glow text-center sm:max-w-md"
         style={{ "--glow-color": style.glow } as React.CSSProperties}
