@@ -20,7 +20,7 @@ export class SaveDrillSession {
     categoryId: string | null;
     answers: DrillAnswer[];
     startedAt: string;
-  }): Promise<{ sessionId: string }> {
+  }): Promise<{ sessionId: string; earnedExp: number }> {
     return this.uow.run(async () => {
       const sessionId = Id.random<DrillSession>() as DrillSessionId;
       const session = DrillSession.create({
@@ -41,7 +41,7 @@ export class SaveDrillSession {
         amount: expAmount,
       });
 
-      return { sessionId: session.id };
+      return { sessionId: session.id, earnedExp: expAmount };
     });
   }
 }

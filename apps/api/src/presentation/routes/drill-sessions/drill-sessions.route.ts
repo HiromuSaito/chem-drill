@@ -35,7 +35,10 @@ const saveDrillSessionRoute = createRoute({
       content: {
         "application/json": {
           schema: z
-            .object({ sessionId: z.string().uuid() })
+            .object({
+              sessionId: z.string().uuid(),
+              earnedExp: z.number().int(),
+            })
             .openapi("SaveDrillSessionResponse"),
         },
       },

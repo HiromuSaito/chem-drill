@@ -32,6 +32,8 @@ const rankUpEventSchema = z
     userId: z.string(),
     previousRank: z.number().int(),
     newRank: z.number().int(),
+    substance: z.string(),
+    category: z.string(),
     createdAt: z.string().datetime(),
   })
   .openapi("RankUpEvent");

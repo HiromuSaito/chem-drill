@@ -9,10 +9,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { client } from "@/client";
-import { RANK_DEFINITIONS } from "./rank-constants";
 import "./rank-up-modal.css";
 
 const CATEGORY_STYLES: Record<string, { text: string; glow: string }> = {
+  見習い: { text: "text-gray-500", glow: "128, 128, 128" },
   日常物質: { text: "text-green-500", glow: "0, 200, 0" },
   一般薬品: { text: "text-blue-500", glow: "0, 100, 255" },
   劇物: { text: "text-orange-500", glow: "255, 165, 0" },
@@ -26,6 +26,8 @@ type RankUpEventDto = {
   userId: string;
   previousRank: number;
   newRank: number;
+  substance: string;
+  category: string;
   createdAt: string;
 };
 
@@ -49,11 +51,8 @@ export function RankUpModal({ rankUps, onClose }: Props) {
   if (rankUps.length === 0) return null;
 
   const currentRankUp = rankUps[currentIndex];
-  const rankDef = RANK_DEFINITIONS.find(
-    (d) => d.rank === currentRankUp.newRank,
-  );
   const style =
-    CATEGORY_STYLES[rankDef?.category ?? ""] ?? CATEGORY_STYLES["日常物質"];
+    CATEGORY_STYLES[currentRankUp.category] ?? CATEGORY_STYLES["日常物質"];
   const isLast = currentIndex === rankUps.length - 1;
 
   const handleNext = () => {
@@ -83,9 +82,9 @@ export function RankUpModal({ rankUps, onClose }: Props) {
           <p className={`text-4xl font-bold ${style.text}`}>
             Lv.{currentRankUp.newRank}
           </p>
-          <p className="text-xl font-semibold">{rankDef?.substance}</p>
+          <p className="text-xl font-semibold">{currentRankUp.substance}</p>
           <p className="text-primary">
-            あなたは{rankDef?.substance}を扱えるようになりました！！
+            あなたは{currentRankUp.substance}を扱えるようになりました！！
           </p>
         </div>
 

@@ -43,6 +43,7 @@ export function SessionContainer({
   const hasSavedRef = useRef(false);
 
   const [sessionSaved, setSessionSaved] = useState(false);
+  const [earnedExp, setEarnedExp] = useState<number | null>(null);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -60,7 +61,10 @@ export function SessionContainer({
       if (!res.ok) throw new Error("Failed to save session");
       return res.json();
     },
-    onSuccess: () => setSessionSaved(true),
+    onSuccess: (data) => {
+      setSessionSaved(true);
+      setEarnedExp(data.earnedExp);
+    },
   });
 
   useEffect(() => {
@@ -75,7 +79,7 @@ export function SessionContainer({
       <ResultScreen
         results={state.results}
         onRetry={showRetry ? reset : undefined}
-        showExp={saveResult}
+        earnedExp={earnedExp}
         checkRankUp={saveResult && sessionSaved}
       >
         {resultActions}

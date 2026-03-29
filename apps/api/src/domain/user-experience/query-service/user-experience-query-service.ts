@@ -3,6 +3,8 @@ export type RankUpEventDto = {
   userId: string;
   previousRank: number;
   newRank: number;
+  substance: string;
+  category: string;
   createdAt: string;
 };
 

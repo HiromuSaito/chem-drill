@@ -1,6 +1,7 @@
 import { eq, isNull, and, inArray } from "drizzle-orm";
 import { getCurrentTransaction } from "../db/transaction-context.ts";
 import { rankUpEvents } from "../db/schema.ts";
+import { getRankInfo } from "../../domain/user-experience/rank-definitions.ts";
 import type {
   UserExperienceQueryService,
   RankUpEventDto,
@@ -16,13 +17,18 @@ export class DrizzleUserExperienceQueryService implements UserExperienceQuerySer
         and(eq(rankUpEvents.userId, userId), isNull(rankUpEvents.displayedAt)),
       )
       .orderBy(rankUpEvents.createdAt);
-    return rows.map((r) => ({
-      id: r.id,
-      userId: r.userId,
-      previousRank: r.previousRank,
-      newRank: r.newRank,
-      createdAt: r.createdAt.toISOString(),
-    }));
+    return rows.map((r) => {
+      const rankDef = getRankInfo(r.newRank);
+      return {
+        id: r.id,
+        userId: r.userId,
+        previousRank: r.previousRank,
+        newRank: r.newRank,
+        substance: rankDef.substance,
+        category: rankDef.category,
+        createdAt: r.createdAt.toISOString(),
+      };
+    });
   }
 
   async markRankUpsDisplayed(
