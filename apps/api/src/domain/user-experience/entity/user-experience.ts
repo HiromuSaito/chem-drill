@@ -23,7 +23,7 @@ export class UserExperience {
   ) {}
 
   static create(userId: string): UserExperience {
-    return new UserExperience(userId, 0, 1);
+    return new UserExperience(userId, 0, 0);
   }
 
   static reconstruct(

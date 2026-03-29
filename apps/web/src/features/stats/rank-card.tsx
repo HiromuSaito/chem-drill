@@ -52,7 +52,9 @@ export function RankCard() {
         </div>
 
         <p className="text-sm font-medium text-primary">
-          あなたは{rankInfo.substance}を扱えます！！
+          {rankInfo.currentRank === 0
+            ? "化学物質取扱者見習いです"
+            : `あなたは${rankInfo.substance}を扱えます！！`}
         </p>
 
         {remaining !== null && (

@@ -1,4 +1,5 @@
 export type SubstanceCategory =
+  | "見習い"
   | "日常物質"
   | "一般薬品"
   | "劇物"
@@ -14,7 +15,8 @@ export type RankDefinition = {
 };
 
 export const RANK_DEFINITIONS: readonly RankDefinition[] = Object.freeze([
-  { rank: 1, requiredExp: 0, substance: "水 (H₂O)", category: "日常物質" },
+  { rank: 0, requiredExp: 0, substance: "見習い", category: "見習い" },
+  { rank: 1, requiredExp: 10, substance: "水 (H₂O)", category: "日常物質" },
   { rank: 2, requiredExp: 50, substance: "食塩 (NaCl)", category: "日常物質" },
   {
     rank: 3,
@@ -97,7 +99,7 @@ export const RANK_DEFINITIONS: readonly RankDefinition[] = Object.freeze([
 ]);
 
 export function getRankForExp(totalExp: number): number {
-  let rank = 1;
+  let rank = 0;
   for (const def of RANK_DEFINITIONS) {
     if (totalExp >= def.requiredExp) {
       rank = def.rank;
@@ -109,7 +111,7 @@ export function getRankForExp(totalExp: number): number {
 }
 
 export function getRankInfo(rank: number): RankDefinition {
-  const def = RANK_DEFINITIONS[rank - 1];
+  const def = RANK_DEFINITIONS.find((d) => d.rank === rank);
   if (!def) {
     throw new Error(`Invalid rank: ${rank}`);
   }

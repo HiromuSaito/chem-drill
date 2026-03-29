@@ -48,7 +48,9 @@ export function RankUpModal({ rankUps, onClose }: Props) {
   if (rankUps.length === 0) return null;
 
   const currentRankUp = rankUps[currentIndex];
-  const rankDef = RANK_DEFINITIONS[currentRankUp.newRank - 1];
+  const rankDef = RANK_DEFINITIONS.find(
+    (d) => d.rank === currentRankUp.newRank,
+  );
   const style =
     CATEGORY_STYLES[rankDef?.category ?? ""] ?? CATEGORY_STYLES["日常物質"];
   const isLast = currentIndex === rankUps.length - 1;

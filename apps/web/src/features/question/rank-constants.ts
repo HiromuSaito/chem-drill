@@ -5,6 +5,7 @@ export type RankDefinition = {
 };
 
 export const RANK_DEFINITIONS: RankDefinition[] = [
+  { rank: 0, substance: "見習い", category: "見習い" },
   { rank: 1, substance: "水 (H₂O)", category: "日常物質" },
   { rank: 2, substance: "食塩 (NaCl)", category: "日常物質" },
   { rank: 3, substance: "重曹 (NaHCO₃)", category: "日常物質" },

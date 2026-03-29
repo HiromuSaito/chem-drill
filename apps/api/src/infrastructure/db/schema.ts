@@ -172,7 +172,7 @@ export const userExperience = pgTable("user_experience", {
     .primaryKey()
     .references(() => user.id),
   totalExp: integer("total_exp").notNull().default(0),
-  currentRank: integer("current_rank").notNull().default(1),
+  currentRank: integer("current_rank").notNull().default(0),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

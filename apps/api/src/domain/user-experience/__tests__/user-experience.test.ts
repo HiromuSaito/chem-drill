@@ -3,11 +3,11 @@ import { UserExperience } from "../entity/user-experience.ts";
 
 describe("UserExperience", () => {
   describe("create", () => {
-    it("初期状態はランク1、経験値0", () => {
+    it("初期状態はランク0、経験値0", () => {
       const ue = UserExperience.create("user-1");
       expect(ue.userId).toBe("user-1");
       expect(ue.totalExp).toBe(0);
-      expect(ue.currentRank).toBe(1);
+      expect(ue.currentRank).toBe(0);
     });
   });
 
@@ -21,16 +21,26 @@ describe("UserExperience", () => {
   });
 
   describe("addExp", () => {
-    it("経験値を加算できる", () => {
+    it("初回ドリル完了で必ずランク1になる（10EXP以上）", () => {
       const ue = UserExperience.create("user-1");
-      const result = ue.addExp(30);
-      expect(result.userExperience.totalExp).toBe(30);
+      // 最低でも10EXP（基本値）もらえるのでランク1に到達
+      const result = ue.addExp(10);
+      expect(result.userExperience.totalExp).toBe(10);
+      expect(result.userExperience.currentRank).toBe(1);
+      expect(result.rankUps).toHaveLength(1);
+      expect(result.rankUps[0]).toEqual({ previousRank: 0, newRank: 1 });
+    });
+
+    it("経験値9ではランク0のまま", () => {
+      const ue = UserExperience.create("user-1");
+      const result = ue.addExp(9);
+      expect(result.userExperience.currentRank).toBe(0);
       expect(result.rankUps).toHaveLength(0);
     });
 
     it("ランクアップが発生した場合にrankUpsを返す", () => {
-      const ue = UserExperience.create("user-1");
-      const result = ue.addExp(50);
+      const ue = UserExperience.reconstruct("user-1", 10, 1);
+      const result = ue.addExp(40);
       expect(result.userExperience.totalExp).toBe(50);
       expect(result.userExperience.currentRank).toBe(2);
       expect(result.rankUps).toHaveLength(1);
@@ -41,10 +51,11 @@ describe("UserExperience", () => {
       const ue = UserExperience.create("user-1");
       const result = ue.addExp(200);
       expect(result.userExperience.currentRank).toBe(4);
-      expect(result.rankUps).toHaveLength(3);
-      expect(result.rankUps[0]).toEqual({ previousRank: 1, newRank: 2 });
-      expect(result.rankUps[1]).toEqual({ previousRank: 2, newRank: 3 });
-      expect(result.rankUps[2]).toEqual({ previousRank: 3, newRank: 4 });
+      expect(result.rankUps).toHaveLength(4);
+      expect(result.rankUps[0]).toEqual({ previousRank: 0, newRank: 1 });
+      expect(result.rankUps[1]).toEqual({ previousRank: 1, newRank: 2 });
+      expect(result.rankUps[2]).toEqual({ previousRank: 2, newRank: 3 });
+      expect(result.rankUps[3]).toEqual({ previousRank: 3, newRank: 4 });
     });
 
     it("ランク20を超えない", () => {
@@ -65,13 +76,18 @@ describe("UserExperience", () => {
   });
 
   describe("getProgress", () => {
-    it("ランク1で経験値0の場合は0%", () => {
+    it("ランク0で経験値0の場合は0%", () => {
       const ue = UserExperience.create("user-1");
       expect(ue.getProgress()).toBe(0);
     });
 
-    it("ランク1で経験値25の場合は50%", () => {
-      const ue = UserExperience.reconstruct("user-1", 25, 1);
+    it("ランク0で経験値5の場合は50%", () => {
+      const ue = UserExperience.reconstruct("user-1", 5, 0);
+      expect(ue.getProgress()).toBe(50);
+    });
+
+    it("ランク1で経験値30の場合は50%", () => {
+      const ue = UserExperience.reconstruct("user-1", 30, 1);
       expect(ue.getProgress()).toBe(50);
     });
 
@@ -82,9 +98,9 @@ describe("UserExperience", () => {
   });
 
   describe("getNextRankExp", () => {
-    it("ランク1から次のランクまでの必要経験値", () => {
+    it("ランク0から次のランクまでの必要経験値", () => {
       const ue = UserExperience.create("user-1");
-      expect(ue.getNextRankExp()).toBe(50);
+      expect(ue.getNextRankExp()).toBe(10);
     });
 
     it("ランク20の場合はnullを返す", () => {
