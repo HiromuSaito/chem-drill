@@ -38,7 +38,7 @@ export function RankCard() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-lg font-bold">
-              Rank {rankInfo.currentRank} — {rankInfo.substance}
+              化学物質取扱者 Lv.{rankInfo.currentRank} — {rankInfo.substance}
             </p>
             <span
               className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${colorClass}`}
@@ -58,7 +58,7 @@ export function RankCard() {
         {remaining !== null && (
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>次のランクまで</span>
+              <span>次のレベルまで</span>
               <span>あと {remaining} EXP</span>
             </div>
             <Progress value={rankInfo.progress} className="h-2" />

@@ -72,13 +72,13 @@ export function RankUpModal({ rankUps, onClose }: Props) {
       >
         <DialogHeader>
           <DialogTitle className="rank-up-title text-2xl font-bold">
-            ランクアップ！
+            取扱許可レベルアップ！
           </DialogTitle>
         </DialogHeader>
 
         <div className="rank-up-substance space-y-4 py-4">
           <p className={`text-4xl font-bold ${style.text}`}>
-            Rank {currentRankUp.newRank}
+            Lv.{currentRankUp.newRank}
           </p>
           <p className="text-xl font-semibold">{rankDef?.substance}</p>
           <p className="text-primary">
