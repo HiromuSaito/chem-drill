@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -91,10 +92,20 @@ const imageSchema = z.object({
   categoryId: z.string().uuid("カテゴリを選択してください"),
 });
 
+const freeInputSchema = z.object({
+  sourceType: z.literal("freeInput"),
+  input: z
+    .string()
+    .min(1, "キーワードまたは説明文を入力してください")
+    .max(2000, "2000文字以内で入力してください"),
+  categoryId: z.string().uuid("カテゴリを選択してください"),
+});
+
 const generateSchema = z.discriminatedUnion("sourceType", [
   urlSchema,
   pdfSchema,
   imageSchema,
+  freeInputSchema,
 ]);
 
 type GenerateForm = z.infer<typeof generateSchema>;
@@ -149,13 +160,15 @@ export function ProposalGeneratePage() {
       } else if (data.sourceType === "pdf") {
         const base64 = await fileToBase64(data.file);
         json = { type: "pdf", data: base64 };
-      } else {
+      } else if (data.sourceType === "image") {
         const base64 = await fileToBase64(data.file);
         json = {
           type: "image",
           data: base64,
           mimeType: data.file.type as "image/jpeg" | "image/png",
         };
+      } else {
+        json = { type: "freeInput", input: data.input };
       }
 
       const res = await client.api["question-proposals"][
@@ -249,6 +262,7 @@ export function ProposalGeneratePage() {
                           field.onChange(value);
                           form.resetField("url" as never);
                           form.setValue("file" as never, undefined as never);
+                          form.setValue("input" as never, "" as never);
                         }}
                         className="flex gap-4"
                       >
@@ -257,6 +271,7 @@ export function ProposalGeneratePage() {
                             ["url", "URL"],
                             ["pdf", "PDF"],
                             ["image", "画像"],
+                            ["freeInput", "キーワード・説明文"],
                           ] as const
                         ).map(([value, label]) => (
                           <label
@@ -325,6 +340,26 @@ export function ProposalGeneratePage() {
                           type="file"
                           accept=".jpg,.jpeg,.png"
                           onChange={(e) => onChange(e.target.files?.[0])}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {sourceType === "freeInput" && (
+                <FormField
+                  control={form.control}
+                  name="input"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>キーワード・説明文</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="例: GHS、または説明文を入力"
+                          rows={4}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
