@@ -12,6 +12,7 @@ type Props = {
   results: AnswerResult[];
   onRetry?: () => void;
   children?: React.ReactNode;
+  showExp?: boolean;
   checkRankUp?: boolean;
 };
 
@@ -41,7 +42,8 @@ export function ResultScreen({
   results,
   onRetry,
   children,
-  checkRankUp = true,
+  showExp = false,
+  checkRankUp = false,
 }: Props) {
   const total = results.length;
   const correct = results.filter((r) => r.isCorrect).length;
@@ -72,7 +74,7 @@ export function ResultScreen({
             <Progress value={percentage} className="h-3" />
           </div>
 
-          {checkRankUp && (
+          {showExp && (
             <div className="flex items-center justify-center gap-1.5 rounded-lg bg-primary/5 py-2 text-sm font-medium text-primary">
               <Zap className="size-4" />
               <span>+{10 + correct * 2} EXP 獲得！</span>

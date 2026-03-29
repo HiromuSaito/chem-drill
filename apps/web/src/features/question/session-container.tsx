@@ -75,6 +75,7 @@ export function SessionContainer({
       <ResultScreen
         results={state.results}
         onRetry={showRetry ? reset : undefined}
+        showExp={saveResult}
         checkRankUp={saveResult && sessionSaved}
       >
         {resultActions}
