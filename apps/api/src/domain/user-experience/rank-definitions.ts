@@ -111,7 +111,7 @@ export function getRankForExp(totalExp: number): number {
 }
 
 export function getRankInfo(rank: number): RankDefinition {
-  const def = RANK_DEFINITIONS.find((d) => d.rank === rank);
+  const def = RANK_DEFINITIONS[rank];
   if (!def) {
     throw new Error(`Invalid rank: ${rank}`);
   }

@@ -18,38 +18,44 @@ export class AddExperience {
     private userExperienceRepository: UserExperienceRepository,
   ) {}
 
+  /** トランザクション外から呼ぶ場合 */
   async execute(input: AddExperienceInput): Promise<void> {
     await this.uow.run(async () => {
-      // 二重付与チェック（ログ挿入がfalseなら既に付与済み）
-      const logged = await this.userExperienceRepository.saveExperienceLog({
-        userId: input.userId,
-        action: input.action,
-        amount: input.amount,
-        referenceId: input.referenceId,
-      });
-      if (!logged) return;
-
-      // 現在の経験値を取得（なければ初期状態を作成）
-      const current =
-        (await this.userExperienceRepository.findByUserId(input.userId)) ??
-        UserExperience.create(input.userId);
-
-      // 経験値加算 & ランクアップ判定
-      const { userExperience: updated, rankUps } = current.addExp(input.amount);
-
-      // 保存
-      await this.userExperienceRepository.save(updated);
-
-      // ランクアップイベント保存
-      if (rankUps.length > 0) {
-        await this.userExperienceRepository.saveRankUpEvents(
-          rankUps.map((r) => ({
-            userId: input.userId,
-            previousRank: r.previousRank,
-            newRank: r.newRank,
-          })),
-        );
-      }
+      await this.run(input);
     });
+  }
+
+  /** 既存トランザクション内から呼ぶ場合 */
+  async run(input: AddExperienceInput): Promise<void> {
+    // 二重付与チェック（ログ挿入がfalseなら既に付与済み）
+    const logged = await this.userExperienceRepository.saveExperienceLog({
+      userId: input.userId,
+      action: input.action,
+      amount: input.amount,
+      referenceId: input.referenceId,
+    });
+    if (!logged) return;
+
+    // 現在の経験値を取得（なければ初期状態を作成）
+    const current =
+      (await this.userExperienceRepository.findByUserId(input.userId)) ??
+      UserExperience.create(input.userId);
+
+    // 経験値加算 & ランクアップ判定
+    const { userExperience: updated, rankUps } = current.addExp(input.amount);
+
+    // 保存
+    await this.userExperienceRepository.save(updated);
+
+    // ランクアップイベント保存
+    if (rankUps.length > 0) {
+      await this.userExperienceRepository.saveRankUpEvents(
+        rankUps.map((r) => ({
+          userId: input.userId,
+          previousRank: r.previousRank,
+          newRank: r.newRank,
+        })),
+      );
+    }
   }
 }

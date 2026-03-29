@@ -7,9 +7,12 @@ export class MarkRankUpDisplayed {
     private userExperienceQueryService: UserExperienceQueryService,
   ) {}
 
-  async execute(eventIds: string[]): Promise<void> {
+  async execute(eventIds: string[], userId: string): Promise<void> {
     return this.uow.run(async () => {
-      await this.userExperienceQueryService.markRankUpsDisplayed(eventIds);
+      await this.userExperienceQueryService.markRankUpsDisplayed(
+        eventIds,
+        userId,
+      );
     });
   }
 }

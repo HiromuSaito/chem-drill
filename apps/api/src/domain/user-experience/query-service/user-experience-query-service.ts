@@ -17,5 +17,5 @@ export type UserRankInfoDto = {
 
 export interface UserExperienceQueryService {
   getPendingRankUps(userId: string): Promise<RankUpEventDto[]>;
-  markRankUpsDisplayed(eventIds: string[]): Promise<void>;
+  markRankUpsDisplayed(eventIds: string[], userId: string): Promise<void>;
 }

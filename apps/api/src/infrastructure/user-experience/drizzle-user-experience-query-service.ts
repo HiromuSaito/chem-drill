@@ -25,12 +25,20 @@ export class DrizzleUserExperienceQueryService implements UserExperienceQuerySer
     }));
   }
 
-  async markRankUpsDisplayed(eventIds: string[]): Promise<void> {
+  async markRankUpsDisplayed(
+    eventIds: string[],
+    userId: string,
+  ): Promise<void> {
     if (eventIds.length === 0) return;
     const tx = getCurrentTransaction();
     await tx
       .update(rankUpEvents)
       .set({ displayedAt: new Date() })
-      .where(inArray(rankUpEvents.id, eventIds));
+      .where(
+        and(
+          inArray(rankUpEvents.id, eventIds),
+          eq(rankUpEvents.userId, userId),
+        ),
+      );
   }
 }

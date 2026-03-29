@@ -96,7 +96,8 @@ export const createRankRoute = (deps: Dependencies) =>
       return c.json(events);
     })
     .openapi(markDisplayedRoute, async (c) => {
+      const userId = c.get("user").id;
       const { rankUpEventIds } = c.req.valid("json");
-      await deps.markRankUpDisplayed.execute(rankUpEventIds);
+      await deps.markRankUpDisplayed.execute(rankUpEventIds, userId);
       return c.json({ ok: true });
     });

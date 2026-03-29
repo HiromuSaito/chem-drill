@@ -29,19 +29,19 @@ export class ApproveQuestionProposal {
 
       await this.questionProposalRepository.save(newProposal, event);
 
+      if (newProposal.userId) {
+        await this.addExperience.run({
+          userId: newProposal.userId,
+          action: "proposal_approved",
+          referenceId: input.questionProposalId,
+          amount: 50,
+        });
+      }
+
       return { newProposal, event };
     });
 
     await this.eventPublisher.publish(event);
-
-    if (newProposal.userId) {
-      await this.addExperience.execute({
-        userId: newProposal.userId,
-        action: "proposal_approved",
-        referenceId: input.questionProposalId,
-        amount: 50,
-      });
-    }
 
     return newProposal;
   }

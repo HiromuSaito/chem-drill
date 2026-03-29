@@ -15,7 +15,7 @@ export class SubmitQuestionProposalByUser {
     questionProposalId: string;
     callerId: string;
   }): Promise<QuestionProposal> {
-    const newProposal = await this.uow.run(async () => {
+    return this.uow.run(async () => {
       const proposal = await this.questionProposalRepository.findById(
         Id.of(input.questionProposalId),
       );
@@ -26,16 +26,14 @@ export class SubmitQuestionProposalByUser {
 
       await this.questionProposalRepository.save(newProposal, event);
 
+      await this.addExperience.run({
+        userId: input.callerId,
+        action: "proposal_submit",
+        referenceId: input.questionProposalId,
+        amount: 30,
+      });
+
       return newProposal;
     });
-
-    await this.addExperience.execute({
-      userId: input.callerId,
-      action: "proposal_submit",
-      referenceId: input.questionProposalId,
-      amount: 30,
-    });
-
-    return newProposal;
   }
 }
