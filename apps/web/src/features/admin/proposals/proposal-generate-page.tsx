@@ -137,7 +137,6 @@ export function ProposalGeneratePage() {
       sourceType: "url",
       url: "",
       categoryId: "",
-      input: "",
     } as GenerateForm,
   });
 
