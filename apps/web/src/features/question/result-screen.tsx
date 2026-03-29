@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { AnswerResult } from "@/types/question";
-import { Trophy } from "lucide-react";
+import { Trophy, Zap } from "lucide-react";
 import { client } from "@/client";
 import { RankUpModal } from "./rank-up-modal";
 
@@ -61,6 +61,13 @@ export function ResultScreen({
             </div>
             <Progress value={percentage} className="h-3" />
           </div>
+
+          {checkRankUp && (
+            <div className="flex items-center justify-center gap-1.5 rounded-lg bg-primary/5 py-2 text-sm font-medium text-primary">
+              <Zap className="size-4" />
+              <span>+{10 + correct * 2} EXP 獲得！</span>
+            </div>
+          )}
 
           {onRetry && (
             <Button onClick={onRetry} className="w-full">
