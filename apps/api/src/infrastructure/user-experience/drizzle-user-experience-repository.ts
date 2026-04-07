@@ -51,23 +51,22 @@ export class DrizzleUserExperienceRepository implements UserExperienceRepository
 
   async saveExperienceLog(entry: ExperienceLogEntry): Promise<boolean> {
     const tx = getCurrentTransaction();
-    try {
-      await tx.insert(experienceLogs).values({
+    const result = await tx
+      .insert(experienceLogs)
+      .values({
         userId: entry.userId,
         action: entry.action,
         amount: entry.amount,
         referenceId: entry.referenceId,
+      })
+      .onConflictDoNothing({
+        target: [
+          experienceLogs.userId,
+          experienceLogs.action,
+          experienceLogs.referenceId,
+        ],
       });
-      return true;
-    } catch (error: unknown) {
-      if (
-        error instanceof Error &&
-        error.message.includes("uq_experience_logs_user_action_ref")
-      ) {
-        return false;
-      }
-      throw error;
-    }
+    return (result as { rowCount?: number }).rowCount !== 0;
   }
 
   async saveRankUpEvents(events: RankUpEventEntry[]): Promise<void> {

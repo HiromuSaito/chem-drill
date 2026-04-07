@@ -51,7 +51,11 @@ app.onError((err, c) => {
   if (err instanceof ConflictError) {
     return c.json({ error: err.message }, 409);
   }
-  consoleLogger.error("Unexpected error", { error: err, path: c.req.path });
+  consoleLogger.error("Unexpected error", {
+    error: err.message,
+    stack: err.stack,
+    path: c.req.path,
+  });
   return c.json({ error: "Internal Server Error" }, 500);
 });
 

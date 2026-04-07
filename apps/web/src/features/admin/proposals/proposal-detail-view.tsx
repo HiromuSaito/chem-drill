@@ -80,7 +80,8 @@ export function ProposalDetailView({
               編集
             </Button>
           )}
-          {proposal.status === "pending" && (
+          {(proposal.status === "pending" ||
+            proposal.status === "rejected") && (
             <Button onClick={onSubmit} disabled={submitPending}>
               <Send className="size-4" />
               {submitPending ? "申請中..." : "申請する"}
