@@ -54,6 +54,8 @@ const proposalIdParam = z.object({
   id: z.string().uuid(),
 });
 
+const USER_MAX_CANDIDATES = 5;
+
 const userGenerateCandidatesSchema = z
   .discriminatedUnion("type", [
     z.object({
@@ -80,7 +82,7 @@ const generatedQuestionSchema = z
 const userBulkCreateSchema = z
   .object({
     categoryId: z.string().uuid(),
-    questions: z.array(generatedQuestionSchema).min(1).max(5),
+    questions: z.array(generatedQuestionSchema).min(1).max(USER_MAX_CANDIDATES),
   })
   .openapi("UserBulkCreateRequest");
 
@@ -283,9 +285,10 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
       return c.json(toQuestionProposalResponse(proposal));
     })
     .openapi(generateCandidatesRoute, async (c) => {
+      c.get("user"); // 認証確認（将来のレート制限・ログ用）
       const source = c.req.valid("json");
       const candidates = await deps.generateCandidates.execute(source);
-      return c.json({ candidates: candidates.slice(0, 5) });
+      return c.json({ candidates: candidates.slice(0, USER_MAX_CANDIDATES) });
     })
     .openapi(bulkCreateRoute, async (c) => {
       const user = c.get("user");
