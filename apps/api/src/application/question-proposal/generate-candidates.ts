@@ -5,7 +5,7 @@ import type {
 } from "./question-generation-service.ts";
 
 const DEFAULT_QUESTION_COUNT = 10;
-const FREE_INPUT_QUESTION_COUNT = 3;
+const FREE_INPUT_QUESTION_COUNT = 5;
 
 export class GenerateCandidates {
   constructor(private questionGenerationService: QuestionGenerationService) {}

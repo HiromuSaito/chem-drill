@@ -18,6 +18,7 @@ export class BulkCreateQuestionProposals {
   async execute(input: {
     categoryId: string;
     questions: GeneratedQuestion[];
+    userId?: string;
   }): Promise<QuestionProposal[]> {
     const categoryId = Id.of<Category>(input.categoryId);
 
@@ -32,6 +33,7 @@ export class BulkCreateQuestionProposals {
           correctIndexes: CorrectIndexes.create(q.correctIndexes),
           explanation: Explanation.create(q.explanation),
           categoryId,
+          userId: input.userId,
         });
 
         await this.questionProposalRepository.save(proposal, event);

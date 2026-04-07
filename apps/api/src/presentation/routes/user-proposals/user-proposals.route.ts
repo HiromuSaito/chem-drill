@@ -54,6 +54,36 @@ const proposalIdParam = z.object({
   id: z.string().uuid(),
 });
 
+const userGenerateCandidatesSchema = z
+  .discriminatedUnion("type", [
+    z.object({
+      type: z.literal("url"),
+      url: z.string().url(),
+    }),
+    z.object({
+      type: z.literal("freeInput"),
+      input: z.string().min(1).max(2000),
+    }),
+  ])
+  .openapi("UserGenerateCandidatesRequest");
+
+const generatedQuestionSchema = z
+  .object({
+    questionText: z.string(),
+    difficulty: z.enum(["easy", "medium", "hard"]),
+    choices: z.array(z.string()).min(2).max(10),
+    correctIndexes: z.array(z.number().int().min(0)).min(1).max(10),
+    explanation: z.string(),
+  })
+  .openapi("UserGeneratedQuestion");
+
+const userBulkCreateSchema = z
+  .object({
+    categoryId: z.string().uuid(),
+    questions: z.array(generatedQuestionSchema).min(1).max(5),
+  })
+  .openapi("UserBulkCreateRequest");
+
 const proposalResponse = {
   200: {
     description: "出題案",
@@ -150,6 +180,54 @@ const submitRoute = createRoute({
   responses: proposalResponse,
 });
 
+const generateCandidatesRoute = createRoute({
+  method: "post",
+  path: "/generate-candidates",
+  tags: ["UserProposal"],
+  summary: "URL・キーワードからAI出題候補を生成（DB保存なし）",
+  request: {
+    body: {
+      content: {
+        "application/json": { schema: userGenerateCandidatesSchema },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "生成された候補一覧",
+      content: {
+        "application/json": {
+          schema: z.object({
+            candidates: z.array(generatedQuestionSchema),
+          }),
+        },
+      },
+    },
+  },
+});
+
+const bulkCreateRoute = createRoute({
+  method: "post",
+  path: "/bulk-create",
+  tags: ["UserProposal"],
+  summary: "選択した出題候補を一括登録",
+  request: {
+    body: {
+      content: { "application/json": { schema: userBulkCreateSchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "作成された出題案一覧",
+      content: {
+        "application/json": {
+          schema: z.array(questionProposalSchema),
+        },
+      },
+    },
+  },
+});
+
 export const createUserProposalsRoute = (deps: Dependencies) =>
   new OpenAPIHono<AuthEnv>()
     .openapi(listRoute, async (c) => {
@@ -203,4 +281,18 @@ export const createUserProposalsRoute = (deps: Dependencies) =>
         callerId: user.id,
       });
       return c.json(toQuestionProposalResponse(proposal));
+    })
+    .openapi(generateCandidatesRoute, async (c) => {
+      const source = c.req.valid("json");
+      const candidates = await deps.generateCandidates.execute(source);
+      return c.json({ candidates: candidates.slice(0, 5) });
+    })
+    .openapi(bulkCreateRoute, async (c) => {
+      const user = c.get("user");
+      const input = c.req.valid("json");
+      const proposals = await deps.bulkCreateQuestionProposals.execute({
+        ...input,
+        userId: user.id,
+      });
+      return c.json(proposals.map(toQuestionProposalResponse));
     });
