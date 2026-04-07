@@ -26,6 +26,7 @@ import { AccountPage } from "./features/account/account-page";
 import { UserProposalListPage } from "./features/proposals/proposal-list-page";
 import { UserProposalNewPage } from "./features/proposals/proposal-new-page";
 import { UserProposalDetailPage } from "./features/proposals/proposal-detail-page";
+import { UserProposalGeneratePage } from "./features/proposals/proposal-generate-page";
 import { PrivacyPage } from "./features/legal/privacy-page";
 import { TermsPage } from "./features/legal/terms-page";
 import "./index.css";
@@ -49,6 +50,10 @@ function Root() {
               <Route path="/drill" element={<DrillPage />} />
               <Route path="/proposals" element={<UserProposalListPage />} />
               <Route path="/proposals/new" element={<UserProposalNewPage />} />
+              <Route
+                path="/proposals/generate"
+                element={<UserProposalGeneratePage />}
+              />
               <Route
                 path="/proposals/:id"
                 element={<UserProposalDetailPage />}
