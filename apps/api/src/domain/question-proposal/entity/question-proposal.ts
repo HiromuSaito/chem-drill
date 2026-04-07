@@ -47,7 +47,10 @@ export class QuestionProposal {
     );
   }
   canSubmit(): boolean {
-    return this.status.equals(QuestionProposalStatus.create("pending"));
+    return (
+      this.status.equals(QuestionProposalStatus.create("pending")) ||
+      this.status.equals(QuestionProposalStatus.create("rejected"))
+    );
   }
   canApprove(): boolean {
     return this.status.equals(QuestionProposalStatus.create("reviewed"));
