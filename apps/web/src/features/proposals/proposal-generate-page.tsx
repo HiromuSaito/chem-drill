@@ -4,15 +4,9 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Sparkles,
-  CheckSquare,
-  Square,
-  Eye,
-} from "lucide-react";
+import { ArrowLeft, Sparkles, CheckSquare, Square, Eye } from "lucide-react";
 import { ProposalContentCards } from "../admin/proposals/proposal-content-cards";
+import { ProposalCautionBanner } from "./proposal-caution-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -194,18 +188,7 @@ export function UserProposalGeneratePage() {
 
       <h2 className="text-2xl font-bold tracking-tight">AI で問題を生成</h2>
 
-      <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 px-5 py-4">
-        <AlertTriangle
-          className="size-7 shrink-0 text-amber-600"
-          strokeWidth={1.5}
-        />
-        <div>
-          <p className="text-sm font-semibold text-amber-800">ご注意ください</p>
-          <p className="mt-0.5 text-xs text-slate-600">
-            個人情報や特定の法人に関わる出題案は作成しないでください。万が一作成・申請された場合でも、問題として公開されることはありません。
-          </p>
-        </div>
-      </div>
+      <ProposalCautionBanner />
 
       <Card>
         <CardHeader>

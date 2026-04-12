@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-import { AlertTriangle } from "lucide-react";
 import {
   ProposalEditForm,
   type EditFormData,
 } from "../admin/proposals/proposal-edit-form";
+import { ProposalCautionBanner } from "./proposal-caution-banner";
 import { client } from "@/client";
 
 export function UserProposalNewPage() {
@@ -32,18 +32,7 @@ export function UserProposalNewPage() {
 
   return (
     <div className="space-y-6">
-      <div className="mx-2 flex items-center gap-3 rounded-lg border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 px-5 py-4">
-        <AlertTriangle
-          className="size-7 shrink-0 text-amber-600"
-          strokeWidth={1.5}
-        />
-        <div>
-          <p className="text-sm font-semibold text-amber-800">ご注意ください</p>
-          <p className="mt-0.5 text-xs text-slate-600">
-            個人情報や特定の法人に関わる出題案は作成しないでください。万が一作成・申請された場合でも、問題として公開されることはありません。
-          </p>
-        </div>
-      </div>
+      <ProposalCautionBanner className="mx-2" />
       <ProposalEditForm
         defaultValues={{
           questionText: "",
