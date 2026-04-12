@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, Sparkles, CheckSquare, Square, Eye } from "lucide-react";
 import { ProposalContentCards } from "../admin/proposals/proposal-content-cards";
+import { ProposalCautionBanner } from "./proposal-caution-banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -186,6 +187,8 @@ export function UserProposalGeneratePage() {
       </div>
 
       <h2 className="text-2xl font-bold tracking-tight">AI で問題を生成</h2>
+
+      <ProposalCautionBanner />
 
       <Card>
         <CardHeader>
