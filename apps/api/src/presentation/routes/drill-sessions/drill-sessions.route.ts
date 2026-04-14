@@ -9,6 +9,16 @@ const answerSchema = z.object({
   isCorrect: z.boolean(),
 });
 
+const rankUpEventSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string(),
+  previousRank: z.number().int(),
+  newRank: z.number().int(),
+  substance: z.string(),
+  category: z.string(),
+  createdAt: z.string().datetime(),
+});
+
 const saveDrillSessionRoute = createRoute({
   method: "post",
   path: "/",
@@ -38,6 +48,7 @@ const saveDrillSessionRoute = createRoute({
             .object({
               sessionId: z.string().uuid(),
               earnedExp: z.number().int(),
+              rankUps: z.array(rankUpEventSchema),
             })
             .openapi("SaveDrillSessionResponse"),
         },

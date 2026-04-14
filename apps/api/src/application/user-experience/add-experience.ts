@@ -4,12 +4,23 @@ import type {
   UserExperienceRepository,
   ExperienceAction,
 } from "../../domain/user-experience/repository/user-experience-repository.ts";
+import { getRankInfo } from "../../domain/user-experience/rank-definitions.ts";
 
 export type AddExperienceInput = {
   userId: string;
   action: ExperienceAction;
   referenceId: string;
   amount: number;
+};
+
+export type RankUpEventDto = {
+  id: string;
+  userId: string;
+  previousRank: number;
+  newRank: number;
+  substance: string;
+  category: string;
+  createdAt: string;
 };
 
 export class AddExperience {
@@ -19,14 +30,14 @@ export class AddExperience {
   ) {}
 
   /** トランザクション外から呼ぶ場合 */
-  async execute(input: AddExperienceInput): Promise<void> {
-    await this.uow.run(async () => {
-      await this.run(input);
+  async execute(input: AddExperienceInput): Promise<RankUpEventDto[]> {
+    return this.uow.run(async () => {
+      return this.run(input);
     });
   }
 
   /** 既存トランザクション内から呼ぶ場合 */
-  async run(input: AddExperienceInput): Promise<void> {
+  async run(input: AddExperienceInput): Promise<RankUpEventDto[]> {
     // 二重付与チェック（ログ挿入がfalseなら既に付与済み）
     const logged = await this.userExperienceRepository.saveExperienceLog({
       userId: input.userId,
@@ -34,7 +45,7 @@ export class AddExperience {
       amount: input.amount,
       referenceId: input.referenceId,
     });
-    if (!logged) return;
+    if (!logged) return [];
 
     // 現在の経験値を取得（なければ初期状態を作成）
     const current =
@@ -49,13 +60,27 @@ export class AddExperience {
 
     // ランクアップイベント保存
     if (rankUps.length > 0) {
-      await this.userExperienceRepository.saveRankUpEvents(
+      const saved = await this.userExperienceRepository.saveRankUpEvents(
         rankUps.map((r) => ({
           userId: input.userId,
           previousRank: r.previousRank,
           newRank: r.newRank,
         })),
       );
+      return saved.map((e) => {
+        const def = getRankInfo(e.newRank);
+        return {
+          id: e.id,
+          userId: e.userId,
+          previousRank: e.previousRank,
+          newRank: e.newRank,
+          substance: def.substance,
+          category: def.category,
+          createdAt: e.createdAt.toISOString(),
+        };
+      });
     }
+
+    return [];
   }
 }
