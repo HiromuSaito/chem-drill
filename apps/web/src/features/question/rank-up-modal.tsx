@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { BookOpen, ArrowLeft } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { client } from "@/client";
+import { getColumnByRank } from "@/features/stats/rank-column-data";
 import "./rank-up-modal.css";
 
 const CATEGORY_STYLES: Record<string, { text: string; glow: string }> = {
@@ -38,6 +40,7 @@ type Props = {
 
 export function RankUpModal({ rankUps, onClose }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showColumn, setShowColumn] = useState(false);
 
   const markMutation = useMutation({
     mutationFn: async (ids: string[]) => {
@@ -54,6 +57,7 @@ export function RankUpModal({ rankUps, onClose }: Props) {
   const style =
     CATEGORY_STYLES[currentRankUp.category] ?? CATEGORY_STYLES["日常物質"];
   const isLast = currentIndex === rankUps.length - 1;
+  const column = getColumnByRank(currentRankUp.newRank);
 
   const handleClose = () => {
     markMutation.mutate(
@@ -66,9 +70,42 @@ export function RankUpModal({ rankUps, onClose }: Props) {
     if (isLast) {
       handleClose();
     } else {
+      setShowColumn(false);
       setCurrentIndex((i) => i + 1);
     }
   };
+
+  if (showColumn && column) {
+    const paragraphs = column.body.split("\n\n");
+    return (
+      <Dialog open onOpenChange={handleClose}>
+        <DialogContent
+          className="max-h-[80vh] overflow-y-auto sm:max-w-md"
+          style={{ "--glow-color": style.glow } as React.CSSProperties}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-base leading-relaxed">
+              {column.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="from-primary h-0.5 w-full bg-gradient-to-r to-transparent" />
+          <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+            {paragraphs.map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowColumn(false)}
+            className="w-full"
+          >
+            <ArrowLeft className="mr-2 size-4" />
+            戻る
+          </Button>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open onOpenChange={handleClose}>
@@ -90,6 +127,17 @@ export function RankUpModal({ rankUps, onClose }: Props) {
           <p className="text-primary">
             あなたは{currentRankUp.substance}を扱えるようになりました！！
           </p>
+          {column && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowColumn(true)}
+              className="text-muted-foreground hover:text-primary"
+            >
+              <BookOpen className="mr-1.5 size-4" />
+              この物質について読む
+            </Button>
+          )}
         </div>
 
         <p className="text-xs text-muted-foreground">
