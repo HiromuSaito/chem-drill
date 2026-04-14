@@ -1,50 +1,37 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { AnswerResult } from "@/types/question";
 import { Trophy, Zap } from "lucide-react";
-import { client } from "@/client";
 import { RankUpModal } from "./rank-up-modal";
+
+type RankUpEvent = {
+  id: string;
+  userId: string;
+  previousRank: number;
+  newRank: number;
+  substance: string;
+  category: string;
+  createdAt: string;
+};
 
 type Props = {
   results: AnswerResult[];
   onRetry?: () => void;
   children?: React.ReactNode;
   earnedExp?: number | null;
-  checkRankUp?: boolean;
+  rankUps?: RankUpEvent[];
 };
-
-/** セッション保存完了後にランクアップをチェックし、モーダルを表示する */
-function RankUpChecker() {
-  const [showModal, setShowModal] = useState(true);
-
-  const { data: pendingRankUps } = useQuery({
-    queryKey: ["rank", "pending-rank-ups"],
-    queryFn: async () => {
-      const res = await client.api.rank["pending-rank-ups"].$get();
-      if (!res.ok) throw new Error("Failed to fetch pending rank ups");
-      return res.json();
-    },
-  });
-
-  if (!showModal || !pendingRankUps || pendingRankUps.length === 0) {
-    return null;
-  }
-
-  return (
-    <RankUpModal rankUps={pendingRankUps} onClose={() => setShowModal(false)} />
-  );
-}
 
 export function ResultScreen({
   results,
   onRetry,
   children,
   earnedExp,
-  checkRankUp = false,
+  rankUps = [],
 }: Props) {
+  const [showRankUpModal, setShowRankUpModal] = useState(true);
   const total = results.length;
   const correct = results.filter((r) => r.isCorrect).length;
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
@@ -90,7 +77,12 @@ export function ResultScreen({
         </CardContent>
       </Card>
 
-      {checkRankUp && <RankUpChecker />}
+      {showRankUpModal && rankUps.length > 0 && (
+        <RankUpModal
+          rankUps={rankUps}
+          onClose={() => setShowRankUpModal(false)}
+        />
+      )}
     </>
   );
 }

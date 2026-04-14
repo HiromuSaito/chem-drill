@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { CircleStop } from "lucide-react";
 import type { QuestionDto } from "@/types/question";
@@ -18,6 +18,16 @@ import { useSessionReducer } from "./use-session-reducer";
 import { QuestionCard } from "./question-card";
 import { SessionProgress } from "./session-progress";
 import { ResultScreen } from "./result-screen";
+
+type RankUpEvent = {
+  id: string;
+  userId: string;
+  previousRank: number;
+  newRank: number;
+  substance: string;
+  category: string;
+  createdAt: string;
+};
 
 type Props = {
   questions: QuestionDto[];
@@ -42,8 +52,7 @@ export function SessionContainer({
   const startedAtRef = useRef(new Date().toISOString());
   const hasSavedRef = useRef(false);
 
-  const [sessionSaved, setSessionSaved] = useState(false);
-  const [earnedExp, setEarnedExp] = useState<number | null>(null);
+  const [rankUps, setRankUps] = useState<RankUpEvent[]>([]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -62,8 +71,9 @@ export function SessionContainer({
       return res.json();
     },
     onSuccess: (data) => {
-      setSessionSaved(true);
-      setEarnedExp(data.earnedExp);
+      if (data.rankUps.length > 0) {
+        setRankUps(data.rankUps);
+      }
     },
   });
 
@@ -74,13 +84,19 @@ export function SessionContainer({
     }
   }, [state.phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const earnedExp = useMemo(() => {
+    if (state.phase !== "completed" || !saveResult) return null;
+    const correctCount = state.results.filter((r) => r.isCorrect).length;
+    return 10 + correctCount * 2;
+  }, [state.phase, state.results, saveResult]);
+
   if (state.phase === "completed") {
     return (
       <ResultScreen
         results={state.results}
         onRetry={showRetry ? reset : undefined}
         earnedExp={earnedExp}
-        checkRankUp={saveResult && sessionSaved}
+        rankUps={rankUps}
       >
         {resultActions}
       </ResultScreen>
