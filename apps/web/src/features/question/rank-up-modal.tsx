@@ -76,8 +76,8 @@ export function RankUpModal({ rankUps, onClose }: Props) {
         className="rank-up-glow text-center sm:max-w-md"
         style={{ "--glow-color": style.glow } as React.CSSProperties}
       >
-        <DialogHeader>
-          <DialogTitle className="rank-up-title text-2xl font-bold">
+        <DialogHeader className="text-center">
+          <DialogTitle className="rank-up-title text-center text-2xl font-bold">
             取扱許可レベルアップ！
           </DialogTitle>
         </DialogHeader>
