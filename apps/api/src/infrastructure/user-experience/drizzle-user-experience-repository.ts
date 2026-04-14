@@ -10,6 +10,7 @@ import type {
   UserExperienceRepository,
   ExperienceLogEntry,
   RankUpEventEntry,
+  SavedRankUpEvent,
 } from "../../domain/user-experience/repository/user-experience-repository.ts";
 
 export class DrizzleUserExperienceRepository implements UserExperienceRepository {
@@ -69,15 +70,27 @@ export class DrizzleUserExperienceRepository implements UserExperienceRepository
     return (result as { rowCount?: number }).rowCount !== 0;
   }
 
-  async saveRankUpEvents(events: RankUpEventEntry[]): Promise<void> {
-    if (events.length === 0) return;
+  async saveRankUpEvents(
+    events: RankUpEventEntry[],
+  ): Promise<SavedRankUpEvent[]> {
+    if (events.length === 0) return [];
     const tx = getCurrentTransaction();
-    await tx.insert(rankUpEvents).values(
-      events.map((e) => ({
-        userId: e.userId,
-        previousRank: e.previousRank,
-        newRank: e.newRank,
-      })),
-    );
+    const rows = await tx
+      .insert(rankUpEvents)
+      .values(
+        events.map((e) => ({
+          userId: e.userId,
+          previousRank: e.previousRank,
+          newRank: e.newRank,
+        })),
+      )
+      .returning({
+        id: rankUpEvents.id,
+        userId: rankUpEvents.userId,
+        previousRank: rankUpEvents.previousRank,
+        newRank: rankUpEvents.newRank,
+        createdAt: rankUpEvents.createdAt,
+      });
+    return rows;
   }
 }
