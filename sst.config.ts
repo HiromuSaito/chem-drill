@@ -72,6 +72,21 @@ export default $config({
         basicAuthUser.value,
         basicAuthPassword.value,
       ),
+      // Geo 制限: 日本からのアクセスのみ許可（DDoS コスト対策）
+      transform: {
+        cdn: {
+          transform: {
+            distribution: {
+              restrictions: {
+                geoRestriction: {
+                  restrictionType: "whitelist",
+                  locations: ["JP"],
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     // キャッチオールルート: 全リクエストを Hono に委譲
@@ -79,6 +94,10 @@ export default $config({
       handler: "apps/api/src/lambda.handler",
       memory: "512 MB",
       timeout: "30 seconds",
+      // Lambda 同時実行数の上限（DDoS コスト対策）
+      concurrency: {
+        reserved: 10,
+      },
       environment: {
         DATABASE_URL: databaseUrl.value,
         GEMINI_API_KEY: geminiApiKey.value,
