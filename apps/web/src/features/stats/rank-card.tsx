@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { client } from "@/client";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { getColumnByRank } from "./rank-column-data";
+import { RankColumnModal } from "./rank-column-modal";
 
 const CATEGORY_COLORS: Record<string, string> = {
   日常物質: "text-green-600 bg-green-100",
@@ -31,6 +33,7 @@ export function RankCard() {
   const remaining = rankInfo.nextRankExp
     ? rankInfo.nextRankExp - rankInfo.totalExp
     : null;
+  const column = getColumnByRank(rankInfo.currentRank);
 
   return (
     <Card>
@@ -55,6 +58,11 @@ export function RankCard() {
           {rankInfo.currentRank === 0
             ? "化学物質取扱者見習いです"
             : `あなたは${rankInfo.substance}を扱えます！！`}
+          {column && (
+            <span className="ml-1.5 inline-block align-middle">
+              <RankColumnModal column={column} />
+            </span>
+          )}
         </p>
 
         {remaining !== null && (
