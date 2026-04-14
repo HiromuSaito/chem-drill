@@ -6,7 +6,10 @@ import {
 } from "../../domain/drill-session/entity/drill-session.ts";
 import type { DrillSessionRepository } from "../../domain/drill-session/repository/drill-session-repository.ts";
 import type { UnitOfWork } from "../unit-of-work.ts";
-import type { AddExperience } from "../user-experience/add-experience.ts";
+import type {
+  AddExperience,
+  RankUpEventDto,
+} from "../user-experience/add-experience.ts";
 
 export class SaveDrillSession {
   constructor(
@@ -20,7 +23,11 @@ export class SaveDrillSession {
     categoryId: string | null;
     answers: DrillAnswer[];
     startedAt: string;
-  }): Promise<{ sessionId: string; earnedExp: number }> {
+  }): Promise<{
+    sessionId: string;
+    earnedExp: number;
+    rankUps: RankUpEventDto[];
+  }> {
     return this.uow.run(async () => {
       const sessionId = Id.random<DrillSession>() as DrillSessionId;
       const session = DrillSession.create({
@@ -34,14 +41,14 @@ export class SaveDrillSession {
       await this.drillSessionRepository.save(session);
 
       const expAmount = 10 + session.correctCount * 2;
-      await this.addExperience.run({
+      const rankUps = await this.addExperience.run({
         userId: params.userId,
         action: "drill_complete",
         referenceId: session.id,
         amount: expAmount,
       });
 
-      return { sessionId: session.id, earnedExp: expAmount };
+      return { sessionId: session.id, earnedExp: expAmount, rankUps };
     });
   }
 }
