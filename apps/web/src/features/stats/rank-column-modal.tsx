@@ -1,3 +1,4 @@
+import { BookOpen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,10 +20,10 @@ export function RankColumnModal({ column }: RankColumnModalProps) {
       <DialogTrigger asChild>
         <button
           type="button"
-          className="inline-flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow-[0_0_8px_rgba(var(--primary),0.5)] transition-all hover:scale-110 hover:shadow-[0_0_14px_rgba(var(--primary),0.8)]"
+          className="inline-flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_0_8px_rgba(var(--primary),0.5)] transition-all hover:scale-110 hover:shadow-[0_0_14px_rgba(var(--primary),0.8)]"
           aria-label="この物質のコラムを読む"
         >
-          !
+          <BookOpen className="size-3.5" />
         </button>
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] overflow-y-auto">
