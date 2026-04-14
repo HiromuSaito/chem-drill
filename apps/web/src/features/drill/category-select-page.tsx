@@ -76,7 +76,7 @@ export function CategorySelectPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-2xl space-y-4 px-4 py-8">
       <div className="space-y-1">
         <h2 className="text-lg font-semibold">カテゴリを選択</h2>
         <p className="text-sm text-muted-foreground">
@@ -84,24 +84,24 @@ export function CategorySelectPage() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-1.5 sm:grid-cols-2 md:grid-cols-3">
         <Card
-          className={`cursor-pointer transition-colors ${
+          className={`cursor-pointer py-2 gap-1 transition-colors ${
             selectedCategoryId === null
               ? "border-primary ring-1 ring-primary"
               : "hover:border-primary/50"
           }`}
           onClick={() => setSelectedCategoryId(null)}
         >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">すべて</CardTitle>
+          <CardHeader className="p-3 pb-1">
+            <CardTitle className="text-sm">すべて</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
+          <CardContent className="p-3 pt-0">
+            <p className="text-xs text-muted-foreground">
               {totalQuestionCount} 問
             </p>
             {overallCorrectRate !== null ? (
-              <div className="mt-2 flex gap-2">
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
                 <Badge variant="outline" className="text-xs">
                   正答率 {Math.round(overallCorrectRate * 100)}%
                 </Badge>
@@ -110,7 +110,7 @@ export function CategorySelectPage() {
                 </Badge>
               </div>
             ) : (
-              <Badge variant="secondary" className="mt-2 text-xs">
+              <Badge variant="secondary" className="mt-1.5 text-xs">
                 未挑戦
               </Badge>
             )}
@@ -122,22 +122,22 @@ export function CategorySelectPage() {
           return (
             <Card
               key={category.id}
-              className={`cursor-pointer transition-colors ${
+              className={`cursor-pointer py-2 gap-1 transition-colors ${
                 selectedCategoryId === category.id
                   ? "border-primary ring-1 ring-primary"
                   : "hover:border-primary/50"
               }`}
               onClick={() => setSelectedCategoryId(category.id)}
             >
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">{category.name}</CardTitle>
+              <CardHeader className="p-3 pb-1">
+                <CardTitle className="text-sm">{category.name}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
+              <CardContent className="p-3 pt-0">
+                <p className="text-xs text-muted-foreground">
                   {category.questionCount} 問
                 </p>
                 {score ? (
-                  <div className="mt-2 flex gap-2">
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
                     <Badge variant="outline" className="text-xs">
                       正答率 {Math.round(score.correctRate * 100)}%
                     </Badge>
@@ -146,7 +146,7 @@ export function CategorySelectPage() {
                     </Badge>
                   </div>
                 ) : (
-                  <Badge variant="secondary" className="mt-2 text-xs">
+                  <Badge variant="secondary" className="mt-1.5 text-xs">
                     未挑戦
                   </Badge>
                 )}
